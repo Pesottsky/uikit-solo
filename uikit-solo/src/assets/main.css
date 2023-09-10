@@ -1,9 +1,26 @@
 :root {
-  --white: #fff;
-  --black: #000;
+  /* основные цвета */
+  --white: #ffffff;
+  --black: #000000;
   --biege-light: #FCFBFA;
-  --gray-ultra-light: #EFEFEE;
-  --gray-hover: #333333;
+
+  --black-opacity-50: #0000007e;
+  --black-opacity-30: #00000038;
+  --black-opacity-10: #00000029;
+  --gray-light: #00000019;
+  --gray-light-hover: #00000010;
+
+  /* цвета для кнопок */
+  --primary-hover: #333333;
+  --primary-active: #333333;
+  --primary-color-active: #ffffffa4;
+  --secondary-hover: #00000013;
+  --secondary-color-active: #000000a4;
+  --tetrary-hover: #00000013;
+  --tetrary-color-active: #000000a4;
+  --focus: #00000011;
+
+  /* остальные  */
 
 }
 
@@ -16,12 +33,85 @@
 }
 
 body {
-  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
-    Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  font-size: 15px;
+  font-family: 'Golos Text', Inter, -apple-system, 'Segoe UI', Roboto, Ubuntu,'Helvetica Neue', sans-serif;
+  font-size: 14px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   margin: 40px ;
-  background: #434343;
+  background: #FCFBFA;
+}
+
+/* Fonts styles */
+@font-face {
+  font-family: "Golos Text";
+  src: url('https://fonts.googleapis.com/css2?family=Golos+Text&display=swap');
+} 
+@font-face {
+  font-family: "Antonym";
+  src: url(../fonts/Antonym-Medium.woff2);
+}
+
+h1 {
+  color: var(--Black);
+  font-family: Antonym;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 100%; /* 32px */
+}
+
+h2 {
+  color: var(--Black);
+  font-family: Antonym;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 100%; /* 24px */
+}
+
+h3 {
+  color: var(--Black);
+  font-family: Golos Text;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%; /* 25.2px */
+}
+
+p {
+  color: var(--Black);
+  font-family: Golos Text;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%; /* 19.6px */
+}
+
+.font-body {
+  /* тот же стиль что и у <p> */
+  color: var(--Black);
+  font-family: Golos Text;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%; /* 19.6px */
+}
+
+.font-caption{
+  color: var(--Black);
+  font-family: Golos Text;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%; /* 16.8px */
+}
+
+.font-caption-small{
+  color: var(--Black);
+  font-family: Roboto;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%; /* 14px */
 }
