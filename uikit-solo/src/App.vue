@@ -6,6 +6,10 @@ import TabItem from './components/tabsitem.vue'
 import ButtonTinyUI from './components/ButtonTinyUI.vue'
 import RadioBox from './components/RadioBox.vue'
 import InputText from './components/InputText.vue'
+import HeaderCompanyUI from './components/HeaderCompanyUI.vue'
+import HeaderFreelancerUI from './components/HeaderFreelancerUI.vue'
+import HeaderPublicUI from './components/HeaderPublicUI.vue'
+import ChipsUI from './components/ChipsUI.vue'
 
 </script>
 
@@ -41,20 +45,7 @@ import InputText from './components/InputText.vue'
   <div class="line"> 
     <ButtonTinyUI icon="url(../src/assets/icons/plus-black.svg) no-repeat"/>
     <ButtonTinyUI icon="url(../src/assets/icons/three-dots-black.svg) no-repeat"/>
-    
   </div>
-
-<!-- <div>
-<input type="radio" name="rb" id="rb1" checked> <label for="rb1">Переключатель 1</label>
-</div>
-
-<div>
-<input type="radio" name="rb" id="rb2"> <label for="rb2">Переключатель 2</label>
-</div>
-
-<div>
-<input type="radio" name="rb" id="rb3"> <label for="rb3">Переключатель 3</label>
-</div> -->
 
 <div class="line"> 
     <RadioBox name="radio one"/>
@@ -66,6 +57,20 @@ import InputText from './components/InputText.vue'
   <InputText v-model="email" hint="Email address"  placeholder="your email" />
 </div>
 
+<a href="*">Пример ссылки на что-то</a>
+
+<div class="line"> 
+<HeaderCompanyUI></HeaderCompanyUI>
+<HeaderFreelancerUI></HeaderFreelancerUI> 
+<HeaderPublicUI></HeaderPublicUI>
+</div>
+
+<div class="line"> 
+<ChipsUI label="Свободен" color="free"/>
+<ChipsUI label="Есть время" color="available"/>
+<ChipsUI label="Занят" color="busy"/>
+<ChipsUI label="Не известно" color="disabled"/>
+</div>
 
 </template>
 
