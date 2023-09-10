@@ -5,6 +5,7 @@ import TabsWrapper from './components/TabsWrapper.vue'
 import TabItem from './components/tabsitem.vue'
 import ButtonTinyUI from './components/ButtonTinyUI.vue'
 import RadioBox from './components/RadioBox.vue'
+import InputText from './components/InputText.vue'
 
 </script>
 
@@ -40,6 +41,7 @@ import RadioBox from './components/RadioBox.vue'
   <div class="line"> 
     <ButtonTinyUI icon="url(../src/assets/icons/plus-black.svg) no-repeat"/>
     <ButtonTinyUI icon="url(../src/assets/icons/three-dots-black.svg) no-repeat"/>
+    
   </div>
 
 <!-- <div>
@@ -54,19 +56,25 @@ import RadioBox from './components/RadioBox.vue'
 <input type="radio" name="rb" id="rb3"> <label for="rb3">Переключатель 3</label>
 </div> -->
 
-<div class="line" style> 
+<div class="line"> 
     <RadioBox name="radio one"/>
     <RadioBox name="radio two"/>
-  </div>
+</div>
+
+<div class="line" style="gap:0px"> 
+  <InputText v-model="firstname" placeholder="your first name"/>
+  <InputText v-model="email" hint="Email address"  placeholder="your email" />
+</div>
 
 
 </template>
+
 
 <style scoped>
 .line{
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   margin: 20px 0px;
 }
 
