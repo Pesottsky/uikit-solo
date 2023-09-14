@@ -40,6 +40,7 @@ provide('selectedTitle', selectedTitle)
     margin: 0 0 16px 0;
     display: flex;
     gap: 8px;
+    justify-content: center;
 }
 
 .tabs__item {
@@ -60,9 +61,10 @@ provide('selectedTitle', selectedTitle)
 }
 
 .tabs__content {
-    background-color: var(--gray-light-hover);
+    background-color: var(--white);
     min-height: 200px;
     display: grid;
+    border-radius: 6px;
     padding: 10px;
 }
 </style>

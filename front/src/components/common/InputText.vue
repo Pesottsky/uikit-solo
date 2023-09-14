@@ -1,54 +1,54 @@
 <template>
-    <div class="input__container">
-      <div :class="'input__effect ' + filled">
-        <input
-    type="text"
-    :value="value"
-    :placeholder="placeholder" @input="$emit('input',$event.target.value)"
-    :class="'effect ' + has__icon"
-    @focus="show=!show"
-    @blur="show=!show"
-    />  
-        <label :style="{color:color}">{{label}}</label>
-        <span class="focus__border" :style="focus__border"></span>
-      </div>
-      <span class="input__hint" v-if="show">{{hint}}</span>
-      <i class="material-icons input__icon">{{icon}}</i>
+  <div class="input__container">
+    <div :class="'input__effect ' + filled">
+      <label :style="{ color: color }">{{ label }}</label>
+      <input type="text" :value="value" :placeholder="placeholder" @input="$emit('input', $event.target.value)"
+        :class="'effect ' + has__icon" @focus="show = !show" @blur="show = !show" />
+      <span class="focus__border" :style="focus__border"></span>
     </div>
+    <span class="input__hint" v-if="show">{{ hint }}</span>
+    <i class="material-icons input__icon">{{ icon }}</i>
+  </div>
 </template>
 
 <script>
-export default{
-  data:()=>({
+export default {
+  data: () => ({
     show: false
   }),
-  computed:{
-    filled(){
-      if ( !this.show && this.value ) {
+  computed: {
+    filled() {
+      if (!this.show && this.value) {
         return 'has__content'
       }
       return ''
     },
-    has__icon(){
-      if ( this.icon ){
+    has__icon() {
+      if (this.icon) {
         return 'input__has__icon'
       }
       return
     },
-    focus__border(){
+    focus__border() {
       return {
-        "background-color" : this.color
+        "background-color": this.color
       }
     }
   },
+  emits: ["input"],
   props: {
-    value : { type: String , required: false, default: ''},
-    // label: { type: String , required: false, default: ''},
-    hint: { type: String, required:false , default:'hint'},
-    icon: { type: String, required: false , default: '' },
-    placeholder: { type: String, required: false, default: ''},
-    color: { type: String , required: false , default: 'indigo' }
+    value: { type: String, required: false, default: '' },
+    label: { type: String, required: false, default: '' },
+    hint: { type: String, required: false, default: '' },
+    icon: { type: String, required: false, default: '' },
+    placeholder: { type: String, required: false, default: '' },
+    color: { type: String, required: false, default: 'indigo' }
   },
+  model: {
+    prop: 'value',
+    event: 'input'
+  },
+
 }
 </script>
 
@@ -57,35 +57,40 @@ export default{
   color: var(--black-opacity-50);
 }
 
-input[type="text"]{
+input[type="text"] {
   color: var(--black);
   background: var(--gray-light);
   border-radius: 6px;
   border: 1px solid transparent;
-  outline:none;
-  
+  outline: none;
+
   display: flex;
   width: 100%;
   padding: 12px 12px;
   gap: 8px;
   font-family: inherit;
 }
+
 .input__container {
-  width: 100%; 
+  width: 100%;
 }
+
 .input__effect {
   float: left;
   width: 100%;
-  margin: 0 0 20px 0;
+  margin: 0 0 12px 0;
   position: relative;
-} /* necessary to give position: relative to parent. */
+}
+
+/* necessary to give position: relative to parent. */
 
 .input__hint {
   float: left;
   width: 100%;
-  margin:-20px 0 0 0;
+  margin: -12px 0 0 0;
   position: relative;
-  font-size: 12px; opacity:.6;
+  font-size: 12px;
+  opacity: .6;
 }
 
 .effect {
@@ -95,10 +100,12 @@ input[type="text"]{
   transition: background 0.2s ease-in-out;
   transition: border 0.2s ease-in-out;
 }
+
 .effect:hover {
   background: var(--gray-light-hover);
   border: 1px solid var(--black-opacity-10);
 }
+
 .effect:focus {
   background: transparent;
   border: 1px solid var(--black);
@@ -120,10 +127,25 @@ input:invalid {
 } */
 
 /* скрываем плэйсхолдер по клику */
-input:focus::-webkit-input-placeholder { color:transparent; }
-input:focus:-moz-placeholder { color:transparent; } /* FF 4-18 */
-input:focus::-moz-placeholder { color:transparent; } /* FF 19+ */
-input:focus:-ms-input-placeholder { color:transparent; } /* IE 10+ */
+input:focus::-webkit-input-placeholder {
+  color: transparent;
+}
+
+input:focus:-moz-placeholder {
+  color: transparent;
+}
+
+/* FF 4-18 */
+input:focus::-moz-placeholder {
+  color: transparent;
+}
+
+/* FF 19+ */
+input:focus:-ms-input-placeholder {
+  color: transparent;
+}
+
+/* IE 10+ */
 
 
 /* .effect ~ .focus__border {
@@ -169,7 +191,4 @@ input:focus:-ms-input-placeholder { color:transparent; } /* IE 10+ */
   top: -3.5rem;
   opacity:.3;
 } 
-*/
-
-
-</style>
+*/</style>

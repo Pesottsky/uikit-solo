@@ -7,7 +7,7 @@ import ButtonUI from './ButtonUI.vue'
     
    <header>
     <div class="header-Public-UI">
-        <img class="logo" src="../assets/icons/Soloteamlogo.svg" alt="Soloteam logo">
+        <img class="logo" src="../../assets/icons/Soloteamlogo.svg" alt="Soloteam logo">
 
         <div class="header-buttons">
             <ButtonUI label="Вход" color="secondary"/>

@@ -38,7 +38,6 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  margin: 40px ;
   background: #FCFBFA;
 }
 
@@ -49,7 +48,8 @@ body {
 } 
 @font-face {
   font-family: "Antonym";
-  src: url(../fonts/Antonym-Medium.woff2);
+  src: url("./fonts/Antonym-Medium.woff2");
+
 }
 
 h1 {
@@ -142,4 +142,14 @@ input[type="text"] {
   font-size: inherit; /* 1 */
   line-height: inherit; /* 1 */
   margin: 0; /* 2 */
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
 }
