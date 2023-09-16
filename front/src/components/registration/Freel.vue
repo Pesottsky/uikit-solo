@@ -5,7 +5,7 @@ import { registration } from "../../services/AuthService"
 import { validateEmail } from '../../utils/validation'
 
 export default {
-    name: "Company",
+    name: "Freel",
     components: {
         InputText,
         ButtonUI
@@ -74,7 +74,7 @@ const Errors = {
 
 <template>
     <div class="reg column">
-        <InputText :value="name" label="Компания" placeholder="Название" @input="onCompany" :error="nameError"/>
+        <InputText :value="name" label="Ваше имя" placeholder="Мария Иванова" @input="onCompany" :error="nameError"/>
         <InputText :value="email" placeholder="Почта" @input="onEmail" :error="emailError" />
         <InputText :value="password" style="margin-top: 16px;" label="Пароль" placeholder="Пароль" type="password" 
             @input="onPassword" :error="passwordError ? '' : undefined"/>

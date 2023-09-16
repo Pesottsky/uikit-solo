@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import App from "../App.vue"
 import Components from "../view/Components.vue"
 import Authorization from "../view/Authorization.vue"
+import Registration from "../view/Registration.vue"
 import { get, accessKey } from "../localstorage"
 
 const routes = [
@@ -10,6 +11,11 @@ const routes = [
         name: "Main",
         component: App,
         meta: { requiresAuth: true }
+    },
+    {
+        path: "/registration",
+        name: "Registration",
+        component: Registration,
     },
     {
         path: "/login",

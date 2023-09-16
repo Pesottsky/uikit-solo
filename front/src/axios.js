@@ -1,7 +1,8 @@
+import axios from "axios"
 import { get, accessKey, refreshKey, clear } from "./localstorage"
 
-const axios = require('axios');
-const axiosApiInstance = axios.create();
+
+export const axiosApiInstance = axios.create();
 
 // Request interceptor for API calls
 axiosApiInstance.interceptors.request.use(
