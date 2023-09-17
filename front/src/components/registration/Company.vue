@@ -59,7 +59,13 @@ export default {
             }
 
             if (!hasErrors) {
-                registration(this.name, this.email, this.password)
+                registration(this.name, this.email, this.password).then(this.$router.push(this.$route.query.redirect ? this.$route.query.redirect : "/")).catch(error => {
+                    if (error.response.status == 400) {
+                        this.emailError = error.response.data
+                    } else {
+                        this.passwordError = "Ошибка на стороне сервера"
+                    }
+                })
             }
         },
     },

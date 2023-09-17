@@ -1,7 +1,7 @@
 <script>
 import InputText from '../common/InputText.vue'
 import ButtonUI from '../common/ButtonUI.vue'
-import { registration } from "../../services/AuthService"
+import { registration_freel } from "../../services/AuthService"
 import { validateEmail } from '../../utils/validation'
 
 export default {
@@ -60,6 +60,14 @@ export default {
 
             if (!hasErrors) {
                 registration(this.name, this.email, this.password)
+
+                registration_freel(this.name, this.email, this.password).then(this.$router.push(this.$route.query.redirect ? this.$route.query.redirect : "/")).catch(error => {
+                    if (error.response.status == 400) {
+                        this.emailError = error.response.data
+                    } else {
+                        this.passwordError = "Ошибка на стороне сервера"
+                    }
+                })
             }
         },
     },

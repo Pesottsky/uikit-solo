@@ -21,7 +21,9 @@ data class User(
     @SerialName("password")
     val password: String,
 
-    )
+    @SerialName("name")
+    val name: String? = null
+)
 
 class ExposedUser(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<ExposedUser>(UserService.Users)
@@ -52,19 +54,23 @@ class UserService(database: Database) {
         }
     }
 
-    suspend fun create(companyId: Int, user: User): Int = dbQuery {
-        val exposedCompany = ExposedCompany.findById(companyId) ?: throw NotFoundException("Комания не найдена")
+    suspend fun create(user: User): Int? = dbQuery {
+        val checkLoginInFreels = ExposedFreel.find { FreelsService.Freels.login eq user.login }.singleOrNull()
+        val checkLoginInUsers = ExposedUser.find { Users.login eq user.login }.singleOrNull()
 
-        val exposedUser = ExposedUser.find { (Users.login eq user.login) }.toList()
-        if (exposedUser.isNotEmpty()) {
-            throw Exception()
+        if (checkLoginInFreels == null && checkLoginInUsers == null) {
+            val exposedCompany = ExposedCompany.new {
+                name = user.name!!
+            }
+
+            ExposedUser.new {
+                login = user.login
+                password = BCrypt.hashpw(user.password, BCrypt.gensalt())
+                company = exposedCompany
+            }.id.value
+        } else {
+            null
         }
-
-        ExposedUser.new {
-            login = user.login
-            password = BCrypt.hashpw(user.password, BCrypt.gensalt())
-            company = exposedCompany
-        }.id.value
     }
 
     suspend fun read(id: Int): ExposedUser? {
@@ -73,10 +79,10 @@ class UserService(database: Database) {
         }
     }
 
-    suspend fun checkAuth(user: User): Int {
-        return dbQuery {
+    suspend fun checkAuth(user: User): Int? =
+        dbQuery {
             val exposedUser = ExposedUser.find { (Users.login eq user.login) }
-                .singleOrNull() ?: throw BadRequestException("Неправильный логин или пароль")
+                .singleOrNull() ?: return@dbQuery null
             if (!BCrypt.checkpw(
                     user.password,
                     exposedUser.password
@@ -84,7 +90,6 @@ class UserService(database: Database) {
             ) throw BadRequestException("Неправильный логин или пароль")
             exposedUser.id.value
         }
-    }
 
     suspend fun update(id: Int, user: User) {
         dbQuery {

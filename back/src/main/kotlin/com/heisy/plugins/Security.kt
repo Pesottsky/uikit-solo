@@ -6,6 +6,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.response.*
 import java.util.*
 
@@ -19,6 +20,16 @@ private const val jwtFreelSecret = "secret 2"
 
 fun Application.configureSecurity() {
     // Please read the jwt property from the config file if you are using EngineMain
+    install(CORS) {
+        allowMethod(HttpMethod.Options)
+        allowHost("localhost:5173")
+        allowHeader(HttpHeaders.Authorization)
+        allowHeader(HttpHeaders.ContentType)
+        allowHeader(HttpHeaders.Accept)
+        allowHeader(HttpHeaders.Origin)
+        allowHeader(HttpHeaders.Referrer)
+        allowHeader(HttpHeaders.UserAgent)
+    }
 
     authentication {
         jwt("company") {

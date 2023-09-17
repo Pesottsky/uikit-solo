@@ -12,18 +12,24 @@ class AuthUseCase(
     private val rowService: FreelsRowsService,
     private val tokensService: TokensService
 ) : IAuthUseCase {
-    override suspend fun loginCompany(user: User): Token {
-        val id = userService.checkAuth(user)
+    override suspend fun registerCompany(user: User): Token {
+        val id = userService.create(user) ?: throw BadRequestException("Измените почту")
         return tokensService.generateTokenPair(id, UserTypes.User.type)
     }
 
-    override suspend fun loginFreel(freel: Freel): Token {
-        val id = freelsService.checkAuth(freel)
-        return tokensService.generateTokenPair(id, UserTypes.Freel.type)
+    override suspend fun login(user: User): Token {
+        var id: Int? = freelsService.checkAuth(user)
+        return if (id != null) {
+            tokensService.generateTokenPair(id, UserTypes.Freel.type)
+        } else {
+            id = userService.checkAuth(user) ?: throw BadRequestException("Неправильный логин или пароль")
+            tokensService.generateTokenPair(id, UserTypes.Freel.type)
+        }
+
     }
 
     override suspend fun registerFreel(freel: Freel): Token {
-        val freelResult = freelsService.create(freel) ?: throw BadRequestException("Логин занят")
+        val freelResult = freelsService.create(freel) ?: throw BadRequestException("Измените почту")
         return tokensService.generateTokenPair(freelResult.id.value, UserTypes.Freel.type)
     }
 
@@ -35,7 +41,7 @@ class AuthUseCase(
         val exposedLink = linkService.find(link) ?: throw NotFoundException()
         if (exposedLink.isRegister == true) throw BadRequestException("По ссылке уже регистрировались")
 
-        val exposedFreel = freelsService.create(freel) ?: throw BadRequestException("Логин занят")
+        val exposedFreel = freelsService.create(freel) ?: throw BadRequestException("Измените почту")
 
         linkService.update(exposedLink.id.value, true)
         val row = rowService.findByLink(link = exposedLink)

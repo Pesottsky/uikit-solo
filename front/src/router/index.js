@@ -1,15 +1,15 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import App from "../App.vue"
 import Components from "../view/Components.vue"
 import Authorization from "../view/Authorization.vue"
 import Registration from "../view/Registration.vue"
+import Profile from "../components/main/freel/Profile.vue"
 import { get, accessKey } from "../localstorage"
 
 const routes = [
     {
         path: '/',
         name: "Main",
-        component: App,
+        component: Profile,
         meta: { requiresAuth: true }
     },
     {

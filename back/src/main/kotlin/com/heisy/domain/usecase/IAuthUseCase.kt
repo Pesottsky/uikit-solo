@@ -6,9 +6,9 @@ import com.heisy.schema.User
 
 interface IAuthUseCase {
 
-    suspend fun loginCompany(user: User): Token
+    suspend fun registerCompany(user: User): Token
 
-    suspend fun loginFreel(freel: Freel): Token
+    suspend fun login(user: User): Token
 
     suspend fun registerFreel(freel: Freel): Token
 

@@ -8,7 +8,6 @@ import com.heisy.routing.configureTablesRouting
 import com.heisy.schema.*
 import io.ktor.server.application.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 

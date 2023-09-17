@@ -2,14 +2,6 @@
 
 export default {
   name: "App",
-
-  methods: {
-    open() {
-      console.log("Hueta")
-      this.$router.push("/components")
-    }
-  }
-
 }
 
 </script>

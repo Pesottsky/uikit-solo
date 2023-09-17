@@ -4,7 +4,7 @@
       <label v-if="label">{{ label }}</label>
       <input :type="type" :value="value" :placeholder="placeholder" @input="$emit('input', $event.target.value)"
         :class="'effect ' + has__icon + input__error" @focus="show = !show" @blur="show = !show" />
-      <span class="focus__border" :style="focus__border"></span>
+      <!-- <span class="focus__border" :style="focus__border"></span> -->
     </div>
     <span :class="'input__hint ' + hint__error" :style="{color: true}" v-if="show_hint">{{ textHint }}</span>
     <i class="material-icons input__icon">{{ icon }}</i>
@@ -29,11 +29,11 @@ export default {
       }
       return ''
     },
-    focus__border() {
-      return {
-        "background-color": this.color
-      }
-    },
+    // focus__border() {
+    //   return {
+    //     "background-color": this.color
+    //   }
+    // },
     show_hint() {
       return this.error || this.show
     },

@@ -4,15 +4,14 @@ import com.heisy.plugins.UserTypes
 import com.heisy.plugins.createCompanyToken
 import com.heisy.plugins.createFreelToken
 import com.heisy.plugins.dbQuery
-import io.ktor.server.auth.*
-import io.ktor.server.plugins.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
@@ -88,7 +87,10 @@ class TokensService(database: Database) {
         if (exposedRefresh.expiresAt > currentTime) {
             exposedRefresh.refreshToken = UUID.randomUUID()
             exposedRefresh.expiresAt = Date(System.currentTimeMillis() + 1_000_000_00).time
-            val access: String = if (exposedRefresh.userType == UserTypes.User.type) createCompanyToken(exposedRefresh.userId, exposedRefresh.userType)
+            val access: String = if (exposedRefresh.userType == UserTypes.User.type) createCompanyToken(
+                exposedRefresh.userId,
+                exposedRefresh.userType
+            )
             else createFreelToken(exposedRefresh.userId, exposedRefresh.userType)
 
             exposedRefresh.toDataClass(access)

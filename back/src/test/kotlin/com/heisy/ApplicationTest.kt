@@ -46,16 +46,16 @@ class ApplicationTest : TestServer() {
         assertEquals(HttpStatusCode.OK, response.status)
         token = response.body<Token>().token.access.toString()
     }
-//
-//    @BeforeTest
-//    fun incorrectLogin() = runBlocking {
-//
-//        val response = client.post("/login") {
-//            setBody(User("huesos", "1234"))
-//        }
-//
-//        assertEquals(HttpStatusCode.NotFound, response.status)
-//    }
+
+    @BeforeTest
+    fun incorrectLogin() = runBlocking {
+
+        val response = client.post("/login") {
+            setBody(User("huesos", "1234"))
+        }
+
+        assertEquals(HttpStatusCode.NotFound, response.status)
+    }
 
     @Test
     fun rootRouteRespondsWithHelloWorldString(): Unit = runBlocking {
@@ -63,18 +63,18 @@ class ApplicationTest : TestServer() {
         assertEquals("Hello, world!", response)
     }
 
-//    @Test
-//    fun getTables() = runBlocking {
-//
-//        val response = client.get("/table") {
-//            headers.appendIfNameAbsent("Authorization", "Bearer $token")
-//        }
-//
-//        println(response.request.headers)
-//        println(response.bodyAsText())
-//        assertEquals(HttpStatusCode.OK, response.status)
-//
-//    }
+    @Test
+    fun getTables() = runBlocking {
+
+        val response = client.get("/table") {
+            headers.appendIfNameAbsent("Authorization", "Bearer $token")
+        }
+
+        println(response.request.headers)
+        println(response.bodyAsText())
+        assertEquals(HttpStatusCode.OK, response.status)
+
+    }
 
     @AfterTest
     fun printToken() {

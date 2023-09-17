@@ -40,6 +40,7 @@ dependencies {
 
     implementation("io.ktor:ktor-server-swagger-jvm")
 
+    implementation("io.ktor:ktor-server-cors:$ktor_version")
     implementation("io.ktor:ktor-server-auth-jvm")
     implementation("io.ktor:ktor-server-auth-jwt-jvm")
     implementation("io.ktor:ktor-server-auth:$ktor_version")

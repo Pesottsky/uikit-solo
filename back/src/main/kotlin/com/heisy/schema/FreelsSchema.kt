@@ -8,7 +8,8 @@ import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
 
@@ -18,7 +19,10 @@ data class Freel(
     val login: String,
 
     @SerialName("password")
-    val password: String
+    val password: String,
+
+    @SerialName("name")
+    val name: String? = null
 )
 
 class ExposedFreel(id: EntityID<Int>) : IntEntity(id) {
@@ -31,7 +35,8 @@ class ExposedFreel(id: EntityID<Int>) : IntEntity(id) {
     fun toDataClass(): Freel {
         return Freel(
             login = this.login,
-            password = this.password
+            password = this.password,
+            name = this.profile?.firstName
         )
     }
 
@@ -58,18 +63,24 @@ class FreelsService(database: Database) {
     }
 
     suspend fun create(freel: Freel): ExposedFreel? = dbQuery {
-        val checkLogin = ExposedFreel.find { Freels.login eq freel.login }.singleOrNull()
+        // TODO
+        val checkLoginInFreels = ExposedFreel.find { Freels.login eq freel.login }.singleOrNull()
+        val checkLoginInUsers = ExposedUser.find { UserService.Users.login eq freel.login }.singleOrNull()
 
-        if (checkLogin == null) {
+
+        if (checkLoginInFreels == null && checkLoginInUsers == null) {
+            val profile = ExposedProfile.new {
+                firstName = freel.name ?: ""
+            }
+
             ExposedFreel.new {
                 login = freel.login
                 password = BCrypt.hashpw(freel.password, BCrypt.gensalt())
+                this.profile = profile
             }
         } else {
             null
         }
-
-
     }
 
     suspend fun update(userId: Int, row: ExposedFreelsRow) = dbQuery {
@@ -81,17 +92,15 @@ class FreelsService(database: Database) {
         }
     }
 
-    suspend fun checkAuth(freel: Freel): Int {
-        return dbQuery {
-            val exposedUser = ExposedFreel.find { Freels.login eq freel.login }
-                .singleOrNull() ?: throw BadRequestException("Неправильный логин или пароль")
-            if (!BCrypt.checkpw(
-                    freel.password,
-                    exposedUser.password
-                )
-            ) throw BadRequestException("Неправильный логин или пароль")
-            exposedUser.id.value
-        }
-    }
+    suspend fun checkAuth(freel: User): Int? = dbQuery {
+        val exposedFreel = ExposedFreel.find { Freels.login eq freel.login }
+            .singleOrNull() ?: return@dbQuery null
+        if (!BCrypt.checkpw(
+                freel.password,
+                exposedFreel.password
+            )
+        ) throw BadRequestException("Неправильный логин или пароль")
 
+        exposedFreel.id.value
+    }
 }

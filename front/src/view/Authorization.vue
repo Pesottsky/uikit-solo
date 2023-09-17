@@ -44,7 +44,14 @@ export default {
             }
 
             if (!hasErrors) {
-                login(this.email, this.password)
+                login(this.email, this.password).then().catch(error => {
+                    if (error.response.status == 400) {
+                        this.passwordError = error.response.data
+                        this.emailError = ""
+                    } else {
+                        this.passwordError = "Ошибка на стороне сервера"
+                    }
+                }).then(this.$router.push(this.$route.query.redirect ? this.$route.query.redirect : "/"))
             }
         },
     }

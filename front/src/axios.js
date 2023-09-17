@@ -1,8 +1,9 @@
 import axios from "axios"
 import { get, accessKey, refreshKey, clear } from "./localstorage"
 
-
+axios.defaults.baseURL = 'http://localhost:81';
 export const axiosApiInstance = axios.create();
+
 
 // Request interceptor for API calls
 axiosApiInstance.interceptors.request.use(
@@ -11,7 +12,7 @@ axiosApiInstance.interceptors.request.use(
         config.headers = {
             'Authorization': `Bearer ${accessToken}`,
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         }
         return config;
     },

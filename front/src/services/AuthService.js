@@ -1,16 +1,25 @@
-import {axiosApiInstance} from "../axios"
+import { axiosApiInstance } from "../axios"
 
-export async function registration(name, email, password) {
-    await axiosApiInstance.post("/registration" ,{
+export function registration(name, email, password) {
+    return axiosApiInstance.post("/registration", {
         name: name,
-        email: email,
+        login: email,
         password: password
     })
 }
 
-export async function login(email, password) {
-    await axiosApiInstance.post("/login" ,{
-        email: email,
+export function registration_freel(name, email, password) {
+    return axiosApiInstance.post("/registration/freel", {
+        login: email,
+        password: password,
+        name: name
+    })
+}
+
+export function login(email, password) {
+    return axiosApiInstance.post("/login", {
+        login: email,
         password: password
     })
+
 }
