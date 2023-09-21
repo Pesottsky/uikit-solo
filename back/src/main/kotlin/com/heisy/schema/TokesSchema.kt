@@ -22,6 +22,9 @@ data class Token(
 
     @SerialName("refresh")
     val refresh: String,
+
+    @SerialName("userType")
+    val  userType: String? = null
 )
 
 
@@ -36,7 +39,8 @@ class ExposedToken(id: EntityID<Int>) : IntEntity(id) {
     fun toDataClass(access: String) = run {
         Token(
             access = access,
-            refresh = refreshToken.toString()
+            refresh = refreshToken.toString(),
+            userType = userType
         )
     }
 }

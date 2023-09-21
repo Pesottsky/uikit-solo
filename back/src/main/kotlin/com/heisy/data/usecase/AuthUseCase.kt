@@ -23,7 +23,7 @@ class AuthUseCase(
             tokensService.generateTokenPair(id, UserTypes.Freel.type)
         } else {
             id = userService.checkAuth(user) ?: throw BadRequestException("Неправильный логин или пароль")
-            tokensService.generateTokenPair(id, UserTypes.Freel.type)
+            tokensService.generateTokenPair(id, UserTypes.User.type)
         }
 
     }

@@ -4,6 +4,8 @@ import { login } from "../services/AuthService"
 import InputText from '../components/common/InputText.vue'
 import ButtonUI from '../components/common/ButtonUI.vue'
 import { validateEmail } from '../utils/validation'
+import { set, accessKey, refreshKey, userType } from '../localstorage'
+
 
 export default {
     name: "Authorization",
@@ -14,8 +16,8 @@ export default {
     },
     data() {
         return {
-            email: undefined,
-            password: undefined,
+            email: "1@1.ru",
+            password: "1",
             emailError: undefined,
             passwordError: undefined,
         }
@@ -51,7 +53,16 @@ export default {
                     } else {
                         this.passwordError = "Ошибка на стороне сервера"
                     }
-                }).then(this.$router.push(this.$route.query.redirect ? this.$route.query.redirect : "/"))
+                }).then(response => {
+                    set({
+                        accessKey: response.data.access,
+                        refreshKey: response.data.refresh,
+                        userType: response.data.userType
+                    })
+                    // this.$router.push(this.$route.query.redirect ? this.$route.query.redirect : "/")
+                    this.$router.push("/")
+
+                })
             }
         },
     }

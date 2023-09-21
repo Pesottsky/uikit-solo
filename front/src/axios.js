@@ -1,5 +1,5 @@
 import axios from "axios"
-import { get, accessKey, refreshKey, clear } from "./localstorage"
+import { get, accessKey, refreshKey, clear, set, userType } from "./localstorage"
 
 axios.defaults.baseURL = 'http://localhost:81';
 export const axiosApiInstance = axios.create();
@@ -29,20 +29,23 @@ axiosApiInstance.interceptors.response.use((response) => {
         const accessToken = await refreshAccessToken();
         axios.default.headers.common['Authorization'] = 'Bearer ' + accessToken;
         return axiosApiInstance(originalRequest);
+    } else {
+        clear()
+        location.reload()
     }
     return Promise.reject(error);
 });
 
 async function refreshAccessToken() {
-    const { data, error } = await axiosApiInstance.get("/refresh", {
+    const { data } = await axiosApiInstance.get("/refresh", {
         token: {
             refresh: get(refreshKey)
         }
     })
-    console.log(error)
-    if (error != undefined) {
-        clear()
-        return
-    }
-    return data.token.accessToken
+    set({
+        accessKey: response.data.access,
+        refreshKey: response.data.refresh,
+        userType: response.data.userType
+    })
+    return data.accessToken
 }

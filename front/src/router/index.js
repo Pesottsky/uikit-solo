@@ -2,14 +2,14 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import Components from "../view/Components.vue"
 import Authorization from "../view/Authorization.vue"
 import Registration from "../view/Registration.vue"
-import Profile from "../components/main/freel/Profile.vue"
-import { get, accessKey } from "../localstorage"
+import Main from "../components/main/Main.vue"
+import { get, accessKey } from "../localStorage"
 
 const routes = [
     {
         path: '/',
         name: "Main",
-        component: Profile,
+        component: Main,
         meta: { requiresAuth: true }
     },
     {
@@ -36,6 +36,7 @@ const router = createRouter({
 
 router.beforeEach((to, from) => {
     if (to.meta.requiresAuth && get(accessKey) == null) {
+        console.log("AAA")
         return {
             path: '/login',
             query: { redirect: to.fullPath },

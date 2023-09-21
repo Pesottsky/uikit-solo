@@ -3,6 +3,8 @@ import InputText from '../common/InputText.vue'
 import ButtonUI from '../common/ButtonUI.vue'
 import { registration_freel } from "../../services/AuthService"
 import { validateEmail } from '../../utils/validation'
+import { set, accessKey, refreshKey, userType } from '../../localstorage'
+
 
 export default {
     name: "Freel",
@@ -61,7 +63,14 @@ export default {
             if (!hasErrors) {
                 registration(this.name, this.email, this.password)
 
-                registration_freel(this.name, this.email, this.password).then(this.$router.push(this.$route.query.redirect ? this.$route.query.redirect : "/")).catch(error => {
+                registration_freel(this.name, this.email, this.password).then(response => {
+                    set({
+                        accessKey: response.data.access,
+                        refreshKey: response.data.refresh,
+                        userType: response.data.userType
+                    })
+                    this.$router.push(this.$route.query.redirect ? this.$route.query.redirect : "/")
+                }).catch(error => {
                     if (error.response.status == 400) {
                         this.emailError = error.response.data
                     } else {
@@ -82,10 +91,10 @@ const Errors = {
 
 <template>
     <div class="reg column">
-        <InputText :value="name" label="Ваше имя" placeholder="Мария Иванова" @input="onCompany" :error="nameError"/>
+        <InputText :value="name" label="Ваше имя" placeholder="Мария Иванова" @input="onCompany" :error="nameError" />
         <InputText :value="email" placeholder="Почта" @input="onEmail" :error="emailError" />
-        <InputText :value="password" style="margin-top: 16px;" label="Пароль" placeholder="Пароль" type="password" 
-            @input="onPassword" :error="passwordError ? '' : undefined"/>
+        <InputText :value="password" style="margin-top: 16px;" label="Пароль" placeholder="Пароль" type="password"
+            @input="onPassword" :error="passwordError ? '' : undefined" />
         <InputText :value="cpassword" placeholder="Подтверждение пароля" type="password" :error="passwordError"
             @input="onCPassword" />
         <ButtonUI style="width: 100%; margin-top: 24px;" label="Зарегистрироваться" color="primary" @onClick="onClick" />

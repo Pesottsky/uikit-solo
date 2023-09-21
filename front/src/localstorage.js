@@ -5,12 +5,16 @@ export function set(obj) {
 }
 
 export function get(key) {
-    localStorage.getItem(key);
+    return localStorage.getItem(key);
 }
 
 export function clear() {
     localStorage.clear()
 }
 
-export const accessKey = "access"
-export const refreshKey = "refresh"
+export const accessKey = "accessKey"
+export const refreshKey = "refreshKey"
+export const userType = "userType"
+
+export const freel = "freel"
+export const user = "user"

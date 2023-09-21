@@ -75,7 +75,7 @@ fun createCompanyToken(userId: Int, userType: String): String = run {
         .withIssuer(jwtDomain)
         .withClaim("id", userId)
         .withClaim("user_type", userType)
-        .withExpiresAt(Date(System.currentTimeMillis() + 3_000_0000))
+        .withExpiresAt(Date(System.currentTimeMillis() + 3_000_0))
         .sign(Algorithm.HMAC256(jwtCompanySecret))
 }
 
@@ -85,7 +85,7 @@ fun createFreelToken(userId: Int, userType: String): String = run {
         .withIssuer(jwtDomain)
         .withClaim("id", userId)
         .withClaim("user_type", userType)
-        .withExpiresAt(Date(System.currentTimeMillis() + 3_000_0000))
+        .withExpiresAt(Date(System.currentTimeMillis() + 3_000_0))
         .sign(Algorithm.HMAC256(jwtFreelSecret))
 }
 
