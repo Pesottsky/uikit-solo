@@ -22,8 +22,8 @@ fun Application.configureTablesRouting(
                 post {
                     val name = call.request.queryParameters["name"]
                     if (name != null) {
-                        val tableId = tablesService.create(name, getId(call))
-                        call.respond(HttpStatusCode.Created, tableId)
+                        val table= tablesService.create(name, getId(call))
+                        call.respond(HttpStatusCode.Created, table)
                     } else {
                         call.respond(HttpStatusCode.BadRequest, "Name is null")
                     }

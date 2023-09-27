@@ -32,21 +32,15 @@ fun Application.configureAuthRouting(authUseCase: IAuthUseCase) {
 
             route("/freel") {
                 post {
-                    val token = authUseCase.registerFreel(call.receive())
+                    val link = call.request.queryParameters["link"]
+                    val token: Token = if (link != null) {
+                        authUseCase.registerFreelByLink(link, call.receive())
+                    } else {
+                        authUseCase.registerFreel(call.receive())
+                    }
                     call.respond(HttpStatusCode.Created, token)
                 }
             }
         }
-
-        post("/registration_with_link") {
-            val link = call.request.queryParameters["link"]
-            if (link != null) {
-                val token = authUseCase.registerFreelByLink(link, call.receive())
-                call.respond(HttpStatusCode.Created, token)
-            } else {
-                call.respond(HttpStatusCode.BadRequest, "link in null")
-            }
-        }
-
     }
 }

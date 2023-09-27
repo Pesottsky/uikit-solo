@@ -57,13 +57,13 @@ class FreelsTablesService(database: Database) {
     }
 
 
-    suspend fun create(name: String, userId: Int): Int = dbQuery {
+    suspend fun create(name: String, userId: Int): FreelsTable = dbQuery {
         val user = ExposedUser.findById(userId)!!
 
         ExposedFreelsTable.new {
             this.name = name
             this.userId = user
-        }.id.value
+        }.toDataClass()
     }
 
     suspend fun getByUserId(userId: Int): List<FreelsTable> {

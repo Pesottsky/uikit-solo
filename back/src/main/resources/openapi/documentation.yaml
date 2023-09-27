@@ -4,20 +4,187 @@ info:
   description: "Application API"
   version: "1.0.0"
 servers:
-  - url: "http://0.0.0.0:8080"
+  - url: "Main"
 paths:
-  /:
-    get:
-      description: "Hello World!"
+  /login:
+    post:
+      summary: Авторизация
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
       responses:
-        "200":
-          description: "OK"
+        "201":
+          description: Created
           content:
-            text/plain:
-              schema:
-                type: "string"
+            application/json:
+                schema:
+                  $ref: '#/components/schemas/Token'
+        "400":
+          content:
+            application/json:
               examples:
-                Example#1:
-                  value: "Hello World!"
+                Дефолтный ответ:
+                  value: "Неправильный логин или пароль"
+  /refresh:
+    post:
+      description: Достаточно поля refresh
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Token'
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        "400":
+          content:
+            application/json:
+              examples:
+                Дефолтный ответ:
+                  value: "token is invalid"
+  /registration:
+    post:
+      summary: Регистрация компании
+      description: На регистрации имя не может быть null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        "400":
+          content:
+            application/json:
+              examples:
+                Дефолтный ответ:
+                  value: "Измените почту"
+  /registration/freel:
+    post:
+      summary: Регистрация фрилансера
+      description: На регистрации имя не может быть null
+      parameters:
+        - name: link
+          in: query
+          description: Идентификатор ссылки по которой пригласили фрилансера
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        "400":
+          content:
+            application/json:
+              examples:
+                Дефолтный ответ:
+                  value: "Измените почту"
+  /table:
+    post:
+      summary: Создание таблицы
+      parameters:
+        - name: name
+          in: query
+          description: Имя таблицы
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Table'
 components:
   schemas:
+    User:
+      type: object
+      properties:
+        login:
+          type: string
+          description: Он же почта
+        name:
+          type: string
+          nullable: true
+          description: Для фрилансера это его имя, для пользователя - название компании
+        password:
+          type: string
+    Token:
+      type: object
+      properties:
+        access:
+          type: string
+          nullable: true
+        refresh:
+          type: string
+        user_type:
+          type: string
+          nullable: true
+          description: Тип пользователя
+          enum:
+            - user
+            - freel
+    Table:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+        rows:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/TableRow'
+    TableRow:
+      type: object
+      properties:
+        table_id:
+          type: integer
+          description: Id таблицы, которой принадлежит запись
+        profile:
+          type: object
+          items:
+            $ref: '#/components/schemas/Profile'
+        link:
+          type: object
+          nullable: true
+          items:
+            $ref: '#/components/schemas/Link'
+        can_change:
+          type: boolean
+    Link:
+      type: object
+      properties:
+        id:
+          type: integer
+        is_register:
+          type: boolean
+          description: Зарегистрировались ли по ссылке
+          nullable: true
+        link:
+          type: string
+          description: Сама ссылка (UUID в строковом представлении)
+

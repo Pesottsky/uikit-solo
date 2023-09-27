@@ -16,13 +16,13 @@ import java.util.*
 @Serializable
 data class Link(
     @SerialName("link")
-    val link: String? = null,
+    val link: String,
 
-    @SerialName("isRegister")
+    @SerialName("is_register")
     val isRegister: Boolean? = null,
 
     @SerialName("id")
-    val id: Int? = null
+    val id: Int
 )
 
 

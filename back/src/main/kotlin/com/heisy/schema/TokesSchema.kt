@@ -23,7 +23,7 @@ data class Token(
     @SerialName("refresh")
     val refresh: String,
 
-    @SerialName("userType")
+    @SerialName("user_type")
     val  userType: String? = null
 )
 

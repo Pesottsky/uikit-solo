@@ -18,16 +18,16 @@ import org.jetbrains.exposed.sql.transactions.transaction
 @Serializable
 data class FreelsRow(
     @SerialName("profile")
-    val profile: Profile? = null,
+    val profile: Profile,
 
     @SerialName("link")
     val link: Link? = null,
 
-    @SerialName("tableId")
+    @SerialName("table_id")
     val tableId: Int,
 
-    @SerialName("canChange")
-    val canChange: Boolean? = null
+    @SerialName("can_change")
+    val canChange: Boolean
 )
 
 class ExposedFreelsRow(id: EntityID<Int>) : IntEntity(id) {
