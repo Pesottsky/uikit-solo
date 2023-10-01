@@ -18,28 +18,26 @@ fun Application.configureCompanyRouting(userService: UserService, companyService
                 // TODO Ошибка 500
                 get {
                     val companies = companyService.getAll().map { it.toDataClass() }
-                    call.respond(hashMapOf("companies" to companies))
+                    call.respond(HttpStatusCode.OK,companies)
+                }
+
+                put {
+                    val userId = getId(call)
+                    val user =
+                        userService.read(userId) ?: throw BadRequestException("Комания пользователя не найдена")
+
+                    companyService.update(user.company.id.value, call.receive())
+                    call.respond(HttpStatusCode.OK)
                 }
 
                 route("/{id}") {
                     get {
-                        val id = call.parameters["id"] ?: throw MissingRequestParameterException("id")
+                        val id = call.parameters["id"] ?: throw MissingRequestParameterException("id is null")
                         call.respond(HttpStatusCode.OK, companyService.read(id.toInt()).toDataClass())
-                    }
-
-                    put {
-                        val userId = getId(call)
-                        val user =
-                            userService.read(userId) ?: throw BadRequestException("Комания пользователя не найдена")
-
-                        companyService.update(user.company.id.value, call.receive())
-                        call.respond(HttpStatusCode.OK)
                     }
                 }
 
             }
         }
-
-
     }
 }

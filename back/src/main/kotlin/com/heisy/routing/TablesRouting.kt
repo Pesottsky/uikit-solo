@@ -35,41 +35,44 @@ fun Application.configureTablesRouting(
                 }
 
                 delete {
+                    // TODO проверка на то, что строка в таблице которая у пользователя а не левая
+
                     val tableID =
-                        call.request.queryParameters["tableID"] ?: throw BadRequestException("tableID is null")
+                        call.request.queryParameters["table_id"] ?: throw BadRequestException("table_id is null")
                     tablesService.delete(tableID.toInt())
                 }
 
-                route("/row") {
+                route("/{table_id}/row") {
                     post {
-                        val tableId = call.request.queryParameters["tableID"]
+                        val tableId = call.parameters["table_id"]
                         val profile = call.receive<Profile>()
                         if (tableId != null) {
                             val profileResult = profilesService.create(profile)
                             val row = rowService.create(tableId.toInt(), profileResult)
-                            call.respond(HttpStatusCode.Created, row.id.value)
+                            call.respond(HttpStatusCode.Created, row.toDataClass())
                         } else {
-                            call.respond(HttpStatusCode.BadRequest, "tableID is null")
+                            call.respond(HttpStatusCode.BadRequest, "table_id is null")
                         }
                     }
 
                     // Создать строку с Id уже существующего профиля
-                    post("{profileId}") {
+                    post("/profile") {
+                        // TODO проверка на то, что строка в таблице которая у пользователя а не левая
                         val tableId =
-                            call.request.queryParameters["tableID"] ?: throw BadRequestException("tableID is null")
-                        val profileId = call.parameters["profileId"] ?: throw BadRequestException("profileId is null")
+                            call.parameters["table_id"] ?: throw BadRequestException("table_id is null")
+                        val profileId = call.request.queryParameters["profile_id"] ?: throw BadRequestException("profile_id is null")
 
                         val profileResult = profilesService.get(profileId.toInt())
                         val row = rowService.create(tableId.toInt(), profileResult)
-                        call.respond(HttpStatusCode.Created, row.id.value)
+                        call.respond(HttpStatusCode.Created, row.toDataClass())
 
                     }
 
                     // Изменить профиль в строке
-                    put("{rowId}") {
-                        val tableId =
-                            call.request.queryParameters["tableID"] ?: throw BadRequestException("tableID is null")
-                        val rowId = call.parameters["rowId"] ?: throw BadRequestException("profileId is null")
+                    put("/{rowId}") {
+                        // TODO проверка на то, что строка в таблице которая у пользователя а не левая
+                        val tableId = call.parameters["table_id"] ?: throw BadRequestException("table_id is null")
+                        val rowId = call.parameters["row_id"] ?: throw BadRequestException("row_id is null")
                         val profile = call.receive<Profile>()
 
                         rowService.updateProfile(rowId.toInt(), profile)
@@ -80,7 +83,9 @@ fun Application.configureTablesRouting(
                 }
 
                 get("/link") {
-                    val rowId = call.request.queryParameters["row"] ?: throw BadRequestException("row is null")
+                    // TODO если ссылка генерируется не на запись (записи пока нет)
+
+                    val rowId = call.request.queryParameters["row_id"] ?: throw BadRequestException("row_id is null")
                     val link = linksService.create()
                     rowService.updateLink(rowId.toInt(), link)
                     call.respond(HttpStatusCode.Created, link.toDataClass())

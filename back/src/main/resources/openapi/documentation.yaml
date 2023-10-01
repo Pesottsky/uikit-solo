@@ -1,13 +1,25 @@
 openapi: "3.0.3"
 info:
   title: "Application API"
-  description: "Application API"
+  description: "Мог ошибиться в доке, мог в самом методе. Так что если какие-то ошибки, то говорите"
   version: "1.0.0"
 servers:
   - url: "Main"
+tags:
+  - name: Авторизация
+  - name: Менеджемент базы
+    description: Требует токены компании
+  - name: Кейсы фрилансера
+    description: Требует токены фрилансера
+  - name: Общие кейсы
+    description: Требуется любая авторизация
+  - name: Публичные страницы
+    description: Авторизация не требуется
 paths:
   /login:
     post:
+      tags:
+        - Авторизация
       summary: Авторизация
       requestBody:
         content:
@@ -27,29 +39,10 @@ paths:
               examples:
                 Дефолтный ответ:
                   value: "Неправильный логин или пароль"
-  /refresh:
-    post:
-      description: Достаточно поля refresh
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Token'
-      responses:
-        "201":
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Token'
-        "400":
-          content:
-            application/json:
-              examples:
-                Дефолтный ответ:
-                  value: "token is invalid"
   /registration:
     post:
+      tags:
+        - Авторизация
       summary: Регистрация компании
       description: На регистрации имя не может быть null
       requestBody:
@@ -72,6 +65,8 @@ paths:
                   value: "Измените почту"
   /registration/freel:
     post:
+      tags:
+        - Авторизация
       summary: Регистрация фрилансера
       description: На регистрации имя не может быть null
       parameters:
@@ -99,8 +94,46 @@ paths:
               examples:
                 Дефолтный ответ:
                   value: "Измените почту"
-  /table:
+  /refresh:
     post:
+      tags:
+        - Авторизация
+      description: Достаточно поля refresh
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Token'
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        "400":
+          content:
+            application/json:
+              examples:
+                Дефолтный ответ:
+                  value: "token is invalid"
+  /table:
+    get:
+      tags:
+        - Менеджемент базы
+      summary: Все таблицы
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Table'
+    post:
+      tags:
+        - Менеджемент базы
       summary: Создание таблицы
       parameters:
         - name: name
@@ -116,6 +149,179 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Table'
+    delete:
+      tags:
+        - Менеджемент базы
+      summary: Удаление таблицы
+      parameters:
+        - name: table_id
+          in: query
+          description: ID таблицы
+          required: true
+          schema:
+            type: string
+  /table/{table_id}/row:
+    post:
+      tags:
+        - Менеджемент базы
+      summary: Создание записи в базе
+      parameters:
+        - name: table_id
+          in: path
+          description: ID таблицы (базы)
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TableRow'
+        "400":
+          content:
+            application/json:
+              examples:
+                Дефолтный ответ:
+                  value: "table_id is null"
+  /table/{table_id}/row/profile:
+    post:
+      tags:
+        - Менеджемент базы
+      summary: Создать строку с Id уже существующего профиля
+      parameters:
+        - name: table_id
+          in: path
+          description: ID таблицы (базы)
+          required: true
+          schema:
+            type: string
+        - name: profile_id
+          in: query
+          description: ID профиля, который хотим добавить в базу
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TableRow'
+  /table/{table_id}/row/{row_id}:
+    put:
+      tags:
+        - Менеджемент базы
+      summary: Отредактировать существующий профиль
+      parameters:
+        - name: table_id
+          in: path
+          description: ID таблицы (базы)
+          required: true
+          schema:
+            type: string
+        - name: row_id
+          in: path
+          description: Id записи, которую хотим отредактировать
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TableRow'
+  /company:
+    get:
+      tags:
+        - Общие кейсы
+      summary: Все компании
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Company'
+    put:
+      tags:
+        - Менеджемент базы
+      summary: Обновить информацию по компании
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Company'
+  /company/{id}:
+    get:
+      tags:
+        - Общие кейсы
+      summary: Одна компания
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+  /profile:
+    get:
+      tags:
+        - Кейсы фрилансера
+      summary: Получение профиля
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+      "204":
+        description: No Content (если профиля нет)
+    put:
+      tags:
+        - Кейсы фрилансера
+      summary: Обновить профиль
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+  /profile/{id}:
+    get:
+      tags:
+        - Публичные страницы
+      summary: Получение профиля
+      parameters:
+        - name: id
+          in: path
+          description: ID профиля
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
 components:
   schemas:
     User:
@@ -165,16 +371,13 @@ components:
           type: integer
           description: Id таблицы, которой принадлежит запись
         profile:
-          type: object
-          items:
             $ref: '#/components/schemas/Profile'
         link:
-          type: object
           nullable: true
-          items:
-            $ref: '#/components/schemas/Link'
+          $ref: '#/components/schemas/Link'
         can_change:
           type: boolean
+          description: Редактируется ли запись
     Link:
       type: object
       properties:
@@ -187,4 +390,50 @@ components:
         link:
           type: string
           description: Сама ссылка (UUID в строковом представлении)
-
+    Profile:
+      type: object
+      properties:
+        id:
+          nullable: true
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        surname:
+          type: string
+          nullable: true
+        price:
+          type: integer
+          nullable: true
+        portfolio:
+          type: string
+          nullable: true
+        comments:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        summary:
+          type: string
+          nullable: true
+        skills:
+          type: string
+          nullable: true
+        telegram:
+          type: string
+          nullable: true
+    Company:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        link:
+          type: string
+          nullable: true
+        about:
+          type: string
+          nullable: true

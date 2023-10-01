@@ -17,10 +17,10 @@ data class Profile(
     @SerialName("id")
     val id: Int? = null,
 
-    @SerialName("firstName")
+    @SerialName("first_name")
     val firstName: String,
 
-    @SerialName("lastName")
+    @SerialName("last_name")
     val lastName: String,
 
     @SerialName("surname")

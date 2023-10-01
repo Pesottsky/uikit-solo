@@ -41,10 +41,10 @@ fun Application.configureProfileRouting(freelService: FreelsService, profileServ
                         call.respond(HttpStatusCode.Created)
                     } else {
                         val receivedProfile = call.receive<Profile>()
-                        // Иначе проферим, что профиль фрилансера соответсвует изменяемому профилю
+                        // Иначе проверим, что профиль фрилансера соответсвует изменяемому профилю
                         if (freelProfile.id == receivedProfile.id) {
                             profileService.update(receivedProfile)
-                            call.respond(HttpStatusCode.Accepted)
+                            call.respond(HttpStatusCode.Created)
                         } else {
                             throw BadRequestException("Id профиля не соответствует id профиля пользователя")
                         }
