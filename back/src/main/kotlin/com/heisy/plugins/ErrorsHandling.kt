@@ -12,6 +12,7 @@ fun Application.errorsHandling() {
             val message = cause.message.toString()
             when (cause) {
                 is BadRequestException -> call.respondText(text = message, status = HttpStatusCode.BadRequest)
+                is NotFoundException -> call.respondText(text = message, status = HttpStatusCode.NotFound)
                 else -> call.respondText(text = "500", status = HttpStatusCode.InternalServerError)
             }
         }

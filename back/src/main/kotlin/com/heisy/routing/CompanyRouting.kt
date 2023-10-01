@@ -15,25 +15,23 @@ fun Application.configureCompanyRouting(userService: UserService, companyService
     routing {
         authenticate("company", "freel") {
             route("/company") {
-                // TODO Ошибка 500
                 get {
-                    val companies = companyService.getAll().map { it.toDataClass() }
-                    call.respond(HttpStatusCode.OK,companies)
+                    val companies = companyService.getAll()
+                    call.respond(HttpStatusCode.OK, companies)
                 }
 
                 put {
                     val userId = getId(call)
-                    val user =
-                        userService.read(userId) ?: throw BadRequestException("Комания пользователя не найдена")
+                    val user = userService.read(userId)!!
 
                     companyService.update(user.company.id.value, call.receive())
-                    call.respond(HttpStatusCode.OK)
+                    call.respond(HttpStatusCode.Accepted)
                 }
 
                 route("/{id}") {
                     get {
                         val id = call.parameters["id"] ?: throw MissingRequestParameterException("id is null")
-                        call.respond(HttpStatusCode.OK, companyService.read(id.toInt()).toDataClass())
+                        call.respond(HttpStatusCode.OK, companyService.read(id.toInt()))
                     }
                 }
 

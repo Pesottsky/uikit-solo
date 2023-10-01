@@ -37,7 +37,7 @@ fun Application.configureSchema(database: Database) {
     val linkService = LinksService(database)
     val companyService = CompanyService(database)
     val tokensService = TokensService(database)
-
+    val commentService = CommentService(database)
     val authUseCase = AuthUseCase(
         userService = userService,
         freelsService = freelsService,
@@ -47,7 +47,7 @@ fun Application.configureSchema(database: Database) {
     )
 
     configureAuthRouting(authUseCase)
-    configureTablesRouting(tablesService, rowService, profileService, linkService)
+    configureTablesRouting(tablesService, rowService, profileService, linkService, commentService)
     configureCompanyRouting(userService, companyService)
     configureProfileRouting(freelsService, profileService)
 

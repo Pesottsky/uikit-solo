@@ -48,7 +48,6 @@ fun Application.configureProfileRouting(freelService: FreelsService, profileServ
                         } else {
                             throw BadRequestException("Id профиля не соответствует id профиля пользователя")
                         }
-
                     }
                 }
 
@@ -57,10 +56,8 @@ fun Application.configureProfileRouting(freelService: FreelsService, profileServ
 
         get("/profile/{id}") {
             val profileId = call.parameters["id"] ?: throw MissingRequestParameterException("id")
-            val profile = profileService.get(profileId.toInt()).toDataClass()
+            val profile = profileService.get(profileId.toInt())
             call.respond(HttpStatusCode.OK, profile)
         }
-
-
     }
 }

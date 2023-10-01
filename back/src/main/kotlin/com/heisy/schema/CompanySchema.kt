@@ -10,8 +10,6 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
@@ -51,7 +49,7 @@ class CompanyService(database: Database) {
     object Companies : IntIdTable() {
         val name = varchar("name", length = 250)
         val link = varchar("link", length = 250).nullable()
-        val about = varchar("about", length = 1024).nullable()
+        val about = varchar("about", length = 2056).nullable()
     }
 
     init {
@@ -67,12 +65,13 @@ class CompanyService(database: Database) {
     }
 
     suspend fun getAll() = dbQuery {
-        ExposedCompany.all()
+        ExposedCompany.all().map { it.toDataClass() }
     }
 
-    suspend fun read(id: Int): ExposedCompany {
+
+    suspend fun read(id: Int): Company {
         return dbQuery {
-            ExposedCompany.findById(id) ?: throw NotFoundException("Комания не найдена")
+            ExposedCompany.findById(id)?.toDataClass() ?: throw NotFoundException("Комания не найдена")
         }
     }
 
@@ -83,12 +82,6 @@ class CompanyService(database: Database) {
                 it[about] = company.about
                 it[link] = company.link
             }
-        }
-    }
-
-    suspend fun delete(id: Int) {
-        dbQuery {
-            Companies.deleteWhere { Companies.id.eq(id) }
         }
     }
 }

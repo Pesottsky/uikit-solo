@@ -9,7 +9,6 @@ import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
 
@@ -25,6 +24,18 @@ data class User(
     val name: String? = null
 )
 
+@Serializable
+data class UpdatePassword(
+    @SerialName("login")
+    val login: String,
+
+    @SerialName("old_password")
+    val oldPassword: String,
+
+    @SerialName("new_password")
+    val newPassword: String
+)
+
 class ExposedUser(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<ExposedUser>(UserService.Users)
 
@@ -32,13 +43,6 @@ class ExposedUser(id: EntityID<Int>) : IntEntity(id) {
     var password by UserService.Users.password
     val tables by ExposedFreelsTable referrersOn FreelsTablesService.FreelsTables.userId
     var company by ExposedCompany referencedOn UserService.Users.company
-
-    fun toDataClass(): User {
-        return User(
-            login = this.login,
-            password = this.password,
-        )
-    }
 }
 
 class UserService(database: Database) {
@@ -90,18 +94,4 @@ class UserService(database: Database) {
             ) throw BadRequestException("Неправильный логин или пароль")
             exposedUser.id.value
         }
-
-    suspend fun update(id: Int, user: User) {
-        dbQuery {
-            Users.update({ Users.id eq id }) {
-                it[password] = user.password
-            }
-        }
-    }
-
-    suspend fun delete(id: Int) {
-        dbQuery {
-            Users.deleteWhere { Users.id.eq(id) }
-        }
-    }
 }

@@ -12,7 +12,6 @@ import java.util.*
 
 private const val jwtCompanyAudience = "company-audience"
 private const val jwtFreelAudience = "freel-audience"
-private const val generalAudience = "general-audience"
 private const val jwtDomain = "http://0.0.0.0:8080/"
 private const val jwtRealm = "ktor sample app"
 private const val jwtCompanySecret = "secret 1"
@@ -69,22 +68,22 @@ fun Application.configureSecurity() {
 
 }
 
-fun createCompanyToken(userId: Int, userType: String): String = run {
+fun createCompanyToken(userId: Int): String = run {
     JWT.create()
         .withAudience(jwtCompanyAudience)
         .withIssuer(jwtDomain)
         .withClaim("id", userId)
-        .withClaim("user_type", userType)
+        .withClaim("user_type", UserTypes.User.type)
         .withExpiresAt(Date(System.currentTimeMillis() + 3_000_0))
         .sign(Algorithm.HMAC256(jwtCompanySecret))
 }
 
-fun createFreelToken(userId: Int, userType: String): String = run {
+fun createFreelToken(userId: Int): String = run {
     JWT.create()
         .withAudience(jwtFreelAudience)
         .withIssuer(jwtDomain)
         .withClaim("id", userId)
-        .withClaim("user_type", userType)
+        .withClaim("user_type", UserTypes.Freel.type)
         .withExpiresAt(Date(System.currentTimeMillis() + 3_000_0))
         .sign(Algorithm.HMAC256(jwtFreelSecret))
 }

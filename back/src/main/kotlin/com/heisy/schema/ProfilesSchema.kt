@@ -21,19 +21,13 @@ data class Profile(
     val firstName: String,
 
     @SerialName("last_name")
-    val lastName: String,
-
-    @SerialName("surname")
-    val surname: String? = null,
+    val lastName: String? = null,
 
     @SerialName("price")
     val price: Int? = null,
 
     @SerialName("portfolio")
     val portfolio: String? = null,
-
-    @SerialName("comments")
-    val comments: String? = null,
 
     @SerialName("email")
     val email: String? = null,
@@ -45,7 +39,10 @@ data class Profile(
     val skills: String? = null,
 
     @SerialName("telegram")
-    val telegram: String? = null
+    val telegram: String? = null,
+
+    @SerialName("experience")
+    val experience: String? = null
 )
 
 class ExposedProfile(id: EntityID<Int>) : IntEntity(id) {
@@ -53,10 +50,9 @@ class ExposedProfile(id: EntityID<Int>) : IntEntity(id) {
 
     var firstName by ProfilesService.Profiles.firstName
     var lastName by ProfilesService.Profiles.lastName
-    var surname by ProfilesService.Profiles.surname
     var price by ProfilesService.Profiles.price
     var portfolio by ProfilesService.Profiles.portfolio
-    var comments by ProfilesService.Profiles.comments
+    var experience by ProfilesService.Profiles.experience
     var email by ProfilesService.Profiles.email
     var summary by ProfilesService.Profiles.summary
     var skills by ProfilesService.Profiles.skills
@@ -69,10 +65,9 @@ class ExposedProfile(id: EntityID<Int>) : IntEntity(id) {
             id = this.id.value,
             firstName = this.firstName,
             lastName = this.lastName,
-            surname = this.surname,
             price = this.price,
             portfolio = this.portfolio,
-            comments = this.comments,
+            experience = this.experience,
             email = this.email,
             summary = this.summary,
             skills = this.skills,
@@ -86,17 +81,16 @@ class ProfilesService(database: Database) {
     object Profiles : IntIdTable() {
         // Пользователь, к которому таблица привязана
         val firstName = varchar("firstName", length = 128)
-        val lastName = varchar("lastName", length = 128)
-        val surname = varchar("surname", length = 128).nullable()
+        val lastName = varchar("lastName", length = 128).nullable()
         val price = integer("price").nullable()
-        val portfolio = varchar("portfolio", length = 250).nullable()
-        val comments = varchar("comments", length = 250).nullable()
+        val portfolio = varchar("portfolio", length = 1024).nullable()
         val email = varchar("email", length = 250).nullable()
         val summary = varchar("summary", length = 1024).nullable()
         val skills = varchar("skills", length = 1024).nullable()
         val telegram = varchar("telegram", length = 128).nullable()
+        val experience = varchar("experience", length = 1024).nullable()
 
-        //Todo ссылка на грейд, загрузку и решить что с опытом
+        //Todo ссылка на грейд, загрузку
 
     }
 
@@ -107,7 +101,7 @@ class ProfilesService(database: Database) {
     }
 
     suspend fun get(id: Int) = dbQuery {
-        ExposedProfile.findById(id) ?: throw NotFoundException("Профиль не найден")
+        ExposedProfile.findById(id)?.toDataClass() ?: throw NotFoundException("Профиль не найден")
     }
 
 
@@ -115,10 +109,9 @@ class ProfilesService(database: Database) {
         ExposedProfile.new {
             firstName = profile.firstName
             lastName = profile.lastName
-            surname = profile.surname
             price = profile.price
             portfolio = profile.portfolio
-            comments = profile.comments
+            experience = profile.experience
             email = profile.email
             summary = profile.summary
             skills = profile.skills
@@ -133,10 +126,9 @@ class ProfilesService(database: Database) {
                 with(profileResult) {
                     firstName = profile.firstName
                     lastName = profile.lastName
-                    surname = profile.surname
                     price = profile.price
                     portfolio = profile.portfolio
-                    comments = profile.comments
+                    experience = profile.experience
                     email = profile.email
                     summary = profile.summary
                     skills = profile.skills

@@ -1,6 +1,7 @@
 package com.heisy.schema
 
 import com.heisy.plugins.dbQuery
+import io.ktor.server.plugins.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.IntEntity
@@ -8,7 +9,6 @@ import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 @Serializable
@@ -59,7 +59,9 @@ class FreelsTablesService(database: Database) {
 
     suspend fun create(name: String, userId: Int): FreelsTable = dbQuery {
         val user = ExposedUser.findById(userId)!!
-
+        if (user.tables.toList().size == 1) {
+            throw BadRequestException("Таблица уже есть")
+        }
         ExposedFreelsTable.new {
             this.name = name
             this.userId = user
@@ -82,10 +84,10 @@ class FreelsTablesService(database: Database) {
     }
 
     suspend fun delete(id: Int) {
-        dbQuery {
-            FreelsTables.deleteWhere { FreelsTables.id eq id }
+        val user = ExposedUser.findById(id)!!
+        user.tables.forEach {
+            it.delete()
         }
-
     }
 }
 
