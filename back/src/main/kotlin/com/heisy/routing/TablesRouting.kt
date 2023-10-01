@@ -14,7 +14,8 @@ fun Application.configureTablesRouting(
     tablesService: FreelsTablesService,
     rowService: FreelsRowsService,
     profilesService: ProfilesService,
-    linksService: LinksService
+    linksService: LinksService,
+    commentService: CommentService
 ) {
     routing {
         authenticate("company") {
@@ -22,7 +23,7 @@ fun Application.configureTablesRouting(
                 post {
                     val name = call.request.queryParameters["name"]
                     if (name != null) {
-                        val table= tablesService.create(name, getId(call))
+                        val table = tablesService.create(name, getId(call))
                         call.respond(HttpStatusCode.Created, table)
                     } else {
                         call.respond(HttpStatusCode.BadRequest, "Name is null")
@@ -35,62 +36,55 @@ fun Application.configureTablesRouting(
                 }
 
                 delete {
-                    // TODO проверка на то, что строка в таблице которая у пользователя а не левая
-
-                    val tableID =
-                        call.request.queryParameters["table_id"] ?: throw BadRequestException("table_id is null")
-                    tablesService.delete(tableID.toInt())
+                    tablesService.delete(getId(call))
                 }
 
-                route("/{table_id}/row") {
+                route("/row") {
                     post {
-                        val tableId = call.parameters["table_id"]
                         val profile = call.receive<Profile>()
-                        if (tableId != null) {
-                            val profileResult = profilesService.create(profile)
-                            val row = rowService.create(tableId.toInt(), profileResult)
-                            call.respond(HttpStatusCode.Created, row.toDataClass())
-                        } else {
-                            call.respond(HttpStatusCode.BadRequest, "table_id is null")
-                        }
+                        val profileResult = profilesService.create(profile)
+                        val row = rowService.create(getId(call), profileResult)
+                        call.respond(HttpStatusCode.Created, row.toDataClass())
+
                     }
 
                     // Создать строку с Id уже существующего профиля
                     post("/profile") {
-                        // TODO проверка на то, что строка в таблице которая у пользователя а не левая
-                        val tableId =
-                            call.parameters["table_id"] ?: throw BadRequestException("table_id is null")
-                        val profileId = call.request.queryParameters["profile_id"] ?: throw BadRequestException("profile_id is null")
+
+                        val profileId = call.request.queryParameters["profile_id"]
+                            ?: throw BadRequestException("profile_id is null")
 
                         val profileResult = profilesService.get(profileId.toInt())
-                        val row = rowService.create(tableId.toInt(), profileResult)
+                        val row = rowService.create(getId(call), profileResult)
                         call.respond(HttpStatusCode.Created, row.toDataClass())
 
                     }
 
                     // Изменить профиль в строке
                     put("/{rowId}") {
-                        // TODO проверка на то, что строка в таблице которая у пользователя а не левая
-                        val tableId = call.parameters["table_id"] ?: throw BadRequestException("table_id is null")
                         val rowId = call.parameters["row_id"] ?: throw BadRequestException("row_id is null")
                         val profile = call.receive<Profile>()
 
-                        rowService.updateProfile(rowId.toInt(), profile)
+                        rowService.updateProfile(rowId.toInt(), profile, getId(call))
                         call.respond(HttpStatusCode.Accepted)
 
                     }
 
                 }
-
-                get("/link") {
-                    // TODO если ссылка генерируется не на запись (записи пока нет)
-
-                    val rowId = call.request.queryParameters["row_id"] ?: throw BadRequestException("row_id is null")
-                    val link = linksService.create()
-                    rowService.updateLink(rowId.toInt(), link)
-                    call.respond(HttpStatusCode.Created, link.toDataClass())
-                }
             }
+
+            get("/link") {
+                val rowId = call.request.queryParameters["row_id"] ?: throw BadRequestException("row_id is null")
+                val link = linksService.create()
+                rowService.updateLink(rowId.toInt(), link, getId(call))
+                call.respond(HttpStatusCode.Created, link.toDataClass())
+            }
+
+            post("/comment") {
+                val comment = commentService.create(call.receive())
+                call.respond(HttpStatusCode.Created, comment)
+            }
+
         }
     }
 }

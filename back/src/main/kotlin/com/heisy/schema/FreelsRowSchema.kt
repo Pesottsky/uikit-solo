@@ -69,9 +69,21 @@ class FreelsRowsService(database: Database) {
     }
 
 
-    suspend fun create(tableId: Int, profile: ExposedProfile): ExposedFreelsRow = dbQuery {
-        val table = ExposedFreelsTable.findById(tableId)
+    suspend fun create(userId: Int, profile: Profile): ExposedFreelsRow = dbQuery {
+        val table = ExposedUser.findById(userId)!!.tables.singleOrNull()
+        val exposedProfile = ExposedProfile.findById(profile.id!!)!!
+        if (table != null) {
+            ExposedFreelsRow.new {
+                this.table = table
+                this.profile = exposedProfile
+            }
+        } else {
+            throw NotFoundException("Таблица с таким id не найдена")
+        }
+    }
 
+    suspend fun create(userId: Int, profile: ExposedProfile): ExposedFreelsRow = dbQuery {
+        val table = ExposedUser.findById(userId)!!.tables.singleOrNull()
         if (table != null) {
             ExposedFreelsRow.new {
                 this.table = table
@@ -80,29 +92,33 @@ class FreelsRowsService(database: Database) {
         } else {
             throw NotFoundException("Таблица с таким id не найдена")
         }
-
     }
 
-    suspend fun updateProfile(id: Int, profile: Profile) {
+    suspend fun updateProfile(id: Int, profile: Profile, userId: Int) {
         dbQuery {
+            val table = ExposedUser.findById(userId)!!.tables.first().rows.map { it.id.value }
             val row = ExposedFreelsRow.findById(id) ?: throw NotFoundException("Запись не найдена")
+            if (!table.contains(row.id.value)) throw BadRequestException("Строка с таким id в таблице, которая не принадлежит пользвателю")
 
             // Проверить есть ли у профиля владелец
             val profileOwner = row.profile.freel.singleOrNull()
-            if (profileOwner != null) throw NotFoundException("Вы не можете редактировать профиль")
+            if (profileOwner != null) throw  BadRequestException("Вы не можете редактировать профиль")
 
             val exposedProfile =
                 profile.id?.let { ExposedProfile.findById(it) } ?: throw NotFoundException("Профиля с таким id нет")
+
             row.profile = exposedProfile
 
         }
     }
 
 
-    suspend fun updateLink(id: Int, link: ExposedLink) {
+    suspend fun updateLink(id: Int, link: ExposedLink, userId: Int) {
         dbQuery {
+            val table = ExposedUser.findById(userId)!!.tables.first().rows.map { it.id.value }
             val row = ExposedFreelsRow.findById(id)
             if (row != null) {
+                if (!table.contains(row.id.value)) throw BadRequestException("Строка с таким id в таблице, которая не принадлежит пользвателю")
                 row.link = link
             } else {
                 throw NotFoundException("Запись не найдена")

@@ -21,8 +21,11 @@ data class Freel(
     @SerialName("password")
     val password: String,
 
-    @SerialName("name")
-    val name: String? = null
+    @SerialName("first_name")
+    val firstName: String,
+
+    @SerialName("last_name")
+    val lastName: String? = null
 )
 
 class ExposedFreel(id: EntityID<Int>) : IntEntity(id) {
@@ -31,14 +34,6 @@ class ExposedFreel(id: EntityID<Int>) : IntEntity(id) {
     var login by FreelsService.Freels.login
     var password by FreelsService.Freels.password
     var profile by ExposedProfile optionalReferencedOn FreelsService.Freels.profileId
-
-    fun toDataClass(): Freel {
-        return Freel(
-            login = this.login,
-            password = this.password,
-            name = this.profile?.firstName
-        )
-    }
 
     fun getProfile(): Profile? {
         return this.profile?.toDataClass()
@@ -63,14 +58,14 @@ class FreelsService(database: Database) {
     }
 
     suspend fun create(freel: Freel): ExposedFreel? = dbQuery {
-        // TODO
         val checkLoginInFreels = ExposedFreel.find { Freels.login eq freel.login }.singleOrNull()
         val checkLoginInUsers = ExposedUser.find { UserService.Users.login eq freel.login }.singleOrNull()
 
 
         if (checkLoginInFreels == null && checkLoginInUsers == null) {
             val profile = ExposedProfile.new {
-                firstName = freel.name ?: ""
+                firstName = freel.firstName
+                lastName = freel.lastName
             }
 
             ExposedFreel.new {

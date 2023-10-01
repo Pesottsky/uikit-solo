@@ -48,7 +48,7 @@ class CompanyService(database: Database) {
     object Companies : IntIdTable() {
         val name = varchar("name", length = 250)
         val link = varchar("link", length = 250).nullable()
-        val about = varchar("about", length = 1024).nullable()
+        val about = varchar("about", length = 2056).nullable()
     }
 
     object Errors {

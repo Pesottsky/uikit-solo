@@ -80,7 +80,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/Freel'
       responses:
         "201":
           description: Created
@@ -153,25 +153,11 @@ paths:
       tags:
         - Менеджемент базы
       summary: Удаление таблицы
-      parameters:
-        - name: table_id
-          in: query
-          description: ID таблицы
-          required: true
-          schema:
-            type: string
-  /table/{table_id}/row:
+  /table/row:
     post:
       tags:
         - Менеджемент базы
       summary: Создание записи в базе
-      parameters:
-        - name: table_id
-          in: path
-          description: ID таблицы (базы)
-          required: true
-          schema:
-            type: string
       requestBody:
         content:
           application/json:
@@ -184,24 +170,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TableRow'
-        "400":
-          content:
-            application/json:
-              examples:
-                Дефолтный ответ:
-                  value: "table_id is null"
-  /table/{table_id}/row/profile:
+  /table/row/profile:
     post:
       tags:
         - Менеджемент базы
       summary: Создать строку с Id уже существующего профиля
       parameters:
-        - name: table_id
-          in: path
-          description: ID таблицы (базы)
-          required: true
-          schema:
-            type: string
         - name: profile_id
           in: query
           description: ID профиля, который хотим добавить в базу
@@ -215,18 +189,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TableRow'
-  /table/{table_id}/row/{row_id}:
+  /table/row/{row_id}:
     put:
       tags:
         - Менеджемент базы
       summary: Отредактировать существующий профиль
       parameters:
-        - name: table_id
-          in: path
-          description: ID таблицы (базы)
-          required: true
-          schema:
-            type: string
         - name: row_id
           in: path
           description: Id записи, которую хотим отредактировать
@@ -322,6 +290,65 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Profile'
+  /link:
+    get:
+      tags:
+        - Менеджемент базы
+      summary: Получение ссылки
+      parameters:
+        - name: id
+          in: query
+          description: id записи
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Link'
+  /comment:
+    get:
+      tags:
+        - Менеджемент базы
+      summary: Комментарии компании к фрилансеру
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+  /update_password:
+    post:
+      tags:
+        - Авторизация
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePassword'
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+  /logout:
+    delete:
+      tags:
+        - Общие кейсы
+      responses:
+        "202":
+          description: Accepted
 components:
   schemas:
     User:
@@ -333,7 +360,7 @@ components:
         name:
           type: string
           nullable: true
-          description: Для фрилансера это его имя, для пользователя - название компании
+          description: название компании
         password:
           type: string
     Token:
@@ -400,8 +427,6 @@ components:
           type: string
         last_name:
           type: string
-        surname:
-          type: string
           nullable: true
         price:
           type: integer
@@ -409,7 +434,7 @@ components:
         portfolio:
           type: string
           nullable: true
-        comments:
+        experience:
           type: string
           nullable: true
         email:
@@ -437,3 +462,35 @@ components:
         about:
           type: string
           nullable: true
+    UpdatePassword:
+      type: object
+      properties:
+        login:
+          type: string
+        old_password:
+          type: string
+        new_password:
+          type: string
+    Comment:
+      type: object
+      properties:
+        id:
+          type: int
+          nullable: true
+        comment:
+          type: string
+        profile_id:
+          type: int
+    Freel:
+      type: object
+      properties:
+        login:
+          type: string
+          description: Он же почта
+        first_name:
+          type: string
+        last_name:
+          type: string
+          nullable: true
+        password:
+          type: string
