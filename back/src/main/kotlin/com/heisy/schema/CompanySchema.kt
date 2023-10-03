@@ -1,6 +1,6 @@
 package com.heisy.schema
 
-import com.heisy.plugins.dbQuery
+import com.heisy.schema.CompanyService.Errors.notFoundTextError
 import io.ktor.server.plugins.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -10,10 +10,7 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
 
 @Serializable
 data class Company(
@@ -24,10 +21,10 @@ data class Company(
     val name: String,
 
     @SerialName("link")
-    val link: String?,
+    val link: String? = null,
 
     @SerialName("about")
-    val about: String?
+    val about: String? = null
 )
 
 class ExposedCompany(id: EntityID<Int>) : IntEntity(id) {
@@ -35,7 +32,7 @@ class ExposedCompany(id: EntityID<Int>) : IntEntity(id) {
 
     var name by CompanyService.Companies.name
     var link by CompanyService.Companies.link
-    val about by CompanyService.Companies.about
+    var about by CompanyService.Companies.about
 
     fun toDataClass(): Company {
         return Company(
@@ -54,41 +51,36 @@ class CompanyService(database: Database) {
         val about = varchar("about", length = 1024).nullable()
     }
 
+    object Errors {
+        const val notFoundTextError = "Компания не найдена"
+    }
+
     init {
         transaction(database) {
             SchemaUtils.create(Companies)
         }
     }
 
-    suspend fun create(name: String): Int = dbQuery {
-        ExposedCompany.new {
-            this.name = name
-        }.id.value
+    fun create(name: String): Company = ExposedCompany.new {
+        this.name = name
+    }.toDataClass()
+
+
+    fun getAll(): List<Company> = ExposedCompany.all().map { it.toDataClass() }
+
+
+    fun get(id: Int): Company {
+        return ExposedCompany.findById(id)?.toDataClass()
+            ?: throw NotFoundException(notFoundTextError)
     }
 
-    suspend fun getAll() = dbQuery {
-        ExposedCompany.all()
-    }
-
-    suspend fun read(id: Int): ExposedCompany {
-        return dbQuery {
-            ExposedCompany.findById(id) ?: throw NotFoundException("Комания не найдена")
+    fun update(company: Company): Company {
+        val exposedCompany = ExposedCompany.findById(company.id) ?: throw NotFoundException(notFoundTextError)
+        exposedCompany.apply {
+            this.name = company.name
+            this.about = company.about
+            this.link = company.link
         }
-    }
-
-    suspend fun update(id: Int, company: Company) {
-        dbQuery {
-            Companies.update({ Companies.id eq id }) {
-                it[name] = company.name
-                it[about] = company.about
-                it[link] = company.link
-            }
-        }
-    }
-
-    suspend fun delete(id: Int) {
-        dbQuery {
-            Companies.deleteWhere { Companies.id.eq(id) }
-        }
+        return exposedCompany.toDataClass()
     }
 }

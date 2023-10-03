@@ -1,6 +1,6 @@
 package com.heisy.schema
 
-import com.heisy.plugins.dbQuery
+import com.heisy.schema.ProfilesService.Errors.notFoundTextError
 import io.ktor.server.plugins.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -64,8 +64,8 @@ class ExposedProfile(id: EntityID<Int>) : IntEntity(id) {
 
     val freel by ExposedFreel optionalReferrersOn FreelsService.Freels.profileId
 
-    fun toDataClass() = run {
-        Profile(
+    fun toDataClass(): Profile {
+        return Profile(
             id = this.id.value,
             firstName = this.firstName,
             lastName = this.lastName,
@@ -100,19 +100,38 @@ class ProfilesService(database: Database) {
 
     }
 
+    object Errors {
+        const val notFoundTextError = "Профиль не найден"
+    }
+
     init {
         transaction(database) {
             SchemaUtils.create(Profiles)
         }
     }
 
-    suspend fun get(id: Int) = dbQuery {
-        ExposedProfile.findById(id) ?: throw NotFoundException("Профиль не найден")
+    fun get(id: Int): Profile = ExposedProfile.findById(id)?.toDataClass()
+        ?: throw NotFoundException(notFoundTextError)
+
+
+    fun create(profile: Profile): Profile {
+        return ExposedProfile.new {
+            firstName = profile.firstName
+            lastName = profile.lastName
+            surname = profile.surname
+            price = profile.price
+            portfolio = profile.portfolio
+            comments = profile.comments
+            email = profile.email
+            summary = profile.summary
+            skills = profile.skills
+            telegram = profile.telegram
+        }.toDataClass()
     }
 
-
-    suspend fun create(profile: Profile): ExposedProfile = dbQuery {
-        ExposedProfile.new {
+    fun update(profile: Profile): Profile {
+        val profileResult = ExposedProfile.findById(profile.id!!) ?: throw NotFoundException(notFoundTextError)
+        with(profileResult) {
             firstName = profile.firstName
             lastName = profile.lastName
             surname = profile.surname
@@ -124,30 +143,8 @@ class ProfilesService(database: Database) {
             skills = profile.skills
             telegram = profile.telegram
         }
+        return profileResult.toDataClass()
     }
-
-    suspend fun update(profile: Profile) {
-        dbQuery {
-            val profileResult = ExposedProfile.findById(profile.id!!)
-            if (profileResult != null) {
-                with(profileResult) {
-                    firstName = profile.firstName
-                    lastName = profile.lastName
-                    surname = profile.surname
-                    price = profile.price
-                    portfolio = profile.portfolio
-                    comments = profile.comments
-                    email = profile.email
-                    summary = profile.summary
-                    skills = profile.skills
-                    telegram = profile.telegram
-                }
-            } else {
-                throw NotFoundException("Такой профиль не найден")
-            }
-        }
-    }
-
 }
 
 

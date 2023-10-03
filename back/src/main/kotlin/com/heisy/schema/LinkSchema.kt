@@ -58,10 +58,10 @@ class LinksService(database: Database) {
     }
 
 
-    suspend fun create(): ExposedLink = dbQuery {
+    fun create(): Link =
         ExposedLink.new {
             this.link = UUID.randomUUID()
-        }
+        }.toDataClass()
     }
 
 
