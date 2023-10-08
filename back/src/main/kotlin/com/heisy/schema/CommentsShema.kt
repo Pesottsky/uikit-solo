@@ -9,6 +9,7 @@ import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -28,7 +29,7 @@ class ExposedComment(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<ExposedComment>(CommentService.Comments)
 
     var comment by CommentService.Comments.comment
-    var profileId by  ExposedProfile referencedOn CommentService.Comments.profileId
+    var profileId by ExposedProfile referencedOn CommentService.Comments.profileId
 
     fun toDataClass(): Comment {
         return Comment(
@@ -41,8 +42,8 @@ class ExposedComment(id: EntityID<Int>) : IntEntity(id) {
 
 class CommentService(database: Database) {
     object Comments : IntIdTable() {
-        val profileId = reference("profileId", ProfilesService.Profiles)
-        val comment = varchar("about", length = 4128)
+        val profileId = reference("profileId", ProfilesService.Profiles, ReferenceOption.CASCADE)
+        val comment = varchar("comment", length = 4128)
     }
 
     init {
@@ -51,7 +52,7 @@ class CommentService(database: Database) {
         }
     }
 
-    suspend fun create(comment: Comment): Comment = dbQuery {
+    suspend fun create(comment: Comment, userId: Int): Comment = dbQuery {
         val exposedProfile = ExposedProfile.findById(comment.profileId) ?: throw NotFoundException("Профиль не найден")
         ExposedComment.new {
             this.comment = comment.comment

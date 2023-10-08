@@ -1,6 +1,5 @@
 package com.heisy.schema
 
-import com.heisy.plugins.dbQuery
 import io.ktor.server.plugins.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -8,7 +7,9 @@ import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.ReferenceOption
+import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
 
@@ -58,40 +59,39 @@ class UserService(database: Database) {
         }
     }
 
-    suspend fun create(user: User): Int? = dbQuery {
+    object Errors {
+        const val wrongPair = "Неправильный логин или пароль"
+        const val emailBusy = "Измените E-mail"
+    }
+
+    private fun checkLoginBusy(user: User) {
         val checkLoginInFreels = ExposedFreel.find { FreelsService.Freels.login eq user.login }.singleOrNull()
         val checkLoginInUsers = ExposedUser.find { Users.login eq user.login }.singleOrNull()
+        if (checkLoginInFreels != null || checkLoginInUsers != null) throw BadRequestException(Errors.emailBusy)
+    }
 
-        if (checkLoginInFreels == null && checkLoginInUsers == null) {
-            val exposedCompany = ExposedCompany.new {
-                name = user.name!!
-            }
+    fun create(user: User): ExposedUser {
+        checkLoginBusy(user)
 
-            ExposedUser.new {
-                login = user.login
-                password = BCrypt.hashpw(user.password, BCrypt.gensalt())
-                company = exposedCompany
-            }.id.value
-        } else {
-            null
+        val exposedCompany = ExposedCompany.new {
+            name = user.name!!
+        }
+        return ExposedUser.new {
+            login = user.login
+            password = BCrypt.hashpw(user.password, BCrypt.gensalt())
+            company = exposedCompany
         }
     }
 
-    suspend fun read(id: Int): ExposedUser? {
-        return dbQuery {
-            ExposedUser.findById(id)
-        }
-    }
+    fun checkAuth(user: User): ExposedUser? {
+        val exposedUser = ExposedUser.find { FreelsService.Freels.login eq user.login }
+            .singleOrNull() ?: return null
+        if (!BCrypt.checkpw(
+                user.password,
+                exposedUser.password
+            )
+        ) throw BadRequestException(Errors.wrongPair)
 
-    suspend fun checkAuth(user: User): Int? =
-        dbQuery {
-            val exposedUser = ExposedUser.find { (Users.login eq user.login) }
-                .singleOrNull() ?: return@dbQuery null
-            if (!BCrypt.checkpw(
-                    user.password,
-                    exposedUser.password
-                )
-            ) throw BadRequestException("Неправильный логин или пароль")
-            exposedUser.id.value
-        }
+        return exposedUser
+    }
 }

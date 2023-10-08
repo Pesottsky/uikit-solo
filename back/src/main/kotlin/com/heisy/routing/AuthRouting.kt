@@ -1,6 +1,7 @@
 package com.heisy.routing
 
 import com.heisy.domain.usecase.IAuthUseCase
+import com.heisy.plugins.UserTypes
 import com.heisy.schema.Token
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -48,13 +49,13 @@ fun Application.configureAuthRouting(authUseCase: IAuthUseCase) {
             }
         }
 
-        route("update_password") {
-            post {
-                val tokens = authUseCase.updatePassword(call.receive())
-                call.respond(HttpStatusCode.Accepted, tokens)
-            }
-        }
-        authenticate("company", "freel") {
+//        route("update_password") {
+//            post {
+//                val tokens = authUseCase.updatePassword(call.receive())
+//                call.respond(HttpStatusCode.Accepted, tokens)
+//            }
+//        }
+        authenticate(UserTypes.Company.name, UserTypes.Freel.name) {
             route("/logout") {
                 delete {
                     val principal = call.principal<JWTPrincipal>()

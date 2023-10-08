@@ -10,6 +10,7 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.SizedIterable
 import org.jetbrains.exposed.sql.transactions.transaction
 
 @Serializable
@@ -61,26 +62,28 @@ class CompanyService(database: Database) {
         }
     }
 
-    fun create(name: String): Company = ExposedCompany.new {
+    fun create(name: String): ExposedCompany = ExposedCompany.new {
         this.name = name
-    }.toDataClass()
+    }
 
 
-    fun getAll(): List<Company> = ExposedCompany.all().map { it.toDataClass() }
+    fun getAll(): SizedIterable<ExposedCompany> = ExposedCompany.all()
 
 
-    fun get(id: Int): Company {
-        return ExposedCompany.findById(id)?.toDataClass()
+    fun get(id: Int): ExposedCompany {
+        return ExposedCompany.findById(id)
             ?: throw NotFoundException(notFoundTextError)
     }
 
-    fun update(company: Company): Company {
-        val exposedCompany = ExposedCompany.findById(company.id) ?: throw NotFoundException(notFoundTextError)
+    fun update(userId: Int, company: Company): ExposedCompany {
+        val exposedCompany = ExposedUser.findById(userId)?.company ?: throw NotFoundException(notFoundTextError)
+        if (exposedCompany.id.value != company.id) throw NotFoundException(notFoundTextError)
+
         exposedCompany.apply {
             this.name = company.name
             this.about = company.about
             this.link = company.link
         }
-        return exposedCompany.toDataClass()
+        return exposedCompany
     }
 }

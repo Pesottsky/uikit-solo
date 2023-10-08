@@ -2,13 +2,9 @@ package com.heisy
 
 import com.heisy.plugins.*
 import io.ktor.server.application.*
-import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 
-fun main() {
-    embeddedServer(Netty, port = 81, host = "0.0.0.0", module = Application::module)
-        .start(wait = true)
-}
+fun main(args: Array<String>) = EngineMain.main(args)
 
 fun Application.module() {
     setup()
@@ -20,10 +16,5 @@ fun Application.setup() {
     configureHTTP()
     configureSecurity()
     errorsHandling()
-}
-
-fun Application.moduleTest() {
-    setup()
-    configureTestDatabases()
 }
 

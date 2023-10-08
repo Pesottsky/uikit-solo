@@ -39,7 +39,7 @@ dependencies {
     implementation("org.xerial:sqlite-jdbc:3.40.1.0")
 
     implementation("io.ktor:ktor-server-swagger-jvm")
-
+    implementation("io.ktor:ktor-server-config-yaml:$ktor_version")
     implementation("io.ktor:ktor-server-cors:$ktor_version")
     implementation("io.ktor:ktor-server-auth-jvm")
     implementation("io.ktor:ktor-server-auth-jwt-jvm")

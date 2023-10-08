@@ -1,7 +1,5 @@
 package com.heisy.schema
 
-import com.heisy.plugins.dbQuery
-import io.ktor.server.plugins.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.IntEntity
@@ -31,6 +29,8 @@ class ExposedLink(id: EntityID<Int>) : IntEntity(id) {
 
     var link by LinksService.Links.link
     var isRegister by LinksService.Links.isRegister
+    val rows by ExposedFreelsRow optionalReferrersOn FreelsRowsService.FreelsRows.linkId
+
 
     fun toDataClass() = run {
         Link(
@@ -58,32 +58,16 @@ class LinksService(database: Database) {
     }
 
 
-    fun create(): Link =
+    fun create(): ExposedLink =
         ExposedLink.new {
             this.link = UUID.randomUUID()
-        }.toDataClass()
-    }
-
-
-    suspend fun update(id: Int, isRegister: Boolean) {
-        dbQuery {
-            val link = ExposedLink.findById(id)
-            if (link != null) {
-                link.isRegister = isRegister
-            } else {
-                throw NotFoundException("Ссылка не найдена")
-            }
         }
-    }
 
-    suspend fun find(uuid: String): ExposedLink? = run {
+
+    fun findByUUID(uuid: String): ExposedLink? {
         val convertUUID = UUID.fromString(uuid)
-        return dbQuery {
-            ExposedLink.find { (Links.link eq convertUUID) }.singleOrNull()
-        }
+        return ExposedLink.find { (Links.link eq convertUUID) }.singleOrNull()
     }
-
-
 }
 
 

@@ -5,8 +5,10 @@ import com.heisy.domain.usecase.IAuthUseCase
 import com.heisy.schema.*
 import org.jetbrains.exposed.sql.Database
 
-class InjectionUtils {
+object InjectionUtils {
     private var mDatabase: Database? = null
+
+    private var refreshLifeTime = 0
 
     // services
     private var userService: UserService? = null
@@ -17,60 +19,62 @@ class InjectionUtils {
     private var companyService: CompanyService? = null
     private var tokensService: TokensService? = null
     private var rowService: FreelsRowsService? = null
+    private var commentService: CommentService? = null
 
     // useCases
     private var authUseCase: IAuthUseCase? = null
 
 
-    private fun provideDataBase(): Database {
-        if (mDatabase == null) {
-            mDatabase = Database.connect(
-                url = "jdbc:sqlite:./main",
-                driver = "org.sqlite.JDBC",
-            )
-        }
+    fun provideDataBase(database: Database? = null): Database {
+        if (mDatabase == null && database != null) mDatabase = database
         return mDatabase!!
     }
 
 
-    private fun provideUserService(database: Database = provideDataBase()) : UserService {
+    fun provideUserService(database: Database = provideDataBase()) : UserService {
         if (userService == null) userService =  UserService(database)
         return userService!!
     }
 
-    private fun provideTablesService(database: Database = provideDataBase()): FreelsTablesService {
+    fun provideTablesService(database: Database = provideDataBase()): FreelsTablesService {
         if (tablesService == null) tablesService =  FreelsTablesService(database)
         return tablesService!!
     }
 
-    private fun provideProfileService(database: Database = provideDataBase()): ProfilesService {
+    fun provideProfileService(database: Database = provideDataBase()): ProfilesService {
         if (profileService == null) profileService =  ProfilesService(database)
         return profileService!!
     }
 
-    private fun provideRowService(database: Database = provideDataBase()): FreelsRowsService {
+    fun provideRowService(database: Database = provideDataBase()): FreelsRowsService {
         if (rowService == null) rowService = FreelsRowsService(database)
         return rowService!!
     }
 
-    private fun provideFreelsService(database: Database = provideDataBase()): FreelsService {
+    fun provideFreelsService(database: Database = provideDataBase()): FreelsService {
         if (freelsService == null) freelsService = FreelsService(database)
         return freelsService!!
     }
 
-    private fun provideLinkService(database: Database = provideDataBase()): LinksService {
+    fun provideLinkService(database: Database = provideDataBase()): LinksService {
         if (linkService == null) linkService = LinksService(database)
         return linkService!!
     }
 
-    private fun provideCompanyService(database: Database = provideDataBase()): CompanyService {
+    fun provideCompanyService(database: Database = provideDataBase()): CompanyService {
         if (companyService == null) companyService = CompanyService(database)
         return companyService!!
     }
 
-    private fun provideTokensSerivce(database: Database = provideDataBase()): TokensService {
-        if (tokensService == null) tokensService = TokensService(database)
+    fun provideTokensSerivce(database: Database = provideDataBase(), rLifeTime: Int = refreshLifeTime): TokensService {
+        refreshLifeTime = rLifeTime
+        if (tokensService == null) tokensService = TokensService(database, refreshLifeTime)
         return tokensService!!
+    }
+
+    fun provideCommentService(database: Database = provideDataBase()): CommentService {
+        if (commentService == null) commentService = CommentService(database)
+        return commentService!!
     }
 
 
@@ -80,7 +84,7 @@ class InjectionUtils {
             userService = provideUserService(),
             freelsService = provideFreelsService(),
             linkService = provideLinkService(),
-            rowService = provideRowService(),
+            profilesService = provideProfileService(),
             tokensService = provideTokensSerivce()
         )
 

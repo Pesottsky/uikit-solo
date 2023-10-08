@@ -1,0 +1,19 @@
+ktor:
+  application:
+    modules:
+      - com.heisy.ApplicationKt.module
+  deployment:
+    port: "$PORT:81"
+    host: "$HOST:0.0.0.0"
+    db: DB_HOST
+    db_user: DB_USER
+    db_password: DB_PASSWORD
+jwt:
+  company_secret: "$COMPANY_SECRET:company_secret"
+  freel_secret: "$FREEL_SECRET:freel_secret"
+  company_audience: "$COMPANY_AUDIENCE:company_audience"
+  freel_audience: "$FREEL_AUDIENCE:freel_audience"
+  realm: "$REALM:soloteam'"
+  allow_host: "$ALLOW_HOST:*"
+  refresh_lifetime: "$REFRESH:1_000_000_00"
+  access_lifetime: "$ACCESS:3_000_0"

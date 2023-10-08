@@ -10,18 +10,49 @@ import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.response.*
 import java.util.*
 
-private const val jwtCompanyAudience = "company-audience"
-private const val jwtFreelAudience = "freel-audience"
-private const val jwtDomain = "http://0.0.0.0:8080/"
-private const val jwtRealm = "ktor sample app"
-private const val jwtCompanySecret = "secret 1"
-private const val jwtFreelSecret = "secret 2"
+
+object TokensConfigStorage {
+    var accessLifetime = 0
+    var domain = ""
+    var companyAudience = ""
+    var freelAudience = ""
+    var companySecret = ""
+    var freelSecret = ""
+}
 
 fun Application.configureSecurity() {
-    // Please read the jwt property from the config file if you are using EngineMain
+    val jwtCompanyAudience = environment.config.property("jwt.company_audience").getString()
+    val jwtFreelAudience = environment.config.property("jwt.freel_audience").getString()
+    val jwtCompanySecret = environment.config.property("jwt.company_secret").getString()
+    val jwtFreelSecret = environment.config.property("jwt.freel_secret").getString()
+    val jwtRealm = environment.config.property("jwt.realm").getString()
+    val allowHost = environment.config.property("jwt.allow_host").getString()
+
+    val accessLifeTime = environment.config.property("jwt.access_lifetime").getString().toInt()
+
+    val domain = "${
+        environment.config.property("ktor.deployment.host").getString()
+    }:${environment.config.property("ktor.deployment.port").getString()}"
+
+    println(jwtCompanyAudience)
+    println(jwtFreelAudience)
+    println(jwtCompanySecret)
+    println(jwtFreelSecret)
+    println(domain)
+    println(accessLifeTime)
+
+    TokensConfigStorage.apply {
+        this.accessLifetime = accessLifeTime
+        this.domain = domain
+        this.companyAudience = jwtCompanyAudience
+        this.freelAudience = jwtFreelAudience
+        this.companySecret = jwtCompanySecret
+        this.freelSecret = jwtFreelSecret
+    }
+
     install(CORS) {
         allowMethod(HttpMethod.Options)
-        allowHost("localhost:5173")
+        allowHost(allowHost)
         allowHeader(HttpHeaders.Authorization)
         allowHeader(HttpHeaders.ContentType)
         allowHeader(HttpHeaders.Accept)
@@ -31,13 +62,13 @@ fun Application.configureSecurity() {
     }
 
     authentication {
-        jwt("company") {
+        jwt(UserTypes.Company.name) {
             realm = jwtRealm
             verifier(
                 JWT
                     .require(Algorithm.HMAC256(jwtCompanySecret))
                     .withAudience(jwtCompanyAudience)
-                    .withIssuer(jwtDomain)
+                    .withIssuer(domain)
                     .build()
             )
             validate { credential ->
@@ -48,13 +79,13 @@ fun Application.configureSecurity() {
             }
         }
 
-        jwt("freel") {
+        jwt(UserTypes.Freel.name) {
             realm = jwtRealm
             verifier(
                 JWT
                     .require(Algorithm.HMAC256(jwtFreelSecret))
                     .withAudience(jwtFreelAudience)
-                    .withIssuer(jwtDomain)
+                    .withIssuer(domain)
                     .build()
             )
             validate { credential ->
@@ -68,24 +99,24 @@ fun Application.configureSecurity() {
 
 }
 
-fun createCompanyToken(userId: Int): String = run {
-    JWT.create()
-        .withAudience(jwtCompanyAudience)
-        .withIssuer(jwtDomain)
+fun createCompanyToken(userId: Int): String {
+    return JWT.create()
+        .withAudience(TokensConfigStorage.companyAudience)
+        .withIssuer(TokensConfigStorage.domain)
         .withClaim("id", userId)
-        .withClaim("user_type", UserTypes.User.type)
-        .withExpiresAt(Date(System.currentTimeMillis() + 3_000_0))
-        .sign(Algorithm.HMAC256(jwtCompanySecret))
+        .withClaim("user_type", UserTypes.Company.name)
+        .withExpiresAt(Date(System.currentTimeMillis() + TokensConfigStorage.accessLifetime))
+        .sign(Algorithm.HMAC256(TokensConfigStorage.companySecret))
 }
 
-fun createFreelToken(userId: Int): String = run {
-    JWT.create()
-        .withAudience(jwtFreelAudience)
-        .withIssuer(jwtDomain)
+fun createFreelToken(userId: Int): String {
+    return JWT.create()
+        .withAudience(TokensConfigStorage.freelAudience)
+        .withIssuer(TokensConfigStorage.domain)
         .withClaim("id", userId)
-        .withClaim("user_type", UserTypes.Freel.type)
-        .withExpiresAt(Date(System.currentTimeMillis() + 3_000_0))
-        .sign(Algorithm.HMAC256(jwtFreelSecret))
+        .withClaim("user_type", UserTypes.Freel.name)
+        .withExpiresAt(Date(System.currentTimeMillis() + TokensConfigStorage.accessLifetime))
+        .sign(Algorithm.HMAC256(TokensConfigStorage.freelSecret))
 }
 
 fun getId(call: ApplicationCall): Int {
@@ -98,7 +129,7 @@ fun getType(call: ApplicationCall): String {
     return principal!!.payload.getClaim("user_type").asString()
 }
 
-enum class UserTypes(val type: String) {
-    Freel("freel"),
-    User("user")
+enum class UserTypes {
+    Freel,
+    Company
 }

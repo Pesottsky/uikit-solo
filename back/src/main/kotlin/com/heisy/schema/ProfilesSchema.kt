@@ -42,7 +42,10 @@ data class Profile(
     val telegram: String? = null,
 
     @SerialName("experience")
-    val experience: String? = null
+    val experience: String? = null,
+
+    @SerialName("link")
+    val link: String? = null
 )
 
 class ExposedProfile(id: EntityID<Int>) : IntEntity(id) {
@@ -57,6 +60,7 @@ class ExposedProfile(id: EntityID<Int>) : IntEntity(id) {
     var summary by ProfilesService.Profiles.summary
     var skills by ProfilesService.Profiles.skills
     var telegram by ProfilesService.Profiles.telegram
+    var link by ProfilesService.Profiles.link
 
     val freel by ExposedFreel optionalReferrersOn FreelsService.Freels.profileId
 
@@ -72,6 +76,7 @@ class ExposedProfile(id: EntityID<Int>) : IntEntity(id) {
             summary = this.summary,
             skills = this.skills,
             telegram = this.telegram,
+            link = this.link
         )
     }
 }
@@ -86,6 +91,7 @@ class ProfilesService(database: Database) {
         val portfolio = varchar("portfolio", length = 1024).nullable()
         val email = varchar("email", length = 250).nullable()
         val summary = varchar("summary", length = 1024).nullable()
+        val link = varchar("link", length = 128)
         val skills = varchar("skills", length = 1024).nullable()
         val telegram = varchar("telegram", length = 128).nullable()
         val experience = varchar("experience", length = 1024).nullable()
@@ -104,12 +110,29 @@ class ProfilesService(database: Database) {
         }
     }
 
-    fun get(id: Int): Profile = ExposedProfile.findById(id)?.toDataClass()
-        ?: throw NotFoundException(notFoundTextError)
+    fun get(id: Int): ExposedProfile? = ExposedProfile.findById(id)
 
 
-    fun create(profile: Profile): Profile {
-        return ExposedProfile.new {
+    fun create(profile: Profile): ExposedProfile {
+            return ExposedProfile.new {
+                firstName = profile.firstName
+                lastName = profile.lastName
+                price = profile.price
+                portfolio = profile.portfolio
+                experience = profile.experience
+                email = profile.email
+                summary = profile.summary
+                skills = profile.skills
+                telegram = profile.telegram
+                link =
+                    if (profile.lastName == null) "${profile.firstName}?profileId=${this.id.value}" else "${profile.firstName}${profile.lastName}?profileId=${this.id.value}"
+            }
+    }
+
+    fun updateByFreel(freelId: Int, profile: Profile): ExposedProfile {
+        val exposedProfile = ExposedFreel.findById(freelId)?.profile ?: throw NotFoundException(notFoundTextError)
+        if (exposedProfile.id.value != profile.id) throw NotFoundException(notFoundTextError)
+        with(exposedProfile) {
             firstName = profile.firstName
             lastName = profile.lastName
             price = profile.price
@@ -119,24 +142,23 @@ class ProfilesService(database: Database) {
             summary = profile.summary
             skills = profile.skills
             telegram = profile.telegram
-        }.toDataClass()
+        }
+        return exposedProfile
     }
 
-    fun update(profile: Profile): Profile {
-        val profileResult = ExposedProfile.findById(profile.id!!) ?: throw NotFoundException(notFoundTextError)
-        with(profileResult) {
+    fun updateByCompany(exposedProfile: ExposedProfile, profile: Profile): ExposedProfile {
+        with(exposedProfile) {
             firstName = profile.firstName
             lastName = profile.lastName
-            surname = profile.surname
             price = profile.price
             portfolio = profile.portfolio
-            comments = profile.comments
+            experience = profile.experience
             email = profile.email
             summary = profile.summary
             skills = profile.skills
             telegram = profile.telegram
         }
-        return profileResult.toDataClass()
+        return exposedProfile
     }
 }
 

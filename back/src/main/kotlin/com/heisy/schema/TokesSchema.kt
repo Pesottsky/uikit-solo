@@ -40,7 +40,7 @@ class ExposedToken(id: EntityID<Int>) : IntEntity(id) {
 }
 
 
-class TokensService(database: Database) {
+class TokensService(database: Database, private val refreshLifeTime: Int) {
     object Tokens : IntIdTable() {
         val userId = integer("userId")
         val refreshToken = varchar("refreshToken", length = 1024)
@@ -54,21 +54,20 @@ class TokensService(database: Database) {
         }
     }
 
-    suspend fun generateTokenPair(userId: Int, userType: String): Token {
+    fun generateTokenPair(userId: Int, userType: String): Token {
         val currentTime = System.currentTimeMillis()
 
-        val access: String = if (userType == UserTypes.User.type) createCompanyToken(userId)
+        val access: String = if (userType == UserTypes.Company.name) createCompanyToken(userId)
         else createFreelToken(userId)
 
         val refreshToken = UUID.randomUUID().toString()
         val encryptedToken = BCrypt.hashpw(refreshToken, BCrypt.gensalt())
-        dbQuery {
-            ExposedToken.new {
-                this.userId = userId
-                this.refreshToken = encryptedToken
-                this.userType = userType
-                expiresAt = currentTime + 1_000_000_00
-            }
+
+        ExposedToken.new {
+            this.userId = userId
+            this.refreshToken = encryptedToken
+            this.userType = userType
+            expiresAt = currentTime + refreshLifeTime
         }
 
         return Token(
@@ -79,36 +78,34 @@ class TokensService(database: Database) {
     }
 
 
-    suspend fun refresh(token: String, userId: Int, userType: String): Token? = dbQuery {
+    fun refresh(token: String, userId: Int, userType: String): Token? {
         val currentTime = System.currentTimeMillis()
-
 
         val exposedRefresh =
             ExposedToken.find { (Tokens.userId eq userId) and (Tokens.userType eq userType) }
-                .singleOrNull() ?: return@dbQuery null
+                .singleOrNull() ?: return null
 
         if (!BCrypt.checkpw(
                 token,
                 exposedRefresh.refreshToken
             )
-        ) return@dbQuery null
+        ) return null
 
-        if (exposedRefresh.expiresAt > currentTime) {
+        return if (exposedRefresh.expiresAt > currentTime) {
             val refreshToken = UUID.randomUUID().toString()
             exposedRefresh.refreshToken = BCrypt.hashpw(refreshToken, BCrypt.gensalt())
-            exposedRefresh.expiresAt = Date(System.currentTimeMillis() + 1_000_000_00).time
+
+            exposedRefresh.expiresAt = Date(System.currentTimeMillis() + refreshLifeTime).time
             val access: String =
-                if (exposedRefresh.userType == UserTypes.User.type) createCompanyToken(exposedRefresh.userId)
+                if (exposedRefresh.userType == UserTypes.Company.name) createCompanyToken(exposedRefresh.userId)
                 else createFreelToken(exposedRefresh.userId)
 
-            return@dbQuery Token(
+            Token(
                 access = access,
                 refresh = refreshToken,
                 userType = userType
             )
-        } else {
-            null
-        }
+        } else null
     }
 
     suspend fun logout(userId: Int, userType: String) {
