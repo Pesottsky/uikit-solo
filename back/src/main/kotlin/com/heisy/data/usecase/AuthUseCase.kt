@@ -62,8 +62,8 @@ class AuthUseCase(
     }
 
 
-    override suspend fun refresh(token: String, userId: Int, userType: String): Token = dbQuery {
-        tokensService.refresh(token, userId, userType) ?: throw BadRequestException("token is invalid")
+    override suspend fun refresh(token: String): Token = dbQuery {
+        tokensService.refresh(token) ?: throw BadRequestException("token is invalid")
     }
 
     override suspend fun logout(userId: Int, userType: String) {

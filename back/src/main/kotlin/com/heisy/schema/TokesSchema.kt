@@ -78,18 +78,25 @@ class TokensService(database: Database, private val refreshLifeTime: Int) {
     }
 
 
-    fun refresh(token: String, userId: Int, userType: String): Token? {
+    fun refresh(token: String): Token? {
         val currentTime = System.currentTimeMillis()
 
-        val exposedRefresh =
-            ExposedToken.find { (Tokens.userId eq userId) and (Tokens.userType eq userType) }
-                .singleOrNull() ?: return null
+        var exposedRefresh: ExposedToken? = null
 
-        if (!BCrypt.checkpw(
-                token,
-                exposedRefresh.refreshToken
-            )
-        ) return null
+        val exposedRefreshList =
+            ExposedToken.all()
+        for (tokenItem in exposedRefreshList) {
+            if (BCrypt.checkpw(
+                    token,
+                    tokenItem.refreshToken
+                )
+            ) {
+                exposedRefresh = tokenItem
+                break
+            }
+        }
+
+        exposedRefresh ?: return null
 
         return if (exposedRefresh.expiresAt > currentTime) {
             val refreshToken = UUID.randomUUID().toString()
@@ -103,7 +110,7 @@ class TokensService(database: Database, private val refreshLifeTime: Int) {
             Token(
                 access = access,
                 refresh = refreshToken,
-                userType = userType
+                userType = exposedRefresh.userType
             )
         } else null
     }

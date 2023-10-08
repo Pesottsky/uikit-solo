@@ -96,7 +96,7 @@ class ProfilesService(database: Database) {
         val telegram = varchar("telegram", length = 128).nullable()
         val experience = varchar("experience", length = 1024).nullable()
 
-        //Todo ссылка на грейд, загрузку
+        // Todo ссылка на грейд, загрузку
 
     }
 

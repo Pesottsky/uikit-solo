@@ -15,7 +15,7 @@ interface IAuthUseCase {
 
     suspend fun registerFreelByLink(link: String, freel: Freel): Token
 
-    suspend fun refresh(token: String, userId: Int, userType: String): Token
+    suspend fun refresh(token: String): Token
 
     suspend fun logout(userId: Int, userType: String)
 

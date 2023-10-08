@@ -84,7 +84,7 @@ class UserService(database: Database) {
     }
 
     fun checkAuth(user: User): ExposedUser? {
-        val exposedUser = ExposedUser.find { FreelsService.Freels.login eq user.login }
+        val exposedUser = ExposedUser.find { Users.login eq user.login }
             .singleOrNull() ?: return null
         if (!BCrypt.checkpw(
                 user.password,

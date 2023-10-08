@@ -3,7 +3,9 @@ package com.heisy.routing
 import com.heisy.plugins.UserTypes
 import com.heisy.plugins.dbQuery
 import com.heisy.plugins.getId
+import com.heisy.plugins.getIdTypePair
 import com.heisy.schema.ProfilesService
+import com.heisy.utils.LogUtils
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -17,7 +19,7 @@ fun Application.configureProfileRouting( profileService: ProfilesService) {
         authenticate(UserTypes.Freel.name) {
             route("/profile") {
                 get {
-
+                    call.application.environment.log.info(LogUtils.createLog(getIdTypePair(call), call.request.uri))
                     val profile = dbQuery { profileService.get(getId(call))?.toDataClass() }
                     if (profile == null) {
                         call.respond(HttpStatusCode.NoContent)
@@ -27,6 +29,7 @@ fun Application.configureProfileRouting( profileService: ProfilesService) {
                 }
 
                 put {
+                    call.application.environment.log.info(LogUtils.createLog(getIdTypePair(call), call.request.uri))
                     val profile = dbQuery { profileService.updateByFreel(getId(call), call.receive()).toDataClass() }
                     call.respond(HttpStatusCode.Accepted, profile)
                 }

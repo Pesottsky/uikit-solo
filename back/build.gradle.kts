@@ -36,7 +36,10 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-dao:$exposed_version")
     implementation("org.mindrot", "jbcrypt", "0.4")
     // database
-    implementation("org.xerial:sqlite-jdbc:3.40.1.0")
+    implementation("mysql:mysql-connector-java:8.0.33")
+
+    implementation("net.axay:simplekotlinmail-core:1.4.0")
+    implementation("net.axay:simplekotlinmail-client:1.4.0")
 
     implementation("io.ktor:ktor-server-swagger-jvm")
     implementation("io.ktor:ktor-server-config-yaml:$ktor_version")

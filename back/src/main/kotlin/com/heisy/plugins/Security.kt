@@ -34,13 +34,6 @@ fun Application.configureSecurity() {
         environment.config.property("ktor.deployment.host").getString()
     }:${environment.config.property("ktor.deployment.port").getString()}"
 
-    println(jwtCompanyAudience)
-    println(jwtFreelAudience)
-    println(jwtCompanySecret)
-    println(jwtFreelSecret)
-    println(domain)
-    println(accessLifeTime)
-
     TokensConfigStorage.apply {
         this.accessLifetime = accessLifeTime
         this.domain = domain
@@ -127,6 +120,13 @@ fun getId(call: ApplicationCall): Int {
 fun getType(call: ApplicationCall): String {
     val principal = call.principal<JWTPrincipal>()
     return principal!!.payload.getClaim("user_type").asString()
+}
+
+fun getIdTypePair(call: ApplicationCall): Pair<String, String> {
+    val principal = call.principal<JWTPrincipal>()
+    val id = principal!!.payload.getClaim("id").asString()
+    val type = principal.payload.getClaim("user_type").asString()
+    return Pair(id , type)
 }
 
 enum class UserTypes {

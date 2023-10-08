@@ -3,7 +3,9 @@ package com.heisy.routing
 import com.heisy.plugins.UserTypes
 import com.heisy.plugins.dbQuery
 import com.heisy.plugins.getId
+import com.heisy.plugins.getIdTypePair
 import com.heisy.schema.CompanyService
+import com.heisy.utils.LogUtils
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -17,6 +19,7 @@ fun Application.configureCompanyRouting(companyService: CompanyService) {
         authenticate(UserTypes.Company.name) {
             route("/company") {
                 get {
+                    call.application.environment.log.info(LogUtils.createLog(getIdTypePair(call), call.request.uri))
                     val companies = dbQuery {
                         companyService.getAll().map { it.toDataClass() }
                     }
@@ -24,6 +27,7 @@ fun Application.configureCompanyRouting(companyService: CompanyService) {
                 }
 
                 put {
+                    call.application.environment.log.info(LogUtils.createLog(getIdTypePair(call), call.request.uri))
                     val userId = getId(call)
                     val company = dbQuery {
                         companyService.update(userId, call.receive()).toDataClass()
@@ -33,6 +37,7 @@ fun Application.configureCompanyRouting(companyService: CompanyService) {
 
                 route("/{id}") {
                     get {
+                        call.application.environment.log.info(LogUtils.createLog(getIdTypePair(call), call.request.uri))
                         val id = call.parameters["id"] ?: throw MissingRequestParameterException("id is null")
                         val company = dbQuery { companyService.get(id.toInt()) }.toDataClass()
                         call.respond(HttpStatusCode.OK, company)

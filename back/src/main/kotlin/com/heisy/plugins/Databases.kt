@@ -14,10 +14,11 @@ fun Application.configureDatabases() {
     val url = environment.config.property("ktor.deployment.db").getString()
     val user = environment.config.property("ktor.deployment.db_user").getString()
     val password = environment.config.property("ktor.deployment.db_password").getString()
+    val port = environment.config.property("ktor.deployment.db_port").getString()
+    val table = environment.config.property("ktor.deployment.db_table").getString()
 
     val database = Database.connect(
-        url = url,
-        driver = "org.sqlite.JDBC",
+        url = "jdbc:mysql://$url:$port/$table",
         user = user,
         password = password
     )

@@ -18,20 +18,22 @@ services:
       DB_HOST: db
       DB_USER: db_user
       DB_PASSWORD: 1234
-      COMPANY_SECRET: 1488
-      FREEL_SECRET: 1499
+      COMPANY_SECRET: company_secret
+      FREEL_SECRET: freel_secret
       COMPANY_AUDIENCE: tikhonov
-      FREEL_AUDIENCE: pessotskiy
-      REALM: soloteam
-      ALLOW_HOST: *
-      REFRESH: 10000
-      ACCESS: 4000
+      FREEL_AUDIENCE: pesotskiy
+  #      REALM: soloteam
+  #      ALLOW_HOST: *
+      REFRESH: 10000000
+      ACCESS: 30000
     ports:
-      - 81:81
+      - "81:81"
     depends_on:
       - db
     networks:
-      – mynet
+      - mynet
+#    volumes:
+#      - "./logs:testFile.log"
   db:
     image: mysql:5.7
     environment:
@@ -40,13 +42,11 @@ services:
       MYSQL_USER: db_user
       MYSQL_PASSWORD: 1234
     ports:
-      – 3306:3306
+      - "3306:3306"
     volumes:
-      – "mysql-data:/var/lib/mysql"
-    networks:
-      – mynet
-volumes:
-   mysql-data:
+      - "./mysql-data:/var/lib/mysql"
+    networks: 
+      - mynet  
 networks:
   mynet:
     driver: bridge

@@ -1,8 +1,9 @@
 package com.heisy.routing
 
 import com.heisy.domain.usecase.IAuthUseCase
-import com.heisy.plugins.UserTypes
+import com.heisy.plugins.*
 import com.heisy.schema.Token
+import com.heisy.utils.LogUtils
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -21,12 +22,9 @@ fun Application.configureAuthRouting(authUseCase: IAuthUseCase) {
         }
 
         post("/refresh") {
-            val principal = call.principal<JWTPrincipal>()
-            val id =  principal!!.payload.getClaim("id").asInt()
-            val type = principal.payload.getClaim("user_type").asString()
             call.respond(
                 HttpStatusCode.Created,
-                authUseCase.refresh(call.receive<Token>().refresh, id ,type)
+                authUseCase.refresh(call.receive<Token>().refresh)
             )
         }
 
@@ -58,6 +56,7 @@ fun Application.configureAuthRouting(authUseCase: IAuthUseCase) {
         authenticate(UserTypes.Company.name, UserTypes.Freel.name) {
             route("/logout") {
                 delete {
+                    call.application.environment.log.info(LogUtils.createLog(getIdTypePair(call), call.request.uri))
                     val principal = call.principal<JWTPrincipal>()
                     val id =  principal!!.payload.getClaim("id").asInt()
                     val type = principal.payload.getClaim("user_type").asString()

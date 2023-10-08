@@ -5,15 +5,17 @@ ktor:
   deployment:
     port: "$PORT:81"
     host: "$HOST:0.0.0.0"
-    db: DB_HOST
-    db_user: DB_USER
-    db_password: DB_PASSWORD
+    db: "$DB_HOST:127.0.0.1"
+    db_user: "$DB_USER:db_user"
+    db_password: "$DB_PASSWORD:1234"
+    db_port: "$DB_PORT:3306"
+    db_table: "$DB_TABLE:main"
 jwt:
   company_secret: "$COMPANY_SECRET:company_secret"
   freel_secret: "$FREEL_SECRET:freel_secret"
   company_audience: "$COMPANY_AUDIENCE:company_audience"
   freel_audience: "$FREEL_AUDIENCE:freel_audience"
-  realm: "$REALM:soloteam'"
+  realm: "$REALM:soloteam"
   allow_host: "$ALLOW_HOST:*"
-  refresh_lifetime: "$REFRESH:1_000_000_00"
-  access_lifetime: "$ACCESS:3_000_0"
+  refresh_lifetime: "$REFRESH:100000000"
+  access_lifetime: "$ACCESS:30000"
