@@ -19,3 +19,18 @@ jwt:
   allow_host: "$ALLOW_HOST:*"
   refresh_lifetime: "$REFRESH:100000000"
   access_lifetime: "$ACCESS:30000"
+smtp:
+  no_replay:
+    login: "$SMTP_NOREPLAY_LOGIN"
+    password: "$SMTP_NOREPLAY_PASSWORD"
+#  info:
+#    login: "$SMTP_INFO_LOGIN"
+#    password: "$SMTP_INFO_PASSWORD"
+#  hello:
+#    login: "$SMTP_HELLO_LOGIN"
+#    password: "$SMTP_HELLO_PASSWORD"
+#  service:
+#    login: "$SMTP_SERVICE_LOGIN"
+#    password: "$SMTP_SERVICE_PASSWORD"
+recovery:
+  password: "$RECOVERY:604800000"

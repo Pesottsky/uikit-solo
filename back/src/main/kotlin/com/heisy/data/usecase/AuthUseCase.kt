@@ -1,11 +1,16 @@
 package com.heisy.data.usecase
 
 import com.heisy.domain.usecase.IAuthUseCase
+import com.heisy.errors.ExpiredException
 import com.heisy.plugins.UserTypes
 import com.heisy.plugins.dbQuery
 import com.heisy.schema.*
+import io.ktor.server.application.*
 import io.ktor.server.plugins.*
 import org.mindrot.jbcrypt.BCrypt
+import java.util.*
+import java.util.concurrent.TimeUnit
+
 
 class AuthUseCase(
     private val userService: UserService,
@@ -20,12 +25,22 @@ class AuthUseCase(
     }
 
     override suspend fun login(user: User): Token = dbQuery {
-        var id = freelsService.checkAuth(user)?.id?.value
+        val id = freelsService.checkAuth(user)?.id?.value
         if (id != null) {
             tokensService.generateTokenPair(id, UserTypes.Freel.name)
         } else {
-            id = userService.checkAuth(user)?.id?.value ?: throw BadRequestException(UserService.Errors.wrongPair)
-            tokensService.generateTokenPair(id, UserTypes.Company.name)
+            val exposedUser = userService.checkAuth(user) ?: throw BadRequestException(UserService.Errors.wrongPair)
+
+            val currentTime = System.currentTimeMillis()
+            val diffInMillisec: Long = currentTime - exposedUser.registrationDate
+
+            val diffInDays = TimeUnit.MILLISECONDS.toDays(diffInMillisec)
+            if (diffInDays > 60) {
+                if (exposedUser.paymentUntil == null) throw ExpiredException("Оплатите подписку")
+                if (exposedUser.paymentUntil!! < currentTime) throw ExpiredException("Оплатите подписку")
+            }
+
+            tokensService.generateTokenPair(exposedUser.id.value, UserTypes.Company.name)
         }
     }
 
@@ -71,28 +86,40 @@ class AuthUseCase(
     }
 
     override suspend fun updatePassword(pwd: UpdatePassword): Token = dbQuery {
+        val convertUUID = UUID.fromString(pwd.code)
 
-        // TODO тут полная хуйня, надо писать на почту
+        // Если код не совпадает
+        val exposedPassword = ExposedForgetPassword.find { TokensService.Passwords.code eq convertUUID }.singleOrNull()
+            ?: throw BadRequestException(UserService.Errors.wrongPair)
+
+        // Если логин для кода не верный
+        if (exposedPassword.email != pwd.login) throw BadRequestException(UserService.Errors.wrongPair)
+
+        if (exposedPassword.expiresAt < System.currentTimeMillis() || exposedPassword.isRecovered) throw ExpiredException(
+            "code is expired"
+        )
+
         val checkLoginInFreels = ExposedFreel.find { FreelsService.Freels.login eq pwd.login }.singleOrNull()
         val checkLoginInUsers = ExposedUser.find { UserService.Users.login eq pwd.login }.singleOrNull()
         if (checkLoginInFreels == null && checkLoginInUsers == null) throw BadRequestException(UserService.Errors.wrongPair)
         if (checkLoginInUsers != null) {
-            if (!BCrypt.checkpw(
-                    pwd.oldPassword,
-                    checkLoginInUsers.password
-                )
-            ) throw BadRequestException(UserService.Errors.wrongPair)
             checkLoginInUsers.password = BCrypt.hashpw(pwd.newPassword, BCrypt.gensalt())
+            exposedPassword.isRecovered = true
             return@dbQuery tokensService.generateTokenPair(checkLoginInUsers.id.value, UserTypes.Company.name)
         } else {
-            if (!BCrypt.checkpw(
-                    pwd.oldPassword,
-                    checkLoginInFreels!!.password
-                )
-            ) throw BadRequestException(UserService.Errors.wrongPair)
-            checkLoginInFreels.password = BCrypt.hashpw(pwd.newPassword, BCrypt.gensalt())
+            checkLoginInFreels!!.password = BCrypt.hashpw(pwd.newPassword, BCrypt.gensalt())
+            exposedPassword.isRecovered = true
             return@dbQuery tokensService.generateTokenPair(checkLoginInFreels.id.value, UserTypes.Freel.name)
-
         }
+    }
+
+    override suspend fun forgetPassword(app: Application, pwd: ForgetPassword): UUID = dbQuery {
+        val checkLoginInFreels = ExposedFreel.find { FreelsService.Freels.login eq pwd.login }.singleOrNull()
+        val checkLoginInUsers = ExposedUser.find { UserService.Users.login eq pwd.login }.singleOrNull()
+        if (checkLoginInFreels == null && checkLoginInUsers == null) throw BadRequestException(UserService.Errors.wrongPair)
+        val code = dbQuery {
+            tokensService.onForgetPassword(pwd)
+        }
+        code
     }
 }

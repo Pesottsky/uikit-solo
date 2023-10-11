@@ -14,7 +14,6 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.mindrot.jbcrypt.BCrypt
 import java.util.*
 
 @Serializable
@@ -39,18 +38,35 @@ class ExposedToken(id: EntityID<Int>) : IntEntity(id) {
     var expiresAt by TokensService.Tokens.expiresAt
 }
 
+class ExposedForgetPassword(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<ExposedForgetPassword>(TokensService.Passwords)
 
-class TokensService(database: Database, private val refreshLifeTime: Int) {
+    var email by TokensService.Passwords.email
+    var code by TokensService.Passwords.code
+    var expiresAt by TokensService.Passwords.expiresAt
+    var isRecovered by TokensService.Passwords.isRecovered
+}
+
+
+class TokensService(database: Database, private val refreshLifeTime: Int, private val recoveryTime: Int) {
     object Tokens : IntIdTable() {
         val userId = integer("userId")
-        val refreshToken = varchar("refreshToken", length = 1024)
+        val refreshToken = uuid("refreshToken")
         val userType = varchar("userType", 16)
         val expiresAt = long("expiresAt")
+    }
+
+    object Passwords : IntIdTable() {
+        val email = varchar("email", length = 50)
+        val code = uuid("code")
+        val expiresAt = long("expiresAt")
+        val isRecovered = bool("isRecovered")
     }
 
     init {
         transaction(database) {
             SchemaUtils.create(Tokens)
+            SchemaUtils.create(Passwords)
         }
     }
 
@@ -60,19 +76,18 @@ class TokensService(database: Database, private val refreshLifeTime: Int) {
         val access: String = if (userType == UserTypes.Company.name) createCompanyToken(userId)
         else createFreelToken(userId)
 
-        val refreshToken = UUID.randomUUID().toString()
-        val encryptedToken = BCrypt.hashpw(refreshToken, BCrypt.gensalt())
+        val refreshToken = UUID.randomUUID()
 
         ExposedToken.new {
             this.userId = userId
-            this.refreshToken = encryptedToken
+            this.refreshToken = refreshToken
             this.userType = userType
             expiresAt = currentTime + refreshLifeTime
         }
 
         return Token(
             access = access,
-            refresh = refreshToken,
+            refresh = refreshToken.toString(),
             userType = userType
         )
     }
@@ -81,38 +96,34 @@ class TokensService(database: Database, private val refreshLifeTime: Int) {
     fun refresh(token: String): Token? {
         val currentTime = System.currentTimeMillis()
 
-        var exposedRefresh: ExposedToken? = null
-
-        val exposedRefreshList =
-            ExposedToken.all()
-        for (tokenItem in exposedRefreshList) {
-            if (BCrypt.checkpw(
-                    token,
-                    tokenItem.refreshToken
-                )
-            ) {
-                exposedRefresh = tokenItem
-                break
-            }
-        }
-
-        exposedRefresh ?: return null
+        val exposedRefresh =
+            ExposedToken.find { Tokens.refreshToken eq UUID.fromString(token) }.singleOrNull() ?: return null
 
         return if (exposedRefresh.expiresAt > currentTime) {
-            val refreshToken = UUID.randomUUID().toString()
-            exposedRefresh.refreshToken = BCrypt.hashpw(refreshToken, BCrypt.gensalt())
+            val refreshToken = UUID.randomUUID()
+            exposedRefresh.refreshToken = refreshToken
 
-            exposedRefresh.expiresAt = Date(System.currentTimeMillis() + refreshLifeTime).time
+            exposedRefresh.expiresAt = System.currentTimeMillis() + refreshLifeTime
             val access: String =
                 if (exposedRefresh.userType == UserTypes.Company.name) createCompanyToken(exposedRefresh.userId)
                 else createFreelToken(exposedRefresh.userId)
 
             Token(
                 access = access,
-                refresh = refreshToken,
+                refresh = refreshToken.toString(),
                 userType = exposedRefresh.userType
             )
         } else null
+    }
+
+    fun onForgetPassword(forgetPassword: ForgetPassword): UUID {
+        val code = UUID.randomUUID()
+        ExposedForgetPassword.new {
+            this.code = code
+            this.expiresAt = System.currentTimeMillis() + recoveryTime
+            this.email = forgetPassword.login
+        }
+        return code
     }
 
     suspend fun logout(userId: Int, userType: String) {

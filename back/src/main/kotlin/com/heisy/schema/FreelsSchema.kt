@@ -46,7 +46,7 @@ class FreelsService(database: Database) {
     object Freels : IntIdTable() {
         val login = varchar("login", length = 50)
         val password = varchar("password", length = 250)
-        val profileId = reference("profileId", ProfilesService.Profiles,ReferenceOption.CASCADE).nullable()
+        val profileId = reference("profileId", ProfilesService.Profiles, ReferenceOption.CASCADE).nullable()
     }
 
     init {

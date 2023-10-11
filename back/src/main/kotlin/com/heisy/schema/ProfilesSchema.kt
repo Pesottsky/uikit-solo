@@ -114,19 +114,19 @@ class ProfilesService(database: Database) {
 
 
     fun create(profile: Profile): ExposedProfile {
-            return ExposedProfile.new {
-                firstName = profile.firstName
-                lastName = profile.lastName
-                price = profile.price
-                portfolio = profile.portfolio
-                experience = profile.experience
-                email = profile.email
-                summary = profile.summary
-                skills = profile.skills
-                telegram = profile.telegram
-                link =
-                    if (profile.lastName == null) "${profile.firstName}?profileId=${this.id.value}" else "${profile.firstName}${profile.lastName}?profileId=${this.id.value}"
-            }
+        return ExposedProfile.new {
+            firstName = profile.firstName
+            lastName = profile.lastName
+            price = profile.price
+            portfolio = profile.portfolio
+            experience = profile.experience
+            email = profile.email
+            summary = profile.summary
+            skills = profile.skills
+            telegram = profile.telegram
+            link =
+                if (profile.lastName == null) "${profile.firstName}?profileId=${this.id.value}" else "${profile.firstName}${profile.lastName}?profileId=${this.id.value}"
+        }
     }
 
     fun updateByFreel(freelId: Int, profile: Profile): ExposedProfile {

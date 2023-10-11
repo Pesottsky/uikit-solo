@@ -126,7 +126,7 @@ fun getIdTypePair(call: ApplicationCall): Pair<String, String> {
     val principal = call.principal<JWTPrincipal>()
     val id = principal!!.payload.getClaim("id").asString()
     val type = principal.payload.getClaim("user_type").asString()
-    return Pair(id , type)
+    return Pair(id, type)
 }
 
 enum class UserTypes {

@@ -30,11 +30,17 @@ data class UpdatePassword(
     @SerialName("login")
     val login: String,
 
-    @SerialName("old_password")
-    val oldPassword: String,
-
     @SerialName("new_password")
-    val newPassword: String
+    val newPassword: String,
+
+    @SerialName("code")
+    val code: String
+)
+
+@Serializable
+data class ForgetPassword(
+    @SerialName("login")
+    val login: String,
 )
 
 class ExposedUser(id: EntityID<Int>) : IntEntity(id) {
@@ -44,6 +50,8 @@ class ExposedUser(id: EntityID<Int>) : IntEntity(id) {
     var password by UserService.Users.password
     val tables by ExposedFreelsTable referrersOn FreelsTablesService.FreelsTables.userId
     var company by ExposedCompany referencedOn UserService.Users.company
+    var registrationDate by UserService.Users.registrationDate
+    var paymentUntil by UserService.Users.paymentUntil
 }
 
 class UserService(database: Database) {
@@ -51,6 +59,8 @@ class UserService(database: Database) {
         val login = varchar("login", length = 50)
         val password = varchar("password", length = 250)
         val company = reference("company", CompanyService.Companies, ReferenceOption.CASCADE)
+        val registrationDate = long("registrationDate")
+        val paymentUntil = long("paymentUntil").nullable()
     }
 
     init {
@@ -80,6 +90,7 @@ class UserService(database: Database) {
             login = user.login
             password = BCrypt.hashpw(user.password, BCrypt.gensalt())
             company = exposedCompany
+            registrationDate = System.currentTimeMillis()
         }
     }
 

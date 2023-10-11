@@ -1,8 +1,10 @@
 package com.heisy.routing
 
+import com.heisy.email.EmailSender
+import com.heisy.email.MailBundle
+import com.heisy.email.MailFrom
 import com.heisy.plugins.UserTypes
 import com.heisy.plugins.dbQuery
-import com.heisy.plugins.getId
 import com.heisy.plugins.getIdTypePair
 import com.heisy.schema.*
 import com.heisy.utils.LogUtils
@@ -13,7 +15,9 @@ import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlin.math.exp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 fun Application.configureTablesRouting(
     tablesService: FreelsTablesService,
@@ -26,31 +30,35 @@ fun Application.configureTablesRouting(
         authenticate(UserTypes.Company.name) {
             route("/table") {
                 post {
-                    call.application.environment.log.info(LogUtils.createLog(getIdTypePair(call), call.request.uri))
+                    val pair = getIdTypePair(call)
+                    call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
                     val name = call.request.queryParameters["name"] ?: throw BadRequestException("Name is null")
-                    val table = dbQuery { tablesService.create(name, getId(call)).toDataClass() }
+                    val table = dbQuery { tablesService.create(name, pair.first.toInt()).toDataClass() }
                     call.respond(HttpStatusCode.Created, table)
                 }
 
                 get {
-                    call.application.environment.log.info(LogUtils.createLog(getIdTypePair(call), call.request.uri))
-                    val tables = dbQuery { tablesService.getByUserId(getId(call)).map { it.toDataClass() } }
+                    val pair = getIdTypePair(call)
+                    call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
+                    val tables = dbQuery { tablesService.getByUserId(pair.first.toInt()).map { it.toDataClass() } }
                     call.respond(HttpStatusCode.OK, tables)
                 }
 
                 delete {
-                    call.application.environment.log.info(LogUtils.createLog(getIdTypePair(call), call.request.uri))
-                    dbQuery { tablesService.delete(getId(call)) }
+                    val pair = getIdTypePair(call)
+                    call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
+                    dbQuery { tablesService.delete(pair.first.toInt()) }
                     call.respond(HttpStatusCode.Accepted)
                 }
 
                 route("/row") {
                     post {
-                        call.application.environment.log.info(LogUtils.createLog(getIdTypePair(call), call.request.uri))
+                        val pair = getIdTypePair(call)
+                        call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
                         val row = dbQuery {
                             val profile = call.receive<Profile>()
                             val profileResult = profilesService.create(profile)
-                            rowService.create(getId(call), profileResult).toDataClass()
+                            rowService.create(pair.first.toInt(), profileResult).toDataClass()
                         }
 
                         call.respond(HttpStatusCode.Created, row)
@@ -59,27 +67,29 @@ fun Application.configureTablesRouting(
 
                     // Создать строку с Id уже существующего профиля
                     post("/profile") {
-                        call.application.environment.log.info(LogUtils.createLog(getIdTypePair(call), call.request.uri))
+                        val pair = getIdTypePair(call)
+                        call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
                         val profileId = call.request.queryParameters["profile_id"]
                             ?: throw BadRequestException("profile_id is null")
                         val row = dbQuery {
                             val profileResult = profilesService.get(profileId.toInt()) ?: throw NotFoundException()
-                            rowService.create(getId(call), profileResult).toDataClass()
+                            rowService.create(pair.first.toInt(), profileResult).toDataClass()
                         }
                         call.respond(HttpStatusCode.Created, row)
                     }
 
                     // Изменить профиль в строке
                     put("/{rowId}") {
-                        call.application.environment.log.info(LogUtils.createLog(getIdTypePair(call), call.request.uri))
+                        val pair = getIdTypePair(call)
+                        call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
                         val rowId = call.parameters["row_id"] ?: throw BadRequestException("row_id is null")
                         val profile = call.receive<Profile>()
-                        val profileResult  = dbQuery {
-                            val row = rowService.checkRowForUpdate(rowId.toInt(), getId(call))
+                        val profileResult = dbQuery {
+                            val row = rowService.checkRowForUpdate(rowId.toInt(), pair.first.toInt())
                             rowService.checkForOwner(row)
                             val profileResult = profilesService.get(profile.id!!) ?: throw NotFoundException()
                             profilesService.updateByCompany(profileResult, profile).toDataClass()
-                            }
+                        }
                         call.respond(HttpStatusCode.Accepted, profileResult)
 
                     }
@@ -88,31 +98,62 @@ fun Application.configureTablesRouting(
             }
 
             get("/link") {
-                call.application.environment.log.info(LogUtils.createLog(getIdTypePair(call), call.request.uri))
+                val pair = getIdTypePair(call)
+                call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
                 val rowId = call.request.queryParameters["row_id"] ?: throw BadRequestException("row_id is null")
                 val link = dbQuery {
-                    val exposedLink = linksService.create()
-                    val row = rowService.checkRowForUpdate(rowId.toInt(), getId(call))
+                    val row = rowService.checkRowForUpdate(rowId.toInt(), pair.first.toInt())
                     rowService.checkForOwner(row)
+                    val exposedLink = linksService.create()
                     rowService.updateLink(row, exposedLink)
                     exposedLink.toDataClass()
                 }
                 call.respond(HttpStatusCode.Created, link)
             }
 
+            route("send") {
+                post("/email") {
+                    val pair = getIdTypePair(call)
+                    call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
+                    val invite = call.receive<Invite>()
+                    val link = dbQuery {
+                        val row = rowService.checkRowForUpdate(invite.rowId, pair.first.toInt())
+                        rowService.checkForOwner(row)
+                        val exposedLink = linksService.update(invite)
+                        exposedLink.toDataClass()
+                    }
+
+                    // TODO рассылка приглашение в сервис
+                    launch(Dispatchers.IO + SupervisorJob()) {
+                        EmailSender.sendMail(
+                            call.application, MailBundle(
+                                to = "noreplay@soloteam.io",
+                                from = MailFrom.NO_REPLAY,
+                                subject = "Text",
+                                text = "message text"
+                            )
+                        )
+                    }
+                    call.respond(HttpStatusCode.Created, link)
+                }
+            }
+
             route("/comment") {
                 get {
-                    call.application.environment.log.info(LogUtils.createLog(getIdTypePair(call), call.request.uri))
-                    val profileId = call.request.queryParameters["profile_id"]?.toInt() ?: throw BadRequestException("profile_id is null")
-                    val userId = getId(call)
+                    val pair = getIdTypePair(call)
+                    call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
+                    val profileId = call.request.queryParameters["profile_id"]?.toInt()
+                        ?: throw BadRequestException("profile_id is null")
+                    val userId = pair.first.toInt()
                     val comment = commentService.get(profileId, userId)
                     if (comment == null) call.respond(HttpStatusCode.NoContent)
                     else call.respond(HttpStatusCode.OK, comment)
                 }
 
                 post {
-                    call.application.environment.log.info(LogUtils.createLog(getIdTypePair(call), call.request.uri))
-                    val userId = getId(call)
+                    val pair = getIdTypePair(call)
+                    call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
+                    val userId = pair.first.toInt()
                     val comment = commentService.create(call.receive(), userId)
                     call.respond(HttpStatusCode.Created, comment)
                 }

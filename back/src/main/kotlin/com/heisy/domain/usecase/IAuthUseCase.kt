@@ -1,9 +1,8 @@
 package com.heisy.domain.usecase
 
-import com.heisy.schema.Freel
-import com.heisy.schema.Token
-import com.heisy.schema.UpdatePassword
-import com.heisy.schema.User
+import com.heisy.schema.*
+import io.ktor.server.application.*
+import java.util.*
 
 interface IAuthUseCase {
 
@@ -20,4 +19,6 @@ interface IAuthUseCase {
     suspend fun logout(userId: Int, userType: String)
 
     suspend fun updatePassword(pwd: UpdatePassword): Token
+
+    suspend fun forgetPassword(app: Application, pwd: ForgetPassword): UUID
 }

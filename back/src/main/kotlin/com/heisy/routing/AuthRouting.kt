@@ -1,16 +1,22 @@
 package com.heisy.routing
 
 import com.heisy.domain.usecase.IAuthUseCase
-import com.heisy.plugins.*
+import com.heisy.email.EmailSender
+import com.heisy.email.MailBundle
+import com.heisy.email.MailFrom
+import com.heisy.plugins.UserTypes
+import com.heisy.plugins.getIdTypePair
 import com.heisy.schema.Token
 import com.heisy.utils.LogUtils
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 fun Application.configureAuthRouting(authUseCase: IAuthUseCase) {
     routing {
@@ -47,20 +53,38 @@ fun Application.configureAuthRouting(authUseCase: IAuthUseCase) {
             }
         }
 
-//        route("update_password") {
-//            post {
-//                val tokens = authUseCase.updatePassword(call.receive())
-//                call.respond(HttpStatusCode.Accepted, tokens)
-//            }
-//        }
+        route("update_password") {
+            post {
+                val tokens = authUseCase.updatePassword(call.receive())
+                call.respond(HttpStatusCode.Accepted, tokens)
+            }
+        }
+
+        route("forget_password") {
+            post {
+                val code = authUseCase.forgetPassword(call.application, call.receive())
+
+                // TODO рассылка на восстановление пароля
+                launch(Dispatchers.IO + SupervisorJob()) {
+                    EmailSender.sendMail(
+                        call.application, MailBundle(
+                            to = "noreplay@soloteam.io",
+                            from = MailFrom.NO_REPLAY,
+                            subject = "Text",
+                            text = "message text"
+                        )
+                    )
+                }
+                call.respond(HttpStatusCode.Accepted)
+            }
+        }
+
         authenticate(UserTypes.Company.name, UserTypes.Freel.name) {
             route("/logout") {
                 delete {
-                    call.application.environment.log.info(LogUtils.createLog(getIdTypePair(call), call.request.uri))
-                    val principal = call.principal<JWTPrincipal>()
-                    val id =  principal!!.payload.getClaim("id").asInt()
-                    val type = principal.payload.getClaim("user_type").asString()
-                    authUseCase.logout(id, type)
+                    val pair = getIdTypePair(call)
+                    call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
+                    authUseCase.logout(pair.first.toInt(), pair.second)
                     call.respond(HttpStatusCode.Accepted)
                 }
             }

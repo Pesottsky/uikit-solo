@@ -1,5 +1,6 @@
 package com.heisy.schema
 
+import io.ktor.server.plugins.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.IntEntity
@@ -20,7 +21,22 @@ data class Link(
     val isRegister: Boolean? = null,
 
     @SerialName("id")
-    val id: Int
+    val id: Int,
+
+    @SerialName("is_email_sending")
+    val isEmailSending: Boolean? = null
+)
+
+@Serializable
+data class Invite(
+    @SerialName("link_id")
+    val linkId: Int,
+
+    @SerialName("email")
+    val email: String,
+
+    @SerialName("row_id")
+    val rowId: Int
 )
 
 
@@ -29,6 +45,8 @@ class ExposedLink(id: EntityID<Int>) : IntEntity(id) {
 
     var link by LinksService.Links.link
     var isRegister by LinksService.Links.isRegister
+    var isEmailSending by LinksService.Links.isEmailSending
+    var email by LinksService.Links.email
     val rows by ExposedFreelsRow optionalReferrersOn FreelsRowsService.FreelsRows.linkId
 
 
@@ -36,7 +54,8 @@ class ExposedLink(id: EntityID<Int>) : IntEntity(id) {
         Link(
             id = this.id.value,
             link = this.link.toString(),
-            isRegister = this.isRegister,
+            isRegister = this.isRegister ?: false,
+            isEmailSending = this.isEmailSending ?: false
         )
     }
 }
@@ -48,7 +67,8 @@ class LinksService(database: Database) {
 
         val link = uuid("link")
         val isRegister = bool("isRegister").nullable()
-
+        val isEmailSending = bool("isEmailSending").nullable()
+        val email = varchar("email", length = 256).nullable()
     }
 
     init {
@@ -62,6 +82,16 @@ class LinksService(database: Database) {
         ExposedLink.new {
             this.link = UUID.randomUUID()
         }
+
+
+    fun update(invite: Invite): ExposedLink {
+        val exposedLink = ExposedLink.findById(invite.linkId) ?: throw NotFoundException()
+        exposedLink.apply {
+            this.isEmailSending = true
+            this.email = invite.email
+        }
+        return exposedLink
+    }
 
 
     fun findByUUID(uuid: String): ExposedLink? {

@@ -22,10 +22,19 @@ services:
       FREEL_SECRET: freel_secret
       COMPANY_AUDIENCE: tikhonov
       FREEL_AUDIENCE: pesotskiy
-  #      REALM: soloteam
-  #      ALLOW_HOST: *
+      #      REALM: soloteam
+      #      ALLOW_HOST: *
       REFRESH: 10000000
       ACCESS: 30000
+      RECOVERY: 604800000
+      #      SMTP_SERVICE_LOGIN: service@soloteam.io
+      #      SMTP_SERVICE_PASSWORD:
+      #      SMTP_HELLO_LOGIN: hello@soloteam.io
+      #      SMTP_HELLO_PASSWORD:
+      #      SMTP_INFO_LOGIN: info@soloteam.io
+      #      SMTP_INFO_PASSWORD:
+      SMTP_NOREPLAY_LOGIN: noreplay@soloteam.io
+      SMTP_NOREPLAY_PASSWORD:
     ports:
       - "81:81"
     depends_on:
@@ -33,7 +42,7 @@ services:
     networks:
       - mynet
 #    volumes:
-#      - "./logs:testFile.log"
+#      - "./logs/log.log:testFile/log"
   db:
     image: mysql:5.7
     environment:
@@ -44,9 +53,11 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - "./mysql-data:/var/lib/mysql"
-    networks: 
-      - mynet  
+      - "mysql_data:/var/lib/mysql"
+    networks:
+      - mynet
+volumes:
+  mysql_data:
 networks:
   mynet:
     driver: bridge

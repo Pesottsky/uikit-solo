@@ -38,8 +38,9 @@ dependencies {
     // database
     implementation("mysql:mysql-connector-java:8.0.33")
 
-    implementation("net.axay:simplekotlinmail-core:1.4.0")
-    implementation("net.axay:simplekotlinmail-client:1.4.0")
+    implementation("com.sun.mail:javax.mail:1.6.2")
+//    implementation("net.axay:simplekotlinmail-core:1.4.0")
+//    implementation("net.axay:simplekotlinmail-client:1.4.0")
 
     implementation("io.ktor:ktor-server-swagger-jvm")
     implementation("io.ktor:ktor-server-config-yaml:$ktor_version")

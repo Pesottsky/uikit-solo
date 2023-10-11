@@ -9,6 +9,7 @@ object InjectionUtils {
     private var mDatabase: Database? = null
 
     private var refreshLifeTime = 0
+    private var mRecoveryTime = 0
 
     // services
     private var userService: UserService? = null
@@ -31,18 +32,18 @@ object InjectionUtils {
     }
 
 
-    fun provideUserService(database: Database = provideDataBase()) : UserService {
-        if (userService == null) userService =  UserService(database)
+    fun provideUserService(database: Database = provideDataBase()): UserService {
+        if (userService == null) userService = UserService(database)
         return userService!!
     }
 
     fun provideTablesService(database: Database = provideDataBase()): FreelsTablesService {
-        if (tablesService == null) tablesService =  FreelsTablesService(database)
+        if (tablesService == null) tablesService = FreelsTablesService(database)
         return tablesService!!
     }
 
     fun provideProfileService(database: Database = provideDataBase()): ProfilesService {
-        if (profileService == null) profileService =  ProfilesService(database)
+        if (profileService == null) profileService = ProfilesService(database)
         return profileService!!
     }
 
@@ -66,9 +67,14 @@ object InjectionUtils {
         return companyService!!
     }
 
-    fun provideTokensSerivce(database: Database = provideDataBase(), rLifeTime: Int = refreshLifeTime): TokensService {
+    fun provideTokensSerivce(
+        database: Database = provideDataBase(),
+        rLifeTime: Int = refreshLifeTime,
+        recoveryTime: Int = mRecoveryTime
+    ): TokensService {
         refreshLifeTime = rLifeTime
-        if (tokensService == null) tokensService = TokensService(database, refreshLifeTime)
+        mRecoveryTime = recoveryTime
+        if (tokensService == null) tokensService = TokensService(database, refreshLifeTime, mRecoveryTime)
         return tokensService!!
     }
 

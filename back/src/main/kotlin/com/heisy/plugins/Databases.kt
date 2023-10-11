@@ -1,9 +1,5 @@
 package com.heisy.plugins
 
-import com.heisy.routing.configureAuthRouting
-import com.heisy.routing.configureCompanyRouting
-import com.heisy.routing.configureProfileRouting
-import com.heisy.routing.configureTablesRouting
 import com.heisy.utils.InjectionUtils
 import io.ktor.server.application.*
 import kotlinx.coroutines.Dispatchers
@@ -22,27 +18,15 @@ fun Application.configureDatabases() {
         user = user,
         password = password
     )
-    configureSchema(database)
+    InjectionUtils.provideDataBase(database = database)
 
 }
 
-private fun Application.configureSchema(database: Database) {
-    InjectionUtils.provideDataBase(database = database)
+fun Application.configureSchema() {
     InjectionUtils.provideTokensSerivce(
-        rLifeTime = environment.config.property("jwt.refresh_lifetime").getString().toInt()
+        rLifeTime = environment.config.property("jwt.refresh_lifetime").getString().toInt(),
+        recoveryTime = environment.config.property("recovery.password").getString().toInt()
     )
-
-
-    configureAuthRouting(InjectionUtils.provideAuthUseCase())
-    configureTablesRouting(
-        tablesService =  InjectionUtils.provideTablesService(),
-        rowService = InjectionUtils.provideRowService(),
-        profilesService = InjectionUtils.provideProfileService(),
-        linksService = InjectionUtils.provideLinkService(),
-        commentService = InjectionUtils.provideCommentService()
-    )
-    configureCompanyRouting(InjectionUtils.provideCompanyService())
-    configureProfileRouting(InjectionUtils.provideProfileService())
 }
 
 suspend fun <T> dbQuery(block: suspend () -> T): T =
