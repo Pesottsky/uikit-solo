@@ -1,6 +1,7 @@
 package com.heisy.schema
 
-import com.heisy.plugins.dbQuery
+import com.heisy.schema.FreelsRowsService.Errors.notEnoughtRights
+import com.heisy.schema.FreelsRowsService.Errors.notFoundError
 import io.ktor.server.plugins.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -11,8 +12,6 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
 
 @Serializable
@@ -37,14 +36,15 @@ class ExposedFreelsRow(id: EntityID<Int>) : IntEntity(id) {
     var profile by ExposedProfile referencedOn FreelsRowsService.FreelsRows.profileId
     var link by ExposedLink optionalReferencedOn FreelsRowsService.FreelsRows.linkId
 
-    fun toDataClass() = run {
-        FreelsRow(
-            profile = profile.toDataClass(),
-            tableId = table.id.value,
-            link = link?.toDataClass(),
-            canChange = profile.freel.singleOrNull() == null
-        )
-    }
+    fun toDataClass() = FreelsRow(
+        profile = profile.toDataClass(),
+        tableId = table.id.value,
+        link = link?.toDataClass(),
+
+        // У профиля есть владелец
+        canChange = profile.freel.empty()
+    )
+
 }
 
 
@@ -68,74 +68,49 @@ class FreelsRowsService(database: Database) {
         }
     }
 
+    object Errors {
+        const val notFoundError = "Таблица не найдена"
+        const val notEnoughtRights = "Вы не можете редактировать профиль"
+    }
 
-    suspend fun create(userId: Int, profile: Profile): ExposedFreelsRow = dbQuery {
-        val table = ExposedUser.findById(userId)!!.tables.singleOrNull()
-        val exposedProfile = ExposedProfile.findById(profile.id!!)!!
-        if (table != null) {
-            ExposedFreelsRow.new {
-                this.table = table
-                this.profile = exposedProfile
-            }
-        } else {
-            throw NotFoundException("Таблица с таким id не найдена")
+    fun create(userId: Int, profile: ExposedProfile): ExposedFreelsRow {
+        val table = ExposedUser.findById(userId)?.tables?.firstOrNull() ?: throw NotFoundException(notFoundError)
+        return ExposedFreelsRow.new {
+            this.table = table
+            this.profile = profile
         }
     }
 
-    suspend fun create(userId: Int, profile: ExposedProfile): ExposedFreelsRow = dbQuery {
-        val table = ExposedUser.findById(userId)!!.tables.singleOrNull()
-        if (table != null) {
-            ExposedFreelsRow.new {
-                this.table = table
-                this.profile = profile
-            }
-        } else {
-            throw NotFoundException("Таблица с таким id не найдена")
-        }
+    /**
+     * Есть ли у профиля владелец
+     */
+    fun checkForOwner(exposedRow: ExposedFreelsRow): ExposedFreelsRow {
+        // У профиля есть владелец
+        if (!exposedRow.profile.freel.empty()) throw BadRequestException(notEnoughtRights)
+        return exposedRow
     }
 
-    suspend fun updateProfile(id: Int, profile: Profile, userId: Int) {
-        dbQuery {
-            val table = ExposedUser.findById(userId)!!.tables.first().rows.map { it.id.value }
-            val row = ExposedFreelsRow.findById(id) ?: throw NotFoundException("Запись не найдена")
-            if (!table.contains(row.id.value)) throw BadRequestException("Строка с таким id в таблице, которая не принадлежит пользвателю")
+    /**
+     * Принадлоежит ли запись пользователю
+     */
+    fun checkRowForUpdate(rowId: Int, userId: Int): ExposedFreelsRow {
+        val row = ExposedFreelsRow.findById(rowId) ?: throw NotFoundException(notFoundError)
 
-            // Проверить есть ли у профиля владелец
-            val profileOwner = row.profile.freel.singleOrNull()
-            if (profileOwner != null) throw  BadRequestException("Вы не можете редактировать профиль")
+        val table = ExposedUser.findById(userId)?.tables?.firstOrNull() ?: throw NotFoundException(notFoundError)
+        // Строка не из таблицы, которая принадлежит пользователю
+        if (!table.rows.map { it.id.value }.contains(row.id.value)) throw NotFoundException(notFoundError)
 
-            val exposedProfile =
-                profile.id?.let { ExposedProfile.findById(it) } ?: throw NotFoundException("Профиля с таким id нет")
-
-            row.profile = exposedProfile
-
-        }
+        return row
     }
 
 
-    suspend fun updateLink(id: Int, link: ExposedLink, userId: Int) {
-        dbQuery {
-            val table = ExposedUser.findById(userId)!!.tables.first().rows.map { it.id.value }
-            val row = ExposedFreelsRow.findById(id)
-            if (row != null) {
-                if (!table.contains(row.id.value)) throw BadRequestException("Строка с таким id в таблице, которая не принадлежит пользвателю")
-                row.link = link
-            } else {
-                throw NotFoundException("Запись не найдена")
-            }
-        }
+    fun updateLink(exposedRow: ExposedFreelsRow, link: ExposedLink): ExposedFreelsRow {
+        exposedRow.link = link
+        return exposedRow
     }
 
-    suspend fun findByLink(link: ExposedLink) =
-        dbQuery {
-            ExposedFreelsRow.find { FreelsRows.linkId eq link.id }.singleOrNull()
-        }
-
-    suspend fun delete(id: Int) {
-        dbQuery {
-            FreelsRows.deleteWhere { FreelsRows.id eq id }
-        }
-
+    fun delete(id: Int) {
+        ExposedFreelsRow.findById(id)?.delete() ?: throw NotFoundException(notFoundError)
     }
 }
 

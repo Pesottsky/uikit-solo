@@ -1,4 +1,4 @@
-package com.heisy.plugins
+package com.heisy.errors
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -13,8 +13,11 @@ fun Application.errorsHandling() {
             when (cause) {
                 is BadRequestException -> call.respondText(text = message, status = HttpStatusCode.BadRequest)
                 is NotFoundException -> call.respondText(text = message, status = HttpStatusCode.NotFound)
+                is ExpiredException -> call.respondText(text = message, status = HttpStatusCode.Gone)
                 else -> call.respondText(text = "500", status = HttpStatusCode.InternalServerError)
             }
         }
     }
 }
+
+class ExpiredException(message: String) : Exception(message)

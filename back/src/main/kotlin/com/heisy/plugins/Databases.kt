@@ -1,57 +1,35 @@
 package com.heisy.plugins
 
-import com.heisy.data.usecase.AuthUseCase
-import com.heisy.routing.configureAuthRouting
-import com.heisy.routing.configureCompanyRouting
-import com.heisy.routing.configureProfileRouting
-import com.heisy.routing.configureTablesRouting
-import com.heisy.schema.*
+import com.heisy.utils.InjectionUtils
 import io.ktor.server.application.*
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 fun Application.configureDatabases() {
+    val url = environment.config.property("ktor.deployment.db").getString()
+    val user = environment.config.property("ktor.deployment.db_user").getString()
+    val password = environment.config.property("ktor.deployment.db_password").getString()
+    val port = environment.config.property("ktor.deployment.db_port").getString()
+    val table = environment.config.property("ktor.deployment.db_table").getString()
+
     val database = Database.connect(
-        url = "jdbc:sqlite:./main",
-        driver = "org.sqlite.JDBC",
+        url = "jdbc:mysql://$url:$port/$table",
+        user = user,
+        password = password
     )
-    configureSchema(database)
+    InjectionUtils.provideDataBase(database = database)
 
 }
 
-fun Application.configureTestDatabases() {
-    val database = Database.connect(
-        url = "jdbc:sqlite:./test",
-        driver = "org.sqlite.JDBC",
-    )
-    configureSchema(database)
-}
-
-fun Application.configureSchema(database: Database) {
-    val userService = UserService(database)
-    val tablesService = FreelsTablesService(database)
-    val rowService = FreelsRowsService(database)
-    val profileService = ProfilesService(database)
-    val freelsService = FreelsService(database)
-    val linkService = LinksService(database)
-    val companyService = CompanyService(database)
-    val tokensService = TokensService(database)
-    val commentService = CommentService(database)
-    val authUseCase = AuthUseCase(
-        userService = userService,
-        freelsService = freelsService,
-        linkService = linkService,
-        rowService = rowService,
-        tokensService = tokensService
+fun Application.configureSchema() {
+    InjectionUtils.provideTokensSerivce(
+        rLifeTime = environment.config.property("jwt.refresh_lifetime").getString().toInt(),
+        recoveryTime = environment.config.property("recovery.password").getString().toInt()
     )
 
-    configureAuthRouting(authUseCase)
-    configureTablesRouting(tablesService, rowService, profileService, linkService, commentService)
-    configureCompanyRouting(userService, companyService)
-    configureProfileRouting(freelsService, profileService)
-
-
+    InjectionUtils.provideGradeService()
+    InjectionUtils.provideLoadingService()
 }
 
 suspend fun <T> dbQuery(block: suspend () -> T): T =

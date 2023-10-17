@@ -1,29 +1,33 @@
 package com.heisy
 
+import com.heisy.errors.errorsHandling
 import com.heisy.plugins.*
+import com.heisy.routing.configureAuthRouting
+import com.heisy.routing.configureCompanyRouting
+import com.heisy.routing.configureProfileRouting
+import com.heisy.routing.configureTablesRouting
+import com.heisy.utils.InjectionUtils
 import io.ktor.server.application.*
-import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 
-fun main() {
-    embeddedServer(Netty, port = 81, host = "0.0.0.0", module = Application::module)
-        .start(wait = true)
-}
+fun main(args: Array<String>) = EngineMain.main(args)
 
 fun Application.module() {
-    setup()
-    configureDatabases()
-}
-
-fun Application.setup() {
     configureSerialization()
     configureHTTP()
     configureSecurity()
     errorsHandling()
-}
+    configureDatabases()
+    configureSchema()
+    configureAuthRouting(InjectionUtils.provideAuthUseCase())
 
-fun Application.moduleTest() {
-    setup()
-    configureTestDatabases()
+    configureTablesRouting(
+        tablesService = InjectionUtils.provideTablesService(),
+        rowService = InjectionUtils.provideRowService(),
+        profilesService = InjectionUtils.provideProfileService(),
+        linksService = InjectionUtils.provideLinkService(),
+        commentService = InjectionUtils.provideCommentService()
+    )
+    configureCompanyRouting(InjectionUtils.provideCompanyService())
+    configureProfileRouting(InjectionUtils.provideProfileService())
 }
-

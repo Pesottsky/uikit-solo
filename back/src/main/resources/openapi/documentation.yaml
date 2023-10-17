@@ -4,7 +4,7 @@ info:
   description: "Мог ошибиться в доке, мог в самом методе. Так что если какие-то ошибки, то говорите"
   version: "1.0.0"
 servers:
-  - url: "Main"
+  - url: ""
 tags:
   - name: Авторизация
   - name: Менеджемент базы
@@ -31,14 +31,20 @@ paths:
           description: Created
           content:
             application/json:
-                schema:
-                  $ref: '#/components/schemas/Token'
+              schema:
+                $ref: '#/components/schemas/Token'
         "400":
           content:
             application/json:
               examples:
                 Дефолтный ответ:
                   value: "Неправильный логин или пароль"
+        "410":
+          content:
+            application/json:
+              examples:
+                Дефолтный ответ:
+                  value: "Подписка истекла"
   /registration:
     post:
       tags:
@@ -170,6 +176,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TableRow'
+  /send/email:
+    post:
+      tags:
+        - Менеджемент базы
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Invite'
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Link'
   /table/row/profile:
     post:
       tags:
@@ -271,6 +293,30 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Profile'
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+  /update_loading:
+    post:
+      tags:
+        - Кейсы фрилансера
+      summary: Обновление рабочей загрузки
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Loading'
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
   /profile/{id}:
     get:
       tags:
@@ -310,7 +356,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Link'
   /comment:
-    get:
+    post:
       tags:
         - Менеджемент базы
       summary: Комментарии компании к фрилансеру
@@ -326,6 +372,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Comment'
+    get:
+      tags:
+        - Менеджемент базы
+      parameters:
+        - name: profile_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+
   /update_password:
     post:
       tags:
@@ -342,6 +407,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Token'
+        "410":
+          content:
+            application/json:
+              examples:
+                Дефолтный ответ:
+                  value: "Код восстановления истек"
+  /forget_password:
+    post:
+      tags:
+        - Авторизация
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgetPassword'
+      responses:
+        "202":
+          description: Accepted
   /logout:
     delete:
       tags:
@@ -398,7 +481,7 @@ components:
           type: integer
           description: Id таблицы, которой принадлежит запись
         profile:
-            $ref: '#/components/schemas/Profile'
+          $ref: '#/components/schemas/Profile'
         link:
           nullable: true
           $ref: '#/components/schemas/Link'
@@ -417,6 +500,9 @@ components:
         link:
           type: string
           description: Сама ссылка (UUID в строковом представлении)
+        is_email_sending:
+          type: boolean
+          nullable: true
     Profile:
       type: object
       properties:
@@ -449,6 +535,12 @@ components:
         telegram:
           type: string
           nullable: true
+        grade:
+          nullable: true
+          $ref: '#/components/schemas/Grade'
+        loading:
+          nullable: true
+          $ref: '#/components/schemas/Loading'
     Company:
       type: object
       properties:
@@ -467,20 +559,25 @@ components:
       properties:
         login:
           type: string
-        old_password:
-          type: string
         new_password:
+          type: string
+        code:
+          type: string
+    ForgetPassword:
+      type: object
+      properties:
+        login:
           type: string
     Comment:
       type: object
       properties:
         id:
-          type: int
+          type: integer
           nullable: true
         comment:
           type: string
         profile_id:
-          type: int
+          type: integer
     Freel:
       type: object
       properties:
@@ -493,4 +590,27 @@ components:
           type: string
           nullable: true
         password:
+          type: string
+    Invite:
+      type: object
+      properties:
+        link_id:
+          type: integer
+        email:
+          type: string
+        row_id:
+          type: integer
+    Grade:
+      type: object
+      properties:
+        level_key:
+          type: integer
+        description:
+          type: string
+    Loading:
+      type: object
+      properties:
+        level_key:
+          type: integer
+        description:
           type: string

@@ -1,6 +1,5 @@
 package com.heisy.schema
 
-import com.heisy.plugins.dbQuery
 import io.ktor.server.plugins.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -22,7 +21,22 @@ data class Link(
     val isRegister: Boolean? = null,
 
     @SerialName("id")
-    val id: Int
+    val id: Int,
+
+    @SerialName("is_email_sending")
+    val isEmailSending: Boolean? = null
+)
+
+@Serializable
+data class Invite(
+    @SerialName("link_id")
+    val linkId: Int,
+
+    @SerialName("email")
+    val email: String,
+
+    @SerialName("row_id")
+    val rowId: Int
 )
 
 
@@ -31,12 +45,17 @@ class ExposedLink(id: EntityID<Int>) : IntEntity(id) {
 
     var link by LinksService.Links.link
     var isRegister by LinksService.Links.isRegister
+    var isEmailSending by LinksService.Links.isEmailSending
+    var email by LinksService.Links.email
+    val rows by ExposedFreelsRow optionalReferrersOn FreelsRowsService.FreelsRows.linkId
+
 
     fun toDataClass() = run {
         Link(
             id = this.id.value,
             link = this.link.toString(),
-            isRegister = this.isRegister,
+            isRegister = this.isRegister ?: false,
+            isEmailSending = this.isEmailSending ?: false
         )
     }
 }
@@ -48,7 +67,8 @@ class LinksService(database: Database) {
 
         val link = uuid("link")
         val isRegister = bool("isRegister").nullable()
-
+        val isEmailSending = bool("isEmailSending").nullable()
+        val email = varchar("email", length = 256).nullable()
     }
 
     init {
@@ -58,32 +78,26 @@ class LinksService(database: Database) {
     }
 
 
-    suspend fun create(): ExposedLink = dbQuery {
+    fun create(): ExposedLink =
         ExposedLink.new {
             this.link = UUID.randomUUID()
         }
-    }
 
 
-    suspend fun update(id: Int, isRegister: Boolean) {
-        dbQuery {
-            val link = ExposedLink.findById(id)
-            if (link != null) {
-                link.isRegister = isRegister
-            } else {
-                throw NotFoundException("Ссылка не найдена")
-            }
+    fun update(invite: Invite): ExposedLink {
+        val exposedLink = ExposedLink.findById(invite.linkId) ?: throw NotFoundException()
+        exposedLink.apply {
+            this.isEmailSending = true
+            this.email = invite.email
         }
+        return exposedLink
     }
 
-    suspend fun find(uuid: String): ExposedLink? = run {
+
+    fun findByUUID(uuid: String): ExposedLink? {
         val convertUUID = UUID.fromString(uuid)
-        return dbQuery {
-            ExposedLink.find { (Links.link eq convertUUID) }.singleOrNull()
-        }
+        return ExposedLink.find { (Links.link eq convertUUID) }.singleOrNull()
     }
-
-
 }
 
 

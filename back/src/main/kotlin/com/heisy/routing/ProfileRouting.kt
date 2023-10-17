@@ -1,10 +1,10 @@
 package com.heisy.routing
 
+import com.heisy.plugins.UserTypes
 import com.heisy.plugins.dbQuery
-import com.heisy.plugins.getId
-import com.heisy.schema.FreelsService
-import com.heisy.schema.Profile
+import com.heisy.plugins.getIdTypePair
 import com.heisy.schema.ProfilesService
+import com.heisy.utils.LogUtils
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -13,15 +13,14 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Application.configureProfileRouting(freelService: FreelsService, profileService: ProfilesService) {
+fun Application.configureProfileRouting(profileService: ProfilesService) {
     routing {
-        authenticate("freel") {
+        authenticate(UserTypes.Freel.name) {
             route("/profile") {
                 get {
-                    val userId = getId(call)
-                    val freel = freelService.get(userId)
-                    val profile = dbQuery { freel.getProfile() }
-
+                    val pair = getIdTypePair(call)
+                    call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
+                    val profile = dbQuery { profileService.get(pair.first.toInt())?.toDataClass() }
                     if (profile == null) {
                         call.respond(HttpStatusCode.NoContent)
                     } else {
@@ -30,34 +29,31 @@ fun Application.configureProfileRouting(freelService: FreelsService, profileServ
                 }
 
                 put {
-                    val userId = getId(call)
-                    val freel = freelService.get(userId)
-                    val freelProfile = dbQuery { freel.getProfile() }
-                    // Если у фрилансера нет профиля, то создадим его
-                    if (freelProfile == null) {
-                        val profile = profileService.create(call.receive())
-
-                        dbQuery { freel.profile = profile }
-                        call.respond(HttpStatusCode.Created)
-                    } else {
-                        val receivedProfile = call.receive<Profile>()
-                        // Иначе проверим, что профиль фрилансера соответсвует изменяемому профилю
-                        if (freelProfile.id == receivedProfile.id) {
-                            profileService.update(receivedProfile)
-                            call.respond(HttpStatusCode.Created)
-                        } else {
-                            throw BadRequestException("Id профиля не соответствует id профиля пользователя")
-                        }
-                    }
+                    val pair = getIdTypePair(call)
+                    call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
+                    val profile =
+                        dbQuery { profileService.updateByFreel(pair.first.toInt(), call.receive()).toDataClass() }
+                    call.respond(HttpStatusCode.Accepted, profile)
                 }
 
+            }
+
+            route("/update_loading") {
+                post {
+                    val pair = getIdTypePair(call)
+                    call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
+                    val profile =
+                        dbQuery { profileService.updateLoading(pair.first.toInt(), call.receive()).toDataClass() }
+                    call.respond(HttpStatusCode.Accepted, profile)
+                }
             }
         }
 
         get("/profile/{id}") {
             val profileId = call.parameters["id"] ?: throw MissingRequestParameterException("id")
-            val profile = profileService.get(profileId.toInt())
-            call.respond(HttpStatusCode.OK, profile)
+            val profile = dbQuery { profileService.get(profileId.toInt())?.toDataClass() }
+            if (profile == null) call.respond(HttpStatusCode.NotFound)
+            else call.respond(HttpStatusCode.OK, profile)
         }
     }
 }

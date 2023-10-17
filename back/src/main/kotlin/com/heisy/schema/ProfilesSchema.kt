@@ -1,6 +1,6 @@
 package com.heisy.schema
 
-import com.heisy.plugins.dbQuery
+import com.heisy.schema.ProfilesService.Errors.notFoundTextError
 import io.ktor.server.plugins.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -42,7 +42,16 @@ data class Profile(
     val telegram: String? = null,
 
     @SerialName("experience")
-    val experience: String? = null
+    val experience: String? = null,
+
+    @SerialName("link")
+    val link: String? = null,
+
+    @SerialName("grade")
+    val grade: Grade? = null,
+
+    @SerialName("loading")
+    val loading: Loading? = null
 )
 
 class ExposedProfile(id: EntityID<Int>) : IntEntity(id) {
@@ -57,11 +66,14 @@ class ExposedProfile(id: EntityID<Int>) : IntEntity(id) {
     var summary by ProfilesService.Profiles.summary
     var skills by ProfilesService.Profiles.skills
     var telegram by ProfilesService.Profiles.telegram
+    var link by ProfilesService.Profiles.link
+    var grade by ExposedGrade optionalReferencedOn ProfilesService.Profiles.grade
+    var loading by ExposedLoading optionalReferencedOn ProfilesService.Profiles.loading
 
-    val freel by ExposedFreel optionalReferrersOn FreelsService.Freels.profileId
+    val freel by ExposedFreel referrersOn  FreelsService.Freels.profileId
 
-    fun toDataClass() = run {
-        Profile(
+    fun toDataClass(): Profile {
+        return Profile(
             id = this.id.value,
             firstName = this.firstName,
             lastName = this.lastName,
@@ -72,6 +84,9 @@ class ExposedProfile(id: EntityID<Int>) : IntEntity(id) {
             summary = this.summary,
             skills = this.skills,
             telegram = this.telegram,
+            link = this.link,
+            grade = this.grade?.toDataClass(),
+            loading = this.loading?.toDataClass()
         )
     }
 }
@@ -86,12 +101,17 @@ class ProfilesService(database: Database) {
         val portfolio = varchar("portfolio", length = 1024).nullable()
         val email = varchar("email", length = 250).nullable()
         val summary = varchar("summary", length = 1024).nullable()
+        val link = varchar("link", length = 128)
         val skills = varchar("skills", length = 1024).nullable()
         val telegram = varchar("telegram", length = 128).nullable()
         val experience = varchar("experience", length = 1024).nullable()
+        val grade = reference("grade", GradeService.GradeLevels).nullable()
+        val loading = reference("loading", LoadingService.Loading).nullable()
 
-        //Todo ссылка на грейд, загрузку
+    }
 
+    object Errors {
+        const val notFoundTextError = "Профиль не найден"
     }
 
     init {
@@ -100,13 +120,11 @@ class ProfilesService(database: Database) {
         }
     }
 
-    suspend fun get(id: Int) = dbQuery {
-        ExposedProfile.findById(id)?.toDataClass() ?: throw NotFoundException("Профиль не найден")
-    }
+    fun get(id: Int): ExposedProfile? = ExposedProfile.findById(id)
 
 
-    suspend fun create(profile: Profile): ExposedProfile = dbQuery {
-        ExposedProfile.new {
+    fun create(profile: Profile): ExposedProfile {
+        return ExposedProfile.new {
             firstName = profile.firstName
             lastName = profile.lastName
             price = profile.price
@@ -116,30 +134,63 @@ class ProfilesService(database: Database) {
             summary = profile.summary
             skills = profile.skills
             telegram = profile.telegram
+            link =
+                if (profile.lastName == null) "${profile.firstName}?profileId=${this.id.value}" else "${profile.firstName}${profile.lastName}?profileId=${this.id.value}"
         }
     }
 
-    suspend fun update(profile: Profile) {
-        dbQuery {
-            val profileResult = ExposedProfile.findById(profile.id!!)
-            if (profileResult != null) {
-                with(profileResult) {
-                    firstName = profile.firstName
-                    lastName = profile.lastName
-                    price = profile.price
-                    portfolio = profile.portfolio
-                    experience = profile.experience
-                    email = profile.email
-                    summary = profile.summary
-                    skills = profile.skills
-                    telegram = profile.telegram
-                }
-            } else {
-                throw NotFoundException("Такой профиль не найден")
-            }
+    fun updateByFreel(freelId: Int, profile: Profile): ExposedProfile {
+        var exposedGrade: ExposedGrade? = null
+        if (profile.grade != null) {
+            exposedGrade =
+                ExposedGrade.find { GradeService.GradeLevels.levelKey eq profile.grade.levelKey }.singleOrNull()
         }
+        val exposedProfile = ExposedFreel.findById(freelId)?.profile ?: throw NotFoundException(notFoundTextError)
+        if (exposedProfile.id.value != profile.id) throw NotFoundException(notFoundTextError)
+        with(exposedProfile) {
+            firstName = profile.firstName
+            lastName = profile.lastName
+            price = profile.price
+            portfolio = profile.portfolio
+            experience = profile.experience
+            email = profile.email
+            summary = profile.summary
+            skills = profile.skills
+            telegram = profile.telegram
+            grade = exposedGrade
+        }
+        return exposedProfile
     }
 
+    fun updateLoading(freelId: Int, loading: Loading): ExposedProfile {
+        val exposedProfile = ExposedFreel.findById(freelId)?.profile ?: throw NotFoundException(notFoundTextError)
+        val exposedLoading =
+            ExposedLoading.find { LoadingService.Loading.loadingKey eq loading.loadingKey }.singleOrNull()
+                ?: throw NotFoundException(notFoundTextError)
+        exposedProfile.loading = exposedLoading
+        return exposedProfile
+    }
+
+    fun updateByCompany(exposedProfile: ExposedProfile, profile: Profile): ExposedProfile {
+        var exposedGrade: ExposedGrade? = null
+        if (profile.grade != null) {
+            exposedGrade =
+                ExposedGrade.find { GradeService.GradeLevels.levelKey eq profile.grade.levelKey }.singleOrNull()
+        }
+        with(exposedProfile) {
+            firstName = profile.firstName
+            lastName = profile.lastName
+            price = profile.price
+            portfolio = profile.portfolio
+            experience = profile.experience
+            email = profile.email
+            summary = profile.summary
+            skills = profile.skills
+            telegram = profile.telegram
+            grade = exposedGrade
+        }
+        return exposedProfile
+    }
 }
 
 

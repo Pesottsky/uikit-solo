@@ -1,6 +1,5 @@
 package com.heisy.schema
 
-import com.heisy.plugins.dbQuery
 import io.ktor.server.plugins.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -8,7 +7,9 @@ import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.ReferenceOption
+import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 
 @Serializable
@@ -36,7 +37,7 @@ class ExposedFreelsTable(id: EntityID<Int>) : IntEntity(id) {
         return FreelsTable(
             name = this.name,
             id = this.id.value,
-            rows = this.rows.toList().map { it.toDataClass() }
+            rows = this.rows.map { it.toDataClass() }
         )
     }
 }
@@ -57,37 +58,31 @@ class FreelsTablesService(database: Database) {
     }
 
 
-    suspend fun create(name: String, userId: Int): FreelsTable = dbQuery {
-        val user = ExposedUser.findById(userId)!!
-        if (user.tables.toList().size == 1) {
-            throw BadRequestException("Таблица уже есть")
-        }
-        ExposedFreelsTable.new {
+    fun create(name: String, userId: Int): ExposedFreelsTable {
+        val user = ExposedUser.findById(userId) ?: throw NotFoundException()
+        if (user.tables.count() > 0) throw BadRequestException("Таблица уже есть")
+
+        return ExposedFreelsTable.new {
             this.name = name
             this.userId = user
-        }.toDataClass()
-    }
-
-    suspend fun getByUserId(userId: Int): List<FreelsTable> {
-        return dbQuery {
-            val user = ExposedUser.findById(userId)
-            user?.tables?.toList()?.map { it.toDataClass() } ?: listOf()
         }
     }
 
-    suspend fun update(id: Int, table: FreelsTable) {
-        dbQuery {
-            FreelsTables.update({ FreelsTables.id eq id }) {
-                it[name] = table.name
-            }
-        }
+    fun getByUserId(userId: Int): List<ExposedFreelsTable> {
+        val user = ExposedUser.findById(userId) ?: throw NotFoundException()
+        return user.tables.toList()
     }
 
-    suspend fun delete(id: Int) {
-        val user = ExposedUser.findById(id)!!
-        user.tables.forEach {
-            it.delete()
-        }
+    fun update(userId: Int, table: FreelsTable): ExposedFreelsTable {
+        val exposedTable = ExposedUser.findById(userId)?.tables?.firstOrNull()
+            ?: throw NotFoundException(FreelsRowsService.Errors.notFoundError)
+        exposedTable.name = table.name
+        return exposedTable
+    }
+
+    fun delete(userId: Int) {
+        ExposedUser.findById(userId)?.tables?.firstOrNull()?.delete()
+            ?: throw NotFoundException(FreelsRowsService.Errors.notFoundError)
     }
 }
 

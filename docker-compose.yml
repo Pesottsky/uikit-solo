@@ -12,25 +12,58 @@ services:
     build:
       context: ./back
     container_name: back
-    # environment:
-    #   – DB_HOST=db
+    environment:
+      HOST: 0.0.0.0
+      PORT: 81
+      DB_HOST: db
+      DB_USER: db_user
+      DB_PASSWORD: 1234
+      COMPANY_SECRET: company_secret
+      FREEL_SECRET: freel_secret
+      COMPANY_AUDIENCE: tikhonov
+      FREEL_AUDIENCE: pesotskiy
+      #      REALM: soloteam
+      #      ALLOW_HOST: *
+      REFRESH: 10000000
+      ACCESS: 30000
+      RECOVERY: 604800000
+      #      SMTP_SERVICE_LOGIN: service@soloteam.io
+      #      SMTP_SERVICE_PASSWORD:
+      #      SMTP_HELLO_LOGIN: hello@soloteam.io
+      #      SMTP_HELLO_PASSWORD:
+      #      SMTP_INFO_LOGIN: info@soloteam.io
+      #      SMTP_INFO_PASSWORD:
+      SMTP_NOREPLAY_LOGIN: noreplay@soloteam.io
+      SMTP_NOREPLAY_PASSWORD:
     ports:
-      - 81:8080
-    # networks:
-    #   – mynet
-#   db:
-#     image: mysql:5.7
-#     environment:
-#       – MYSQL_ROOT_PASSWORD=secret
-#       – MYSQL_DATABASE=mydatabase
-#     ports:
-#       – "3306:3306"
-#     volumes:
-#       – mysql-data:/var/lib/mysql
-#     networks:
-#       – mynet
-# volumes:
-#   mysql-data:
-# networks:
-#   mynet:
-#     driver: bridge
+      - "81:81"
+    depends_on:
+      - db
+    networks:
+      - mynet
+#    volumes:
+#      - "./logs/log.log:testFile/log"
+  db:
+    build: 
+      context: .
+      dockerfile: Dbdockerfile
+    container_name: db
+    environment:
+      LANG: C.UTF-8
+      MYSQL_ROOT_PASSWORD: 12345
+      MYSQL_DATABASE: main
+      MYSQL_USER: db_user
+      MYSQL_PASSWORD: 1234
+      MYSQL_INITDB_CHARSET: utf8mb4
+    command: [ 'mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci' ]
+    ports:
+      - "3306:3306"
+    volumes:
+      - "mysql_data:/var/lib/mysql"
+    networks:
+      - mynet
+volumes:
+  mysql_data:
+networks:
+  mynet:
+    driver: bridge
