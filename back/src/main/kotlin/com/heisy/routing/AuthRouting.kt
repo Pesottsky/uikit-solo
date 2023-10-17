@@ -65,8 +65,8 @@ fun Application.configureAuthRouting(authUseCase: IAuthUseCase) {
         route("forget_password") {
             post {
                 val forgetPassword = call.receive<ForgetPassword>()
-                val code = authUseCase.forgetPassword(call.application, forgetPassword)
-                val text = app.environment.config.property("smtp.${bundle.from.configParam}.password").getString()
+//                val code = authUseCase.forgetPassword(call.application, forgetPassword)
+//                val text = app.environment.config.property("smtp.${bundle.from.configParam}.password").getString()
                 launch(Dispatchers.IO + SupervisorJob()) {
                     EmailSender.sendMail(
                         call.application, MailBundle(
