@@ -1,19 +1,24 @@
 {
-  "name": "uikit-solo",
+  "name": "solo-team",
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 3100",
     "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "axios": "^1.5.0",
+    "@vuelidate/core": "^2.0.3",
+    "@vuelidate/validators": "^2.0.4",
+    "axios": "^1.5.1",
+    "pinia": "^2.1.6",
     "vue": "^3.3.4",
     "vue-router": "^4.2.4"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^4.3.1",
+    "@vitejs/plugin-vue": "^4.3.4",
+    "sass": "^1.69.0",
+    "sass-loader": "^13.3.2",
     "vite": "^4.4.9"
   }
 }

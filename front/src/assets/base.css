@@ -1,0 +1,150 @@
+:root {
+	/* основные цвета */
+	--white: #ffffff;
+	--black: #000000;
+	--biege-light: #FCFBFA;
+	--black-opacity-50: #0000007e;
+	--black-opacity-30: #00000038;
+	--black-opacity-10: #00000029;
+	--gray-light-hover: #00000019;
+	--gray-light: #00000010;
+	/* цвета для кнопок */
+	--primary-hover: #333333;
+	--primary-active: #333333;
+	--primary-color-active: #ffffffa4;
+	--secondary-hover: #00000013;
+	--secondary-color-active: #000000a4;
+	--tetrary-hover: #00000013;
+	--tetrary-color-active: #000000a4;
+	--focus: #00000011;
+	--input-error:#FF6B00;
+	/* остальные  */
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	margin: 0;
+	font-weight: normal;
+}
+
+body {
+	font-family: 'Golos Text', Inter, -apple-system, 'Segoe UI', Roboto, Ubuntu,'Helvetica Neue', sans-serif;
+	font-size: 14px;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	background: #FCFBFA;
+}
+
+/* Fonts styles */
+@font-face {
+	font-family: "Golos Text";
+	src: url('./fonts/GolosText-Medium.ttf');
+} 
+@font-face {
+	font-family: "Antonym";
+	src: url("./fonts/Antonym-Medium.woff2");
+
+}
+
+h1 {
+	font-size: 32px;
+	color: var(--black);
+	font-family: Antonym;
+	font-style: normal;
+	font-weight: 500;
+	line-height: 100%; /* 32px */
+}
+
+h2 {
+	font-size: 24px;
+	color: var(--black);
+	font-family: Antonym;
+	font-style: normal;
+	font-weight: 500;
+	line-height: 100%; /* 32px */
+}
+
+h3 {
+	color: var(--black);
+	font-family: Golos Text;
+	font-size: 18px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: 140%; /* 25.2px */
+}
+
+p {
+	color: var(--black);
+	font-family: Golos Text;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: 140%; /* 19.6px */
+}
+
+.font-body {
+	/* тот же стиль что и у <p> */
+	color: var(--black);
+	font-family: Golos Text;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: 140%; /* 19.6px */
+}
+
+.font-caption {
+	color: var(--black);
+	font-family: Golos Text;
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: 140%; /* 16.8px */
+}
+
+.font-caption-small{
+	color: var(--black);
+	font-family: Roboto;
+	font-size: 10px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: 140%; /* 14px */
+}
+
+a {
+	color: var(--black-opacity-50);;
+	text-decoration-color: var(--black-opacity-50);
+	text-decoration-line: underline;
+	text-decoration-style: solid;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 2px;
+
+	transition: text-underline-offset 0.2s ease-in-out;
+  
+}
+a:hover {
+	color: var(--black);
+	text-decoration-color: var(--black);
+	text-underline-offset: 4px;
+}
+a:active {
+	color: var(--black-opacity-50);;
+	text-decoration-color: var(--black-opacity-50);
+
+}
+input[type="text"] {
+	font-family: inherit; /* 1 */
+	font-size: inherit; /* 1 */
+	line-height: inherit; /* 1 */
+	margin: 0; /* 2 */
+}
+
+.width_max {
+	width: 100%;
+}
+
+.color_black-opacity-50 {
+	color: var(--black-opacity-50);
+}

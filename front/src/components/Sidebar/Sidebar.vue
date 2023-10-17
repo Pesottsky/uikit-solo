@@ -1,0 +1,51 @@
+<template>
+    <aside class="sidebar">
+        <div class="sidebar__icon">
+            <LogoIcon />
+        </div>
+        <div class="sidebar-menu">
+            <slot></slot>
+        </div>
+        <div class="sidebar__action">
+            <Button label="Выйти" :type="BUTTON_TYPE.TETRARY" @on-click="onLogout" />
+        </div>
+    </aside>
+</template>
+
+<script setup>
+    import { LogoIcon } from '../Icons';
+    import { Button } from '../UI';
+    import BUTTON_TYPE from '../../constants/buttonTypes';
+
+    import { useAuthStore } from '../../stores/auth.store';
+
+    const storeAuth = useAuthStore();
+
+    async function onLogout() {
+        await storeAuth.logout();
+    }
+</script>
+
+<style lang="scss" scoped>
+    .sidebar {
+        width: 233px;
+        padding: 24px 16px;
+        background-color: var(--white);
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+        justify-content: space-between;
+        height: 100vh;
+
+        &__icon {
+            margin-left: 8px;
+        }
+        &-menu {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+    }
+</style>
