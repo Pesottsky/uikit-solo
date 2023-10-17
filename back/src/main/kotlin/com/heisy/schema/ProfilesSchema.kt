@@ -124,7 +124,7 @@ class ProfilesService(database: Database) {
 
 
     fun create(profile: Profile): ExposedProfile {
-        return ExposedProfile.new {
+        val exposedProfile = ExposedProfile.new {
             firstName = profile.firstName
             lastName = profile.lastName
             price = profile.price
@@ -134,9 +134,11 @@ class ProfilesService(database: Database) {
             summary = profile.summary
             skills = profile.skills
             telegram = profile.telegram
-            link =
-                if (profile.lastName == null) "${profile.firstName}?profileId=${this.id.value}" else "${profile.firstName}${profile.lastName}?profileId=${this.id.value}"
+            link = profile.link ?: "404"
         }
+        exposedProfile.link =
+            if (profile.lastName == null) "${profile.firstName}?profileId=${exposedProfile.id.value}" else "${profile.firstName}${profile.lastName}?profileId=${exposedProfile.id.value}"
+        return exposedProfile
     }
 
     fun updateByFreel(freelId: Int, profile: Profile): ExposedProfile {
