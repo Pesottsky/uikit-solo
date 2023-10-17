@@ -70,7 +70,7 @@ class ExposedProfile(id: EntityID<Int>) : IntEntity(id) {
     var grade by ExposedGrade optionalReferencedOn ProfilesService.Profiles.grade
     var loading by ExposedLoading optionalReferencedOn ProfilesService.Profiles.loading
 
-    val freel by ExposedFreel referrersOn  FreelsService.Freels.profileId
+    val freel by ExposedFreel referrersOn FreelsService.Freels.profileId
 
     fun toDataClass(): Profile {
         return Profile(

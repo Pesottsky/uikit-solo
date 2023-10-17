@@ -34,7 +34,7 @@ services:
       #      SMTP_INFO_LOGIN: info@soloteam.io
       #      SMTP_INFO_PASSWORD:
       SMTP_NOREPLAY_LOGIN: noreplay@soloteam.io
-      SMTP_NOREPLAY_PASSWORD:
+#      SMTP_NOREPLAY_PASSWORD:
     ports:
       - "81:81"
     depends_on:

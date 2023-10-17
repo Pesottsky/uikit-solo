@@ -20,7 +20,7 @@ fun Application.configureProfileRouting(profileService: ProfilesService) {
                 get {
                     val pair = getIdTypePair(call)
                     call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
-                    val profile = dbQuery { profileService.get(pair.first.toInt())?.toDataClass() }
+                    val profile = dbQuery { profileService.get(pair.first)?.toDataClass() }
                     if (profile == null) {
                         call.respond(HttpStatusCode.NoContent)
                     } else {
@@ -32,7 +32,7 @@ fun Application.configureProfileRouting(profileService: ProfilesService) {
                     val pair = getIdTypePair(call)
                     call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
                     val profile =
-                        dbQuery { profileService.updateByFreel(pair.first.toInt(), call.receive()).toDataClass() }
+                        dbQuery { profileService.updateByFreel(pair.first, call.receive()).toDataClass() }
                     call.respond(HttpStatusCode.Accepted, profile)
                 }
 
@@ -43,7 +43,7 @@ fun Application.configureProfileRouting(profileService: ProfilesService) {
                     val pair = getIdTypePair(call)
                     call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
                     val profile =
-                        dbQuery { profileService.updateLoading(pair.first.toInt(), call.receive()).toDataClass() }
+                        dbQuery { profileService.updateLoading(pair.first, call.receive()).toDataClass() }
                     call.respond(HttpStatusCode.Accepted, profile)
                 }
             }

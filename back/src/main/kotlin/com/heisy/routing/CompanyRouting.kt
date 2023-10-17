@@ -30,7 +30,7 @@ fun Application.configureCompanyRouting(companyService: CompanyService) {
                     val pair = getIdTypePair(call)
                     call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
                     val company = dbQuery {
-                        companyService.update(pair.first.toInt(), call.receive()).toDataClass()
+                        companyService.update(pair.first, call.receive()).toDataClass()
                     }
                     call.respond(HttpStatusCode.Accepted, company)
                 }

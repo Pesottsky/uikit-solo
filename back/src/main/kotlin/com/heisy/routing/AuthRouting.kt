@@ -65,8 +65,8 @@ fun Application.configureAuthRouting(authUseCase: IAuthUseCase) {
         route("forget_password") {
             post {
                 val forgetPassword = call.receive<ForgetPassword>()
-                val code = authUseCase.forgetPassword(call.application, forgetPassword)
-                val text = app.environment.config.property("smtp.${bundle.from.configParam}.password").getString()
+//                val code = authUseCase.forgetPassword(call.application, forgetPassword)
+//                val text = app.environment.config.property("smtp.${bundle.from.configParam}.password").getString()
                 launch(Dispatchers.IO + SupervisorJob()) {
                     EmailSender.sendMail(
                         call.application, MailBundle(
@@ -86,7 +86,7 @@ fun Application.configureAuthRouting(authUseCase: IAuthUseCase) {
                 delete {
                     val pair = getIdTypePair(call)
                     call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
-                    authUseCase.logout(pair.first.toInt(), pair.second)
+                    authUseCase.logout(pair.first, pair.second)
                     call.respond(HttpStatusCode.Accepted)
                 }
             }

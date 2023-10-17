@@ -34,21 +34,21 @@ fun Application.configureTablesRouting(
                     val pair = getIdTypePair(call)
                     call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
                     val name = call.request.queryParameters["name"] ?: throw BadRequestException("Name is null")
-                    val table = dbQuery { tablesService.create(name, pair.first.toInt()).toDataClass() }
+                    val table = dbQuery { tablesService.create(name, pair.first).toDataClass() }
                     call.respond(HttpStatusCode.Created, table)
                 }
 
                 get {
                     val pair = getIdTypePair(call)
                     call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
-                    val tables = dbQuery { tablesService.getByUserId(pair.first.toInt()).map { it.toDataClass() } }
+                    val tables = dbQuery { tablesService.getByUserId(pair.first).map { it.toDataClass() } }
                     call.respond(HttpStatusCode.OK, tables)
                 }
 
                 delete {
                     val pair = getIdTypePair(call)
                     call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
-                    dbQuery { tablesService.delete(pair.first.toInt()) }
+                    dbQuery { tablesService.delete(pair.first) }
                     call.respond(HttpStatusCode.Accepted)
                 }
 
@@ -59,7 +59,7 @@ fun Application.configureTablesRouting(
                         val row = dbQuery {
                             val profile = call.receive<Profile>()
                             val profileResult = profilesService.create(profile)
-                            rowService.create(pair.first.toInt(), profileResult).toDataClass()
+                            rowService.create(pair.first, profileResult).toDataClass()
                         }
 
                         call.respond(HttpStatusCode.Created, row)
@@ -74,7 +74,7 @@ fun Application.configureTablesRouting(
                             ?: throw BadRequestException("profile_id is null")
                         val row = dbQuery {
                             val profileResult = profilesService.get(profileId.toInt()) ?: throw NotFoundException()
-                            rowService.create(pair.first.toInt(), profileResult).toDataClass()
+                            rowService.create(pair.first, profileResult).toDataClass()
                         }
                         call.respond(HttpStatusCode.Created, row)
                     }
@@ -86,7 +86,7 @@ fun Application.configureTablesRouting(
                         val rowId = call.parameters["row_id"] ?: throw BadRequestException("row_id is null")
                         val profile = call.receive<Profile>()
                         val profileResult = dbQuery {
-                            val row = rowService.checkRowForUpdate(rowId.toInt(), pair.first.toInt())
+                            val row = rowService.checkRowForUpdate(rowId.toInt(), pair.first)
                             rowService.checkForOwner(row)
                             val profileResult = profilesService.get(profile.id!!) ?: throw NotFoundException()
                             profilesService.updateByCompany(profileResult, profile).toDataClass()
@@ -103,7 +103,7 @@ fun Application.configureTablesRouting(
                 call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
                 val rowId = call.request.queryParameters["row_id"] ?: throw BadRequestException("row_id is null")
                 val link = dbQuery {
-                    val row = rowService.checkRowForUpdate(rowId.toInt(), pair.first.toInt())
+                    val row = rowService.checkRowForUpdate(rowId.toInt(), pair.first)
                     rowService.checkForOwner(row)
                     val exposedLink = linksService.create()
                     rowService.updateLink(row, exposedLink)
@@ -118,7 +118,7 @@ fun Application.configureTablesRouting(
                     call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
                     val invite = call.receive<Invite>()
                     val row = dbQuery {
-                        val row = rowService.checkRowForUpdate(invite.rowId, pair.first.toInt())
+                        val row = rowService.checkRowForUpdate(invite.rowId, pair.first)
                         rowService.checkForOwner(row)
                     }
 
@@ -157,7 +157,7 @@ fun Application.configureTablesRouting(
                     call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
                     val profileId = call.request.queryParameters["profile_id"]?.toInt()
                         ?: throw BadRequestException("profile_id is null")
-                    val userId = pair.first.toInt()
+                    val userId = pair.first
                     val comment = commentService.get(profileId, userId)
                     if (comment == null) call.respond(HttpStatusCode.NoContent)
                     else call.respond(HttpStatusCode.OK, comment)
@@ -166,7 +166,7 @@ fun Application.configureTablesRouting(
                 post {
                     val pair = getIdTypePair(call)
                     call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
-                    val userId = pair.first.toInt()
+                    val userId = pair.first
                     val comment = commentService.create(call.receive(), userId)
                     call.respond(HttpStatusCode.Created, comment)
                 }
