@@ -86,7 +86,7 @@ fun Application.configureAuthRouting(authUseCase: IAuthUseCase) {
                 delete {
                     val pair = getIdTypePair(call)
                     call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
-                    authUseCase.logout(pair.first.toInt(), pair.second)
+                    authUseCase.logout(pair.first, pair.second)
                     call.respond(HttpStatusCode.Accepted)
                 }
             }

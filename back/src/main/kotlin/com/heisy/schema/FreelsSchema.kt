@@ -35,7 +35,7 @@ class ExposedFreel(id: EntityID<Int>) : IntEntity(id) {
 
     var login by FreelsService.Freels.login
     var password by FreelsService.Freels.password
-    var profile by ExposedProfile referencedOn  FreelsService.Freels.profileId
+    var profile by ExposedProfile referencedOn FreelsService.Freels.profileId
 
     fun getProfile(): Profile {
         return this.profile.toDataClass()

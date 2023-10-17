@@ -44,10 +44,10 @@ class GradeService(database: Database) {
         transaction(database) {
             SchemaUtils.create(GradeLevels)
             if (ExposedGrade.all().empty()) {
-               ExposedGrade.new {
-                   levelKey = 0
-                   description = "Junior"
-               }
+                ExposedGrade.new {
+                    levelKey = 0
+                    description = "Junior"
+                }
                 ExposedGrade.new {
                     levelKey = 1
                     description = "Middle"

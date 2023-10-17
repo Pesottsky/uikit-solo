@@ -122,9 +122,9 @@ fun getType(call: ApplicationCall): String {
     return principal!!.payload.getClaim("user_type").asString()
 }
 
-fun getIdTypePair(call: ApplicationCall): Pair<String, String> {
+fun getIdTypePair(call: ApplicationCall): Pair<Int, String> {
     val principal = call.principal<JWTPrincipal>()
-    val id = principal!!.payload.getClaim("id").asString()
+    val id = principal!!.payload.getClaim("id").asInt()
     val type = principal.payload.getClaim("user_type").asString()
     return Pair(id, type)
 }
