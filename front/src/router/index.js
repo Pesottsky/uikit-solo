@@ -1,47 +1,23 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
-import Components from "../view/Components.vue"
-import Authorization from "../view/Authorization.vue"
-import Registration from "../view/Registration.vue"
-import Main from "../components/main/Main.vue"
-import { get, accessKey } from "../localStorage"
+import { createRouter, createWebHistory } from 'vue-router'
+
+import navigationGuard from './navigationGuard';
+
+import publicRouter from './public.router';
+import companyRouter from './company.router';
+import freelancerRouter from './freelancer.router';
 
 const routes = [
-    {
-        path: '/',
-        name: "Main",
-        component: Main,
-        meta: { requiresAuth: true }
-    },
-    {
-        path: "/registration",
-        name: "Registration",
-        component: Registration,
-    },
-    {
-        path: "/login",
-        name: "Login",
-        component: Authorization,
-    },
-    {
-        path: '/components',
-        component: Components,
-    },
-]
-
+	...publicRouter,
+	...companyRouter,
+	...freelancerRouter,
+];
 
 const router = createRouter({
-    history: createWebHashHistory(),
-    routes: routes,
+	history: createWebHistory(),
+	routes,
+	strict: true
 })
 
-router.beforeEach((to, from) => {
-    if (to.meta.requiresAuth && get(accessKey) == null) {
-        console.log("AAA")
-        return {
-            path: '/login',
-            query: { redirect: to.fullPath },
-        }
-    }
-})
+router.beforeEach(navigationGuard);
 
 export default router
