@@ -35,10 +35,10 @@ class ExposedFreel(id: EntityID<Int>) : IntEntity(id) {
 
     var login by FreelsService.Freels.login
     var password by FreelsService.Freels.password
-    var profile by ExposedProfile optionalReferencedOn FreelsService.Freels.profileId
+    var profile by ExposedProfile referencedOn  FreelsService.Freels.profileId
 
-    fun getProfile(): Profile? {
-        return this.profile?.toDataClass()
+    fun getProfile(): Profile {
+        return this.profile.toDataClass()
     }
 }
 
@@ -46,7 +46,7 @@ class FreelsService(database: Database) {
     object Freels : IntIdTable() {
         val login = varchar("login", length = 50)
         val password = varchar("password", length = 250)
-        val profileId = reference("profileId", ProfilesService.Profiles, ReferenceOption.CASCADE).nullable()
+        val profileId = reference("profileId", ProfilesService.Profiles, ReferenceOption.CASCADE)
     }
 
     init {
@@ -61,11 +61,12 @@ class FreelsService(database: Database) {
         if (checkLoginInFreels != null || checkLoginInUsers != null) throw BadRequestException(emailBusy)
     }
 
-    fun create(freel: Freel): ExposedFreel {
+    fun create(freel: Freel, exposedProfile: ExposedProfile): ExposedFreel {
         checkLoginBusy(freel)
         return ExposedFreel.new {
             login = freel.login
             password = BCrypt.hashpw(freel.password, BCrypt.gensalt())
+            profile = exposedProfile
         }
     }
 

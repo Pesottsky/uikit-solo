@@ -3,6 +3,7 @@ package com.heisy.routing
 import com.heisy.email.EmailSender
 import com.heisy.email.MailBundle
 import com.heisy.email.MailFrom
+import com.heisy.email.MailSubjects
 import com.heisy.plugins.UserTypes
 import com.heisy.plugins.dbQuery
 import com.heisy.plugins.getIdTypePair
@@ -111,14 +112,26 @@ fun Application.configureTablesRouting(
                 call.respond(HttpStatusCode.Created, link)
             }
 
-            route("send") {
-                post("/email") {
+            route("send/email") {
+                post {
                     val pair = getIdTypePair(call)
                     call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
                     val invite = call.receive<Invite>()
-                    val link = dbQuery {
+                    val row = dbQuery {
                         val row = rowService.checkRowForUpdate(invite.rowId, pair.first.toInt())
                         rowService.checkForOwner(row)
+                    }
+
+                    val exposedFreel = dbQuery {
+                        ExposedFreel.find { FreelsService.Freels.login eq invite.email }.singleOrNull()
+                    }
+                    // Приглашение сгенерировали на почту, которая уже зарегана в системе
+                    if (exposedFreel != null) {
+                        dbQuery { row.profile = exposedFreel.profile }
+                        call.respond(HttpStatusCode.Found)
+                        return@post
+                    }
+                    val link = dbQuery {
                         val exposedLink = linksService.update(invite)
                         exposedLink.toDataClass()
                     }
@@ -129,7 +142,7 @@ fun Application.configureTablesRouting(
                             call.application, MailBundle(
                                 to = "noreplay@soloteam.io",
                                 from = MailFrom.NO_REPLAY,
-                                subject = "Text",
+                                subject = MailSubjects.InviteByLink,
                                 text = "message text"
                             )
                         )

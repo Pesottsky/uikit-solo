@@ -293,6 +293,30 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Profile'
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+  /update_loading:
+    post:
+      tags:
+        - Кейсы фрилансера
+      summary: Обновление рабочей загрузки
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Loading'
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
   /profile/{id}:
     get:
       tags:
@@ -511,6 +535,12 @@ components:
         telegram:
           type: string
           nullable: true
+        grade:
+          nullable: true
+          $ref: '#/components/schemas/Grade'
+        loading:
+          nullable: true
+          $ref: '#/components/schemas/Loading'
     Company:
       type: object
       properties:
@@ -570,3 +600,17 @@ components:
           type: string
         row_id:
           type: integer
+    Grade:
+      type: object
+      properties:
+        level_key:
+          type: integer
+        description:
+          type: string
+    Loading:
+      type: object
+      properties:
+        level_key:
+          type: integer
+        description:
+          type: string

@@ -37,6 +37,16 @@ fun Application.configureProfileRouting(profileService: ProfilesService) {
                 }
 
             }
+
+            route("/update_loading") {
+                post {
+                    val pair = getIdTypePair(call)
+                    call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
+                    val profile =
+                        dbQuery { profileService.updateLoading(pair.first.toInt(), call.receive()).toDataClass() }
+                    call.respond(HttpStatusCode.Accepted, profile)
+                }
+            }
         }
 
         get("/profile/{id}") {

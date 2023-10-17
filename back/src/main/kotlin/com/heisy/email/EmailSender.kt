@@ -30,7 +30,7 @@ object EmailSender {
         val message = MimeMessage(session)
         message.setFrom(InternetAddress(from))
         message.setRecipient(Message.RecipientType.TO, InternetAddress(bundle.to))
-        message.subject = bundle.subject
+        message.subject = bundle.subject.text
         message.setText(bundle.text)
         Transport.send(message)
     }
@@ -39,7 +39,7 @@ object EmailSender {
 data class MailBundle(
     val to: String,
     val from: MailFrom,
-    val subject: String,
+    val subject: MailSubjects,
     val text: String
 )
 
@@ -48,4 +48,9 @@ enum class MailFrom(val configParam: String) {
     INFO("info"),
     HELLO("hello"),
     SERVICE("service")
+}
+
+enum class MailSubjects(val text: String) {
+    PasswordRecovery(""),
+    InviteByLink("")
 }

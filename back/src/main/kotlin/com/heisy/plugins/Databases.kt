@@ -27,6 +27,9 @@ fun Application.configureSchema() {
         rLifeTime = environment.config.property("jwt.refresh_lifetime").getString().toInt(),
         recoveryTime = environment.config.property("recovery.password").getString().toInt()
     )
+
+    InjectionUtils.provideGradeService()
+    InjectionUtils.provideLoadingService()
 }
 
 suspend fun <T> dbQuery(block: suspend () -> T): T =

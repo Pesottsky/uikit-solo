@@ -98,7 +98,7 @@ class FreelsRowsService(database: Database) {
 
         val table = ExposedUser.findById(userId)?.tables?.firstOrNull() ?: throw NotFoundException(notFoundError)
         // Строка не из таблицы, которая принадлежит пользователю
-        if (!table.rows.map { it.id.value }.contains(row.id.value)) throw throw NotFoundException(notFoundError)
+        if (!table.rows.map { it.id.value }.contains(row.id.value)) throw NotFoundException(notFoundError)
 
         return row
     }

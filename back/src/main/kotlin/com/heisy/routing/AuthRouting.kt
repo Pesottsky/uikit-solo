@@ -4,8 +4,10 @@ import com.heisy.domain.usecase.IAuthUseCase
 import com.heisy.email.EmailSender
 import com.heisy.email.MailBundle
 import com.heisy.email.MailFrom
+import com.heisy.email.MailSubjects
 import com.heisy.plugins.UserTypes
 import com.heisy.plugins.getIdTypePair
+import com.heisy.schema.ForgetPassword
 import com.heisy.schema.Token
 import com.heisy.utils.LogUtils
 import io.ktor.http.*
@@ -62,15 +64,15 @@ fun Application.configureAuthRouting(authUseCase: IAuthUseCase) {
 
         route("forget_password") {
             post {
-                val code = authUseCase.forgetPassword(call.application, call.receive())
-
-                // TODO рассылка на восстановление пароля
+                val forgetPassword = call.receive<ForgetPassword>()
+                val code = authUseCase.forgetPassword(call.application, forgetPassword)
+                val text = app.environment.config.property("smtp.${bundle.from.configParam}.password").getString()
                 launch(Dispatchers.IO + SupervisorJob()) {
                     EmailSender.sendMail(
                         call.application, MailBundle(
-                            to = "noreplay@soloteam.io",
+                            to = forgetPassword.login,
                             from = MailFrom.NO_REPLAY,
-                            subject = "Text",
+                            subject = MailSubjects.PasswordRecovery,
                             text = "message text"
                         )
                     )

@@ -45,7 +45,13 @@ data class Profile(
     val experience: String? = null,
 
     @SerialName("link")
-    val link: String? = null
+    val link: String? = null,
+
+    @SerialName("grade")
+    val grade: Grade? = null,
+
+    @SerialName("loading")
+    val loading: Loading? = null
 )
 
 class ExposedProfile(id: EntityID<Int>) : IntEntity(id) {
@@ -61,8 +67,10 @@ class ExposedProfile(id: EntityID<Int>) : IntEntity(id) {
     var skills by ProfilesService.Profiles.skills
     var telegram by ProfilesService.Profiles.telegram
     var link by ProfilesService.Profiles.link
+    var grade by ExposedGrade optionalReferencedOn ProfilesService.Profiles.grade
+    var loading by ExposedLoading optionalReferencedOn ProfilesService.Profiles.loading
 
-    val freel by ExposedFreel optionalReferrersOn FreelsService.Freels.profileId
+    val freel by ExposedFreel referrersOn  FreelsService.Freels.profileId
 
     fun toDataClass(): Profile {
         return Profile(
@@ -76,7 +84,9 @@ class ExposedProfile(id: EntityID<Int>) : IntEntity(id) {
             summary = this.summary,
             skills = this.skills,
             telegram = this.telegram,
-            link = this.link
+            link = this.link,
+            grade = this.grade?.toDataClass(),
+            loading = this.loading?.toDataClass()
         )
     }
 }
@@ -95,8 +105,8 @@ class ProfilesService(database: Database) {
         val skills = varchar("skills", length = 1024).nullable()
         val telegram = varchar("telegram", length = 128).nullable()
         val experience = varchar("experience", length = 1024).nullable()
-
-        // Todo ссылка на грейд, загрузку
+        val grade = reference("grade", GradeService.GradeLevels).nullable()
+        val loading = reference("loading", LoadingService.Loading).nullable()
 
     }
 
@@ -130,6 +140,11 @@ class ProfilesService(database: Database) {
     }
 
     fun updateByFreel(freelId: Int, profile: Profile): ExposedProfile {
+        var exposedGrade: ExposedGrade? = null
+        if (profile.grade != null) {
+            exposedGrade =
+                ExposedGrade.find { GradeService.GradeLevels.levelKey eq profile.grade.levelKey }.singleOrNull()
+        }
         val exposedProfile = ExposedFreel.findById(freelId)?.profile ?: throw NotFoundException(notFoundTextError)
         if (exposedProfile.id.value != profile.id) throw NotFoundException(notFoundTextError)
         with(exposedProfile) {
@@ -142,11 +157,26 @@ class ProfilesService(database: Database) {
             summary = profile.summary
             skills = profile.skills
             telegram = profile.telegram
+            grade = exposedGrade
         }
         return exposedProfile
     }
 
+    fun updateLoading(freelId: Int, loading: Loading): ExposedProfile {
+        val exposedProfile = ExposedFreel.findById(freelId)?.profile ?: throw NotFoundException(notFoundTextError)
+        val exposedLoading =
+            ExposedLoading.find { LoadingService.Loading.loadingKey eq loading.loadingKey }.singleOrNull()
+                ?: throw NotFoundException(notFoundTextError)
+        exposedProfile.loading = exposedLoading
+        return exposedProfile
+    }
+
     fun updateByCompany(exposedProfile: ExposedProfile, profile: Profile): ExposedProfile {
+        var exposedGrade: ExposedGrade? = null
+        if (profile.grade != null) {
+            exposedGrade =
+                ExposedGrade.find { GradeService.GradeLevels.levelKey eq profile.grade.levelKey }.singleOrNull()
+        }
         with(exposedProfile) {
             firstName = profile.firstName
             lastName = profile.lastName
@@ -157,6 +187,7 @@ class ProfilesService(database: Database) {
             summary = profile.summary
             skills = profile.skills
             telegram = profile.telegram
+            grade = exposedGrade
         }
         return exposedProfile
     }

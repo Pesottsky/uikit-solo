@@ -44,12 +44,18 @@ services:
 #    volumes:
 #      - "./logs/log.log:testFile/log"
   db:
-    image: mysql:5.7
+    build: 
+      context: .
+      dockerfile: Dbdockerfile
+    container_name: db
     environment:
+      LANG: C.UTF-8
       MYSQL_ROOT_PASSWORD: 12345
       MYSQL_DATABASE: main
       MYSQL_USER: db_user
       MYSQL_PASSWORD: 1234
+      MYSQL_INITDB_CHARSET: utf8mb4
+    command: [ 'mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci' ]
     ports:
       - "3306:3306"
     volumes:

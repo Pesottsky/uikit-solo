@@ -3,6 +3,7 @@ ktor:
     modules:
       - com.heisy.ApplicationKt.module
   deployment:
+#    domain: "$DOMAIN"
     port: "$PORT:81"
     host: "$HOST:0.0.0.0"
     db: "$DB_HOST:127.0.0.1"
@@ -19,10 +20,10 @@ jwt:
   allow_host: "$ALLOW_HOST:*"
   refresh_lifetime: "$REFRESH:100000000"
   access_lifetime: "$ACCESS:30000"
-smtp:
-  no_replay:
-    login: "$SMTP_NOREPLAY_LOGIN"
-    password: "$SMTP_NOREPLAY_PASSWORD"
+#smtp:
+#  no_replay:
+#    login: "$SMTP_NOREPLAY_LOGIN"
+#    password: "$SMTP_NOREPLAY_PASSWORD"
 #  info:
 #    login: "$SMTP_INFO_LOGIN"
 #    password: "$SMTP_INFO_PASSWORD"
@@ -32,5 +33,8 @@ smtp:
 #  service:
 #    login: "$SMTP_SERVICE_LOGIN"
 #    password: "$SMTP_SERVICE_PASSWORD"
+#  authorization:
+#    path: "$AUTHORIZATION_PATH"
 recovery:
   password: "$RECOVERY:604800000"
+#  path: "$RECOVERY_PATH"

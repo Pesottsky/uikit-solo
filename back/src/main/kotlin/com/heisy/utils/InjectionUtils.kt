@@ -21,6 +21,8 @@ object InjectionUtils {
     private var tokensService: TokensService? = null
     private var rowService: FreelsRowsService? = null
     private var commentService: CommentService? = null
+    private var gradeService: GradeService? = null
+    private var loadingService: LoadingService? = null
 
     // useCases
     private var authUseCase: IAuthUseCase? = null
@@ -81,6 +83,16 @@ object InjectionUtils {
     fun provideCommentService(database: Database = provideDataBase()): CommentService {
         if (commentService == null) commentService = CommentService(database)
         return commentService!!
+    }
+
+    fun provideGradeService(database: Database = provideDataBase()): GradeService {
+        if (gradeService == null) gradeService = GradeService(database)
+        return gradeService!!
+    }
+
+    fun provideLoadingService(database: Database = provideDataBase()): LoadingService {
+        if (loadingService == null) loadingService = LoadingService(database)
+        return loadingService!!
     }
 
 

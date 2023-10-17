@@ -45,7 +45,8 @@ class AuthUseCase(
     }
 
     override suspend fun registerFreel(freel: Freel): Token = dbQuery {
-        val freelResult = freelsService.create(freel)
+        val exposedProfile = profilesService.create(Profile(firstName = freel.firstName, lastName = freel.lastName))
+        val freelResult = freelsService.create(freel, exposedProfile)
         tokensService.generateTokenPair(freelResult.id.value, UserTypes.Freel.name)
     }
 
@@ -57,22 +58,18 @@ class AuthUseCase(
         val exposedLink = linkService.findByUUID(link) ?: throw NotFoundException()
         if (exposedLink.isRegister == true) throw BadRequestException("По ссылке уже регистрировались")
 
-        val exposedFreel = freelsService.create(freel)
-        exposedLink.isRegister = true
-
         // У приглашения есть какая-то запись, а в ней есть профиль
-        if (exposedLink.rows.empty()) {
-            val exposedProfile = profilesService.create(Profile(firstName = freel.firstName, lastName = freel.lastName))
-            exposedFreel.profile = exposedProfile
-        } else {
-            exposedFreel.profile = exposedLink.rows.firstOrNull()?.profile ?: profilesService.create(
-                Profile(
-                    firstName = freel.firstName,
-                    lastName = freel.lastName
-                )
+        val exposedProfile = exposedLink.rows.firstOrNull()?.profile ?: profilesService.create(
+            Profile(
+                firstName = freel.firstName,
+                lastName = freel.lastName
             )
-        }
+        )
+        exposedProfile.firstName = freel.firstName
+        exposedProfile.lastName = freel.lastName
 
+        val exposedFreel: ExposedFreel = freelsService.create(freel, exposedProfile)
+        exposedLink.isRegister = true
         tokensService.generateTokenPair(exposedFreel.id.value, UserTypes.Freel.name)
     }
 
