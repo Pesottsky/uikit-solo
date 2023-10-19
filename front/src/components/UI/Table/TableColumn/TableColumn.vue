@@ -1,6 +1,6 @@
 <template>
     <div class="table__column" :class="clasName[alignContent]">
-        <span><slot></slot></span>
+        <slot></slot>
     </div>
 </template>
 

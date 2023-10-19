@@ -16,6 +16,10 @@
             </Button>
         </template>
     </div>
+    <template v-if="companyLoading">
+        <Skeleton />
+        <Skeleton />
+    </template>
     <RouterLink
         v-for="item in bases"
         :key="item.id"
@@ -39,7 +43,7 @@
 
 <script setup>
     import ContextMenu from '../ContextMenu/ContextMenu.vue'; 
-    import { Button } from '@/components/UI';
+    import { Button, Skeleton } from '@/components/UI';
     import { PlusWhiteIcon, PlusBlackIcon, ImportIcon, MoreIcon } from '@/components/Icons'
     import BUTTON_TYPE from '@/constants/buttonTypes';
     import ROUTES_NAMES from '@/constants/routesNames';

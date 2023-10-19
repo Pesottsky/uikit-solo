@@ -9,40 +9,84 @@
                 <TableColumn :span="3">Описание</TableColumn>
                 <TableColumn :span="2">Портфолио</TableColumn>
             </TableRow>
-            <TableRow :count="10" v-for="item in freelancers" :key="item.id" @click="openRightSidebar">
-                <TableColumn :span="2">{{ item.first_name }} {{ item.last_name }}</TableColumn>
-                <TableColumn>
-                    <Chip :type="CHIP_TYPE_BY_NAME['Неизвестно']" text="Не ясно" />
+            <TableRow :count="10" v-for="item in [1, 2, 3]" :is-hover="false" v-if="companyLoading">
+                <TableColumn :span="2">
+                    <div class="flex flex_row">
+                        <Skeleton :size="30" />
+                        <Skeleton :size="70" />
+                    </div>
                 </TableColumn>
-                <TableColumn>{{ item.experience }}</TableColumn>
-                <TableColumn>{{ item.price }}</TableColumn>
-                <TableColumn :span="3">{{ item.summary }}</TableColumn>
-                <TableColumn :span="2">{{ item.portfolio }}</TableColumn>
+                <TableColumn>
+                    <Skeleton :size="60" />
+                </TableColumn>
+                <TableColumn>
+                    <Skeleton :size="60" />
+                </TableColumn>
+                <TableColumn>
+                    <Skeleton :size="60" />
+                </TableColumn>
+                <TableColumn :span="3">
+                    <div class="flex flex_column">
+                        <Skeleton :size="85" />
+                        <Skeleton :size="65" />
+                    </div>
+                </TableColumn>
+                <TableColumn :span="2">
+                    <Skeleton :size="90" />
+                </TableColumn>
+            </TableRow>
+            <TableRow 
+                v-else
+                v-for="item in freelancers"
+                :count="10" 
+                :key="item.profile.id" 
+                :is-fake="item?.fake"
+                :selected="item.profile.id === currentFreelancer?.profile?.id"
+                @click="() => openSidebar(item)"
+            >
+                <TableColumn :span="2">{{ item.profile.first_name || 'Имя' }} {{ item.profile.last_name || 'Фамилия' }}</TableColumn>
+                <TableColumn>
+                    <Chip :type="CHIP_TYPE_BY_NAME['Неизвестно']" text="Не ясно" v-if="!item.profile.loading" />
+                </TableColumn>
+                <TableColumn>{{ item.profile.experience || '--' }}</TableColumn>
+                <TableColumn>{{ item.profile.price || '--' }}</TableColumn>
+                <TableColumn :span="3">{{ item.profile.summary || '--' }}</TableColumn>
+                <TableColumn :span="2">{{ item.profile.portfolio || '--' }}</TableColumn>
             </TableRow>
         </Table>
-        <div class="table-wrapper__add" @click="openRightSidebar">+</div>
+        <div class="table-wrapper__add" @click="() => openSidebar()">+</div>
     </div>
 </template>
 
 <script setup>
-    import { Table, TableRow, TableColumn, Chip } from '../../UI';
+    import { Table, TableRow, TableColumn, Chip, Skeleton } from '../../UI';
     import CHIP_TYPE_BY_NAME from '@/constants/chipTypeByName';
-    import { FREELANCER_TEMPLATE } from '@/constants/hardData';
     import { useCompanyStore } from '../../../stores/company.store';
     import { storeToRefs } from 'pinia';
     import { computed, inject } from 'vue';
 
     const storeCompany = useCompanyStore();
-    const { currentBase } = storeToRefs(storeCompany);
+    const { currentBase, companyLoading, fakeFreelancers, currentFreelancer } = storeToRefs(storeCompany);
+
 
     const freelancers = computed(() => {
-        console.log(currentBase.value);
         return currentBase.value?.rows?.length 
             ? currentBase.value.rows 
-            : [{ ...FREELANCER_TEMPLATE }, { ...FREELANCER_TEMPLATE }, { ...FREELANCER_TEMPLATE }]
+            : fakeFreelancers.value
     })
 
     const openRightSidebar = inject('openRightSidebar');
+
+    function openSidebar(freelancer=null) {
+        openRightSidebar();
+
+        storeCompany.setFreelancer(freelancer);
+        
+        if (!freelancer) {
+            storeCompany.createFakeFreelancer();
+        }
+
+    }
 
 </script>
 
@@ -66,6 +110,20 @@
                 border: none;
                 background-color: var(--gray-light-hover);
             }
+        }
+    }
+
+    .flex {
+        width: 100%;
+        display: flex;
+
+        &_column {
+            flex-direction: column;
+            gap: 10px;
+        }
+        &_row {
+            flex-direction: row;
+            gap: 5px;
         }
     }
 </style>

@@ -1,19 +1,19 @@
 <template>
-    <div class="input__container">
-        <div class="input__effect column">
-            <label v-if="label" class="input__label">{{ label }}</label>
-            <input 
-                :type="type"
-                :placeholder="placeholder"
-                v-model="inputValue"
-                class="input__element"
-                :class="{ invalid: error }"
-            />
+    <div class="textarea__container">
+        <div class="textarea__effect column">
+            <label v-if="label" class="textarea__label">{{ label }}</label>
+            <textarea
+                v-model="inputValue" 
+                :placeholder="placeholder" 
+                class="textarea__element"
+                :class="{ invalid: error, 'textarea__element_headless': isHeadless }"
+                @input="onInput"
+            ></textarea>
         </div>
         <span
             v-if="hint || error"
-            class="input__hint"
-            :class="{ 'input__hint_error': error }"
+            class="textarea__hint"
+            :class="{ 'textarea__hint_error': error }"
         >{{ hint || error }}</span>
     </div>
 </template>
@@ -22,12 +22,12 @@
     import { computed } from 'vue';
 
     const props = defineProps({
-        label: { type: String },
-        type: { type: String, default: 'text' },
         modelValue: { type: String },
+        label: { type: String },
         placeholder: { type: String, default: 'Мой ответ' },
         hint: { type: String },
-        error: { type: String }
+        error: { type: String },
+        isHeadless: { type: Boolean, default: false }
     })
 
     const emits = defineEmits(['update:modelValue']);
@@ -41,14 +41,19 @@
         }
     });
 
+    function onInput(e) {
+        e.target.style.height = 0;
+        e.target.style.height = (e.target.scrollHeight + 1) + "px";
+    }
+
 </script>
-  
+
 <style lang="scss" scoped>
     ::placeholder {
         color: var(--black-opacity-50);
     }
 
-    .input {
+    .textarea {
         &__container {
             width: 100%;
         }
@@ -70,38 +75,56 @@
             border-radius: 6px;
             border: 1px solid transparent;
             outline: none;
+
+            overflow-y: hidden;
+            resize: none;
+            height: 41px;
         
             display: flex;
             width: 100%;
-            padding: 12px 12px;
+            padding: 12px;
             gap: 8px;
             font-family: inherit;
 
-            &:hover {
+            &_headless {
+                height: 20px;
+                padding: 1px 6px;
+                background-color: transparent;
+
+                &::placeholder {
+                    color: var(--black-opacity-30);
+                }
+
+                &:focus {
+                    border: 1px solid var(--black-opacity-30);
+                }
+            }
+
+            &:hover:not(&_headless) {
                 background: var(--gray-light-hover);
                 border: 1px solid var(--black-opacity-10);
             }
-            &:focus {
+            &:focus:not(&_headless) {
                 background: transparent;
                 border: 1px solid var(--black);
             }
 
             /* скрываем плэйсхолдер по клику */
-            &:focus::-webkit-input-placeholder {
+            &:focus::-webkit-input-placeholder:not(&_headless) {
                 color: transparent;
             }
             
-            &:focus:-moz-placeholder {
+            &:focus:-moz-placeholder:not(&_headless) {
                 color: transparent;
             }
             
             /* FF 4-18 */
-            &:focus::-moz-placeholder {
+            &:focus::-moz-placeholder:not(&_headless) {
                 color: transparent;
             }
             
             /* FF 19+ */
-            &:focus:-ms-input-placeholder {
+            &:focus:-ms-input-placeholder:not(&_headless) {
                 color: transparent;
             }
 
@@ -128,5 +151,4 @@
         border: 1px solid var(--input-error) !important;
         color: var(--input-error) !important;
     }
-    
 </style>

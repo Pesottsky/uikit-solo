@@ -1,12 +1,18 @@
-export const FREELANCER_TEMPLATE = {
-    "id": 0,
-    "first_name": "Имя",
-    "last_name": "Фамилия",
-    "price": '--',
-    "portfolio": "https://",
-    "experience": "--",
-    "email": "--",
-    "summary": "--",
-    "skills": "--",
-    "telegram": "--"
+export class FakeFreelancer {
+    constructor(data) {
+        this.profile = {
+            id: data.id,
+            first_name: "",
+            last_name: "",
+            price: '',
+            portfolio: "",
+            experience: "",
+            email: "",
+            summary: "",
+            skills: "",
+            telegram: ""
+        }
+        this.fake = true;
+        this.created = data?.created || false
+    }
 }

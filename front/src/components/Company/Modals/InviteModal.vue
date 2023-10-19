@@ -1,0 +1,124 @@
+<template>
+    <Backdrop @on-close="closeWindow" v-if="isShowModal">
+        <div class="modal-window">
+            <div class="invite__email">
+                <div class="invite__item">
+                    <h3 class="modal-window__title">Отправить приглашение на почту</h3>
+                    <p>Пришлем ссылка для создания профиля, и он появиться в вашей базе</p>
+                </div>
+                <div class="invite__item">
+                    <Input label="Почта фрилансера" placeholder="example@gmail.com" v-model="state.email" :error="validate.email.$errors[0]?.$message" />
+                    <Button label="Отправить приглашение" @on-click="sendInvite" />
+                </div>
+            </div>
+            <div class="invite__link">
+                <div class="invite__item">
+                    <h3 class="modal-window__title">Или отправьте ссылку сами</h3>
+                </div>
+                <div class="invite__item">
+                    <Input placeholder="Ссылка" v-model="linkInvite" />
+                    <Button :type="BUTTON_TYPE.SECONDARY" label="Скопировать" :icon="true" @on-click="copyLink">
+                        <ImportIcon />
+                    </Button>
+                </div>
+            </div>
+        </div>
+    </Backdrop>
+</template>
+
+<script setup>
+    import { reactive, ref } from 'vue';
+    import { Backdrop, Button, Input } from '../../UI';
+    import { ImportIcon } from '../../Icons';
+    import { copyToClipboard } from '../../../helpers/clipboard';
+    import BUTTON_TYPE from '../../../constants/buttonTypes';
+    import NOTIFICATION_MESSAGES from '../../../constants/notificationMessages';
+    import ERROR_MESSAGES from '../../../constants/errorMessages';
+    import { useNoticeStore } from '../../../stores/notice.store';
+    import { useVuelidate } from '@vuelidate/core';
+    import { required, email, helpers } from '@vuelidate/validators';
+
+    const storeNotice = useNoticeStore();
+
+    const isShowModal = ref(false);
+
+    const linkInvite = ref(null);
+
+    const state = reactive({
+        email: ''
+    })
+    const rules = {
+        email: {
+            required: helpers.withMessage(ERROR_MESSAGES.REQUIRED, required),
+            email: helpers.withMessage(ERROR_MESSAGES.EMAIL, email)
+        }
+    }
+    const validate = useVuelidate(rules, state);
+
+    function copyLink() {
+        const cb = () => storeNotice.setMessage(NOTIFICATION_MESSAGES.COPY_LINK_INVITE_FREELANCER);
+        copyToClipboard(linkInvite.value, cb);
+    }
+    async function sendInvite() {
+        const result = await validate.value.$validate();
+        if (!result) return;
+    }
+
+    function closeWindow() {
+        isShowModal.value = false;
+    }
+    function openWindow({ link }) {
+        linkInvite.value = link;
+        isShowModal.value = true;
+    }
+
+    defineExpose({
+        open: openWindow,
+        close: closeWindow
+    })
+</script>
+
+<style lang="scss" scoped>
+    .modal-window {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+
+        display: flex;
+        width: 442px;
+        padding: 12px 12px 52px 12px;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+        border-radius: 6px;
+        background: var(--white, #FFF);
+        box-shadow: 0px 4px 40px 0px rgba(0, 0, 0, 0.20);
+
+        &__title {
+            font-family: Antonym;
+        }
+    }
+
+    .invite {
+        &__email {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            padding: 16px 36px 36px 36px;
+            background: var(--biege-light);
+        }
+        &__link {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 0px 36px;
+        }
+        &__item {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+    }
+</style>

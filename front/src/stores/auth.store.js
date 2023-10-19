@@ -122,7 +122,7 @@ export const useAuthStore = defineStore('authStore', () => {
         authError.value = null;
 
         try {
-            //await AuthService.logout();
+            // await AuthService.logout();
             clearAuth();
         } catch(e) {
             authError.value = e || 'Ошибка сервера';

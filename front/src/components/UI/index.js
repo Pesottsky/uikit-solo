@@ -1,5 +1,6 @@
 import Button from './Button/Button.vue';
 import Input from './Input/Input.vue';
+import InputHeadless from './Input/InputHeadless.vue';
 import TabsMenu from './TabsMenu/TabsMenu.vue';
 import Backdrop from './Backdrop/Backdrop.vue';
 import Notice from './Notice/Notice.vue';
@@ -10,10 +11,13 @@ import TableRow from './Table/TableRow/TableRow.vue';
 import TableColumn from './Table/TableColumn/TableColumn.vue';
 import Chip from './Chip/Chip.vue';
 import Conteneditable from './Contenteditable/Contenteditable.vue';
+import Skeleton from './Skeleton/Skeleton.vue';
+import Textarea from './Textarea/Textarea.vue';
 
 export {
     Button,
     Input,
+    InputHeadless,
     TabsMenu,
     Backdrop,
     Notice,
@@ -23,5 +27,7 @@ export {
     TableRow,
     TableColumn,
     Chip,
-    Conteneditable
+    Conteneditable,
+    Skeleton,
+    Textarea
 }

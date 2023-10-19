@@ -6,16 +6,21 @@
                     <DoubleArrowRightIcon @click="onClose" />
                 </div>
                 <div class="sidebar-header__item sidebar-header__item_right">
-                    <Button :type="BUTTON_TYPE.TETRARY" label="Поделиться" />
+                    <Button 
+                        v-if="!!currentFreelancer && !currentFreelancer?.fake"
+                        :type="BUTTON_TYPE.TETRARY" 
+                        label="Поделиться" 
+                        @on-click="shareFreelancer" 
+                    />
                     <Button label="Сохранить" @on-click="onSave" />
                 </div>
             </div>
             <div class="sidebar-content">
                 <div class="sidebar-content__name">
-                    <Conteneditable tag="h1" v-model="state.first_name" placeholder="Имя" :class="{ 'text_disabled': !state.first_name }" />
-                    <Conteneditable tag="h1" v-model="state.last_name" placeholder="Фамилия" :class="{ 'text_disabled': !state.last_name }" />
+                    <InputHeadless placeholder="Имя" v-model="state.first_name" :is-title="true" :is-max="false" />
+                    <InputHeadless placeholder="Фамилия" v-model="state.last_name" :is-title="true" :is-max="false" />
                 </div>
-                <div class="sidebar-content__link-access">
+                <div class="sidebar-content__link-access" v-if="false">
                     <span class="text_gray">Отправили ссылку на приглашение</span> ivanov@gmail.com
                 </div>
                 <div class="sidebar-content__invite">
@@ -26,38 +31,38 @@
                 </div>
                 <div class="sidebar-content__anketa">
                     <div class="grid-column">Загрузка</div>
-                    <div class="grid-column">
+                    <div class="grid-column grid-column_margin_left">
                         <Chip :type="CHIP_TYPE.UNKNOWN" text="Не ясно" />
                     </div>
                     <div class="grid-column">Грейд</div>
-                    <div class="grid-column">Пусто</div>
+                    <div class="grid-column grid-column_margin_left">Пусто</div>
                     <div class="grid-column">Ставка</div>
                     <div class="grid-column">
-                        <Conteneditable v-model="state.price" :class="{ 'text_disabled': !state.price }" />
+                        <InputHeadless placeholder="Пусто" v-model="state.price" />
                     </div>
                     <div class="grid-column">Портфолио</div>
                     <div class="grid-column">
-                        <Conteneditable v-model="state.portfolio" placeholder="https://" :class="{ 'text_disabled': !state.portfolio }" />
+                        <InputHeadless placeholder="https://" v-model="state.portfolio" />
                     </div>
                     <div class="grid-column">Опыт</div>
                     <div class="grid-column">
-                        <Conteneditable v-model="state.experience" :class="{ 'text_disabled': !state.experience }" />
+                        <InputHeadless placeholder="Пусто" v-model="state.experience" />
                     </div>
                     <div class="grid-column">Скилы</div>
                     <div class="grid-column">
-                        <Conteneditable v-model="state.skills" :class="{ 'text_disabled': !state.skills }" />
+                        <InputHeadless placeholder="Пусто" v-model="state.skills" />
                     </div>
                     <div class="grid-column">Резюме</div>
                     <div class="grid-column">
-                        <Conteneditable v-model="state.summary" :class="{ 'text_disabled': !state.summary }" />
+                        <Textarea placeholder="Пусто" :is-headless="true" v-model="state.summary" />
                     </div>
                     <div class="grid-column">Email</div>
                     <div class="grid-column">
-                        <Conteneditable v-model="state.email" placeholder="email@mail.ru" :class="{ 'text_disabled': !state.email }" />
+                        <InputHeadless placeholder="email@mail.ru" v-model="state.email" />
                     </div>
                     <div class="grid-column">Телеграм</div>
                     <div class="grid-column">
-                        <Conteneditable v-model="state.telegram" placeholder="@telegram" :class="{ 'text_disabled': !state.telegram }" />
+                        <InputHeadless placeholder="@telegram" v-model="state.telegram" />
                     </div>
                 </div>
             </div>
@@ -69,16 +74,21 @@
 </template>
 
 <script setup>
-    import { Button, Backdrop, Conteneditable, Chip } from '../../UI';
+    import { Button, Backdrop, Textarea, Chip, InputHeadless } from '../../UI';
     import { DoubleArrowRightIcon, ImportIcon } from '../../Icons';
     import BUTTON_TYPE from '../../../constants/buttonTypes';
     import CHIP_TYPE from '../../../constants/chipTypes';
-    import { reactive, ref } from 'vue';
+    import NOTIFICATION_MESSAGES from '../../../constants/notificationMessages';
+    import { reactive, ref, watch } from 'vue';
     import { useCompanyStore } from '../../../stores/company.store';
+    import { useNoticeStore } from '../../../stores/notice.store';
+    import { copyToClipboard } from '../../../helpers/clipboard';
     import { storeToRefs } from 'pinia';
 
     const storeCompany = useCompanyStore();
-    const { companyError } = storeToRefs(storeCompany);
+    const { currentFreelancer } = storeToRefs(storeCompany);
+
+    const storeNotice = useNoticeStore();
 
     const state = reactive({
         first_name: '',
@@ -94,23 +104,54 @@
     const isShow = ref(false);
     const isShowSidebar = ref(false);
 
+    function shareFreelancer() {
+        const cb = () => {
+            storeNotice.setMessage(NOTIFICATION_MESSAGES.SUCCESS_COPY_URL_FREELANCER);
+        }
+        const url = `${window.location.origin}/freelancers/${currentFreelancer.value.profile.id}`;
+        copyToClipboard(url, cb);
+        
+    }
     async function onSave() {
-        await storeCompany.createRowInBase(state)
-        if (!companyError.value) onClose();
+        if (currentFreelancer.value && !currentFreelancer.value?.fake) {
+            await storeCompany.updateRowInBase({ ...state })
+        } else {
+            await storeCompany.createRowInBase({ ...state });
+        }
+    }
+
+    function clearState() {
+        Object.keys(state).map(key => state[key] = '');
     }
 
     function onOpen() {
+
+        clearState();
+
         isShow.value = true;
         setTimeout(() => {
             isShowSidebar.value = true;
         }, 5)
     }
     function onClose() {
+        storeCompany.setFreelancer(null);
+        storeCompany.deleteFakeFreelancer();
         isShowSidebar.value = false;
         setTimeout(() => {
             isShow.value = false;
         }, 500)
     }
+
+    watch(currentFreelancer, (value) => {
+
+        if (value) {
+            Object.keys(state).map(key => {
+                state[key] = String(currentFreelancer.value?.profile?.[key] || '');
+            })
+        } else {
+            clearState();
+        }
+    })
 
     defineExpose({
         open: onOpen,
@@ -171,7 +212,6 @@
                 height: 48px;
                 display: flex;
                 align-items: center;
-                gap: 10px;
                 padding: 8px 6px;
             }
 
@@ -219,5 +259,9 @@
         padding: 8px 0px;
         display: flex;
         justify-content: flex-start;
+
+        &_margin_left {
+            margin-left: 7px;
+        }
     }
 </style>

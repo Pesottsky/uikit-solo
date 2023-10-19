@@ -4,6 +4,8 @@ import { useRouter, useRoute } from 'vue-router';
 import ROUTES_NAMES from '../constants/routesNames';
 import { useNoticeStore } from './notice.store';
 import CompanyService from '../api/CompanyService';
+import { NOTIFICATION_POSITION, NOTIFICATION_TYPE } from '../constants/notification';
+import { FakeFreelancer } from '../constants/hardData';
 
 export const useCompanyStore = defineStore('companyStore', () => {
 
@@ -15,11 +17,40 @@ export const useCompanyStore = defineStore('companyStore', () => {
     const companyError = ref(null);
 
     const bases = ref([]);
+    const currentFreelancer = ref(null);
+
+    const fakeFreelancers = ref([
+        new FakeFreelancer({ id: 'f1' }),
+        new FakeFreelancer({ id: 'f2' }),
+        new FakeFreelancer({ id: 'f3' })
+    ])
 
     const currentBase = computed(() => {
         if (route.params?.id) return bases.value.find(item => item.id == route.params.id);
         return null;
     })
+
+    function setFreelancer(freelancer) {
+        currentFreelancer.value = freelancer;
+    }
+    function createFakeFreelancer() {
+        const freelancer = new FakeFreelancer({ id: 'f4', created: true });
+
+        if (currentBase.value.rows.length) {
+            currentBase.value.rows.push(freelancer);
+        } else {
+            fakeFreelancers.value.push(freelancer);
+        }
+
+        setFreelancer(freelancer);
+    }
+    function deleteFakeFreelancer() {
+        if (currentBase.value.rows.length) {
+            currentBase.value.rows = currentBase.value.rows.filter(item => !item.fake);
+        } else {
+            fakeFreelancers.value.splice(-1);
+        }
+    }
 
     async function getBases() {
 
@@ -31,7 +62,7 @@ export const useCompanyStore = defineStore('companyStore', () => {
             bases.value = data;
         } catch(e) {
             companyError.value = e || 'Ошибка сервера';
-            storeNotice.setText(e);
+            storeNotice.setError(companyError.value);
         } finally {
             companyLoading.value = false;
         }
@@ -50,12 +81,13 @@ export const useCompanyStore = defineStore('companyStore', () => {
             router.push({ name: ROUTES_NAMES.COMPANY_BASE, params: { id: data.id } });
         } catch(e) {
             companyError.value = e || 'Ошибка сервера';
-            storeNotice.setText(e);
+            storeNotice.setError(companyError.value);
         } finally {
             companyLoading.value = false;
         }
     }
-    async function createRowInBase(payload) {
+
+    async function createRowInBase(payload, { setNotification=true }={}) {
 
         companyError.value = null;
         companyLoading.value = true;
@@ -65,10 +97,55 @@ export const useCompanyStore = defineStore('companyStore', () => {
             payload.price = Number(payload.price) || 0;
 
             const data = await CompanyService.createRowInBase(payload);
-            console.log(data);
+
+            currentBase.value.rows.push(data);
+            currentFreelancer.value = data;
+
+            deleteFakeFreelancer();
+
+            if (setNotification) {
+                storeNotice.setMessage('Фрилансер создан');
+            }
+
         } catch(e) {
             companyError.value = e || 'Ошибка сервера';
-            storeNotice.setText(e);
+            storeNotice.setError(companyError.value);
+        } finally {
+            companyLoading.value = false;
+        }
+    }
+    async function updateRowInBase(payload) {
+        companyError.value = null;
+        companyLoading.value = true;
+
+        try {
+
+            const id = currentFreelancer.value.profile.id;
+
+            const data = await CompanyService.updateRowInBaseById(id, payload);
+
+            const row = currentBase.value.rows.find(item => item.id === id);
+            if (row) row = data;
+
+        } catch(e) {
+            companyError.value = e || 'Ошибка сервера';
+            storeNotice.setError(companyError.value);
+        } finally {
+            companyLoading.value = false;
+        }
+    }
+
+    async function generateInviteLink() {
+
+        companyError.value = null;
+        companyLoading.value = true;
+
+        try {
+            const data = await CompanyService.generateLink(currentFreelancer.value.profile.id);
+            return data;
+        } catch(e) {
+            companyError.value = e || 'Ошибка сервера';
+            storeNotice.setError(companyError.value);
         } finally {
             companyLoading.value = false;
         }
@@ -91,10 +168,17 @@ export const useCompanyStore = defineStore('companyStore', () => {
     return {
         bases,
         currentBase,
+        currentFreelancer,
         companyLoading,
         companyError,
+        fakeFreelancers,
         getBases,
         createBase,
-        createRowInBase
+        createRowInBase,
+        setFreelancer,
+        updateRowInBase,
+        createFakeFreelancer,
+        deleteFakeFreelancer,
+        generateInviteLink
     }
 })

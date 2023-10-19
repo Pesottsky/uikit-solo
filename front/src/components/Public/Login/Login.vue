@@ -4,8 +4,8 @@
             <h1>Вход</h1>
         </template>
         <template #form-data>
-            <Input placeholder="Почта" v-model="state.email" />
-            <Input placeholder="Пароль" v-model="state.password" type="password" />
+            <Input placeholder="Почта" v-model="state.email" :error="validate.email.$errors[0]?.$message" />
+            <Input placeholder="Пароль" v-model="state.password" type="password" :error="validate.password.$errors[0]?.$message" />
         </template>
         <template #form-action>
             <p class="error" v-if="authError">{{ authError }}</p>
