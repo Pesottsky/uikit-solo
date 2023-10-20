@@ -2,6 +2,7 @@ package com.heisy.data.usecase
 
 import com.heisy.domain.usecase.IAuthUseCase
 import com.heisy.errors.ExpiredException
+import com.heisy.errors.UnauthorizedException
 import com.heisy.plugins.UserTypes
 import com.heisy.plugins.dbQuery
 import com.heisy.schema.*
@@ -75,7 +76,7 @@ class AuthUseCase(
 
 
     override suspend fun refresh(token: String): Token = dbQuery {
-        tokensService.refresh(token) ?: throw BadRequestException("token is invalid")
+        tokensService.refresh(token) ?: throw UnauthorizedException("token is invalid")
     }
 
     override suspend fun logout(userId: Int, userType: String) {

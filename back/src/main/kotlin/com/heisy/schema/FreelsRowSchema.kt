@@ -16,6 +16,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 @Serializable
 data class FreelsRow(
+    @SerialName("id")
+    val id: Int,
+
     @SerialName("profile")
     val profile: Profile,
 
@@ -37,6 +40,7 @@ class ExposedFreelsRow(id: EntityID<Int>) : IntEntity(id) {
     var link by ExposedLink optionalReferencedOn FreelsRowsService.FreelsRows.linkId
 
     fun toDataClass() = FreelsRow(
+        id = id.value,
         profile = profile.toDataClass(),
         tableId = table.id.value,
         link = link?.toDataClass(),

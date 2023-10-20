@@ -134,10 +134,11 @@ class ProfilesService(database: Database) {
             summary = profile.summary
             skills = profile.skills
             telegram = profile.telegram
-            link = profile.link ?: "404"
+            link = profile.link ?: "-1"
         }
-        exposedProfile.link =
-            if (profile.lastName == null) "${profile.firstName}?profileId=${exposedProfile.id.value}" else "${profile.firstName}${profile.lastName}?profileId=${exposedProfile.id.value}"
+        exposedProfile.link = exposedProfile.id.value.toString()
+//        exposedProfile.link =
+//            if (profile.lastName == null) "${profile.firstName}?profileId=${exposedProfile.id.value}" else "${profile.firstName}${profile.lastName}?profileId=${exposedProfile.id.value}"
         return exposedProfile
     }
 
@@ -174,11 +175,6 @@ class ProfilesService(database: Database) {
     }
 
     fun updateByCompany(exposedProfile: ExposedProfile, profile: Profile): ExposedProfile {
-        var exposedGrade: ExposedGrade? = null
-        if (profile.grade != null) {
-            exposedGrade =
-                ExposedGrade.find { GradeService.GradeLevels.levelKey eq profile.grade.levelKey }.singleOrNull()
-        }
         with(exposedProfile) {
             firstName = profile.firstName
             lastName = profile.lastName
@@ -189,7 +185,6 @@ class ProfilesService(database: Database) {
             summary = profile.summary
             skills = profile.skills
             telegram = profile.telegram
-            grade = exposedGrade
         }
         return exposedProfile
     }

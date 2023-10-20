@@ -14,6 +14,7 @@ fun Application.errorsHandling() {
                 is BadRequestException -> call.respondText(text = message, status = HttpStatusCode.BadRequest)
                 is NotFoundException -> call.respondText(text = message, status = HttpStatusCode.NotFound)
                 is ExpiredException -> call.respondText(text = message, status = HttpStatusCode.Gone)
+                is UnauthorizedException -> call.respondText(text = message, status = HttpStatusCode.Unauthorized)
                 else -> call.respondText(text = "500", status = HttpStatusCode.InternalServerError)
             }
         }
@@ -21,3 +22,5 @@ fun Application.errorsHandling() {
 }
 
 class ExpiredException(message: String) : Exception(message)
+
+class UnauthorizedException(message: String) : Exception(message)

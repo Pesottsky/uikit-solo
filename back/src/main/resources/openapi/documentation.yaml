@@ -398,7 +398,7 @@ paths:
         - Менеджемент базы
       summary: Получение ссылки
       parameters:
-        - name: id
+        - name: row_id
           in: query
           description: id записи
           required: true
@@ -533,6 +533,8 @@ components:
     TableRow:
       type: object
       properties:
+        id:
+          type: integer
         table_id:
           type: integer
           description: Id таблицы, которой принадлежит запись
