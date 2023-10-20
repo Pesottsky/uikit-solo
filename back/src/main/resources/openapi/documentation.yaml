@@ -159,6 +159,31 @@ paths:
       tags:
         - Менеджемент базы
       summary: Удаление таблицы
+  /table/name/{table_id}:
+    post:
+      tags:
+        - Менеджемент базы
+      summary: Изменение имени таблицы
+      parameters:
+        - name: name
+          in: query
+          description: Имя таблицы
+          required: true
+          schema:
+            type: string
+        - name: table_id
+          in: path
+          description: Id таблицы
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Table'
   /table/row:
     post:
       tags:
@@ -235,7 +260,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TableRow'
+    delete:
+      tags:
+        - Менеджемент базы
+      parameters:
+        - name: row_id
+          in: path
+          description: Id записи, которую хотим отредактировать
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Table'
   /company:
+    get:
+      tags:
+        - Менеджемент базы
+      summary: Компания пользователя
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+    put:
+      tags:
+        - Менеджемент базы
+      summary: Обновить информацию по компании
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Company'
+  /company/all:
     get:
       tags:
         - Общие кейсы
@@ -249,15 +314,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Company'
-    put:
-      tags:
-        - Менеджемент базы
-      summary: Обновить информацию по компании
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Company'
   /company/{id}:
     get:
       tags:

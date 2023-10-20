@@ -73,10 +73,14 @@ class FreelsTablesService(database: Database) {
         return user.tables.toList()
     }
 
-    fun update(userId: Int, table: FreelsTable): ExposedFreelsTable {
-        val exposedTable = ExposedUser.findById(userId)?.tables?.firstOrNull()
-            ?: throw NotFoundException(FreelsRowsService.Errors.notFoundError)
-        exposedTable.name = table.name
+    fun update(userId: Int, tableId: Int, name: String): ExposedFreelsTable {
+        val exposedTables = ExposedUser.findById(userId)?.tables ?: throw NotFoundException(FreelsRowsService.Errors.notFoundError)
+        if (exposedTables.empty()) throw NotFoundException(FreelsRowsService.Errors.notFoundError)
+
+        // Id запрашиваемой таблицы может нет принадлежать пользователю
+        val exposedTable = exposedTables.find { it.id.value == tableId } ?: throw NotFoundException(FreelsRowsService.Errors.notFoundError)
+
+        exposedTable.name = name
         return exposedTable
     }
 

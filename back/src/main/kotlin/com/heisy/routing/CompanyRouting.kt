@@ -20,10 +20,10 @@ fun Application.configureCompanyRouting(companyService: CompanyService) {
                 get {
                     val pair = getIdTypePair(call)
                     call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
-                    val companies = dbQuery {
-                        companyService.getAll().map { it.toDataClass() }
+                    val company = dbQuery {
+                        companyService.getByUserId(pair.first).toDataClass()
                     }
-                    call.respond(HttpStatusCode.OK, companies)
+                    call.respond(HttpStatusCode.Accepted, company)
                 }
 
                 put {
@@ -35,20 +35,31 @@ fun Application.configureCompanyRouting(companyService: CompanyService) {
                     call.respond(HttpStatusCode.Accepted, company)
                 }
 
-                route("/{id}") {
-                    get {
-                        call.application.environment.log.info(
-                            LogUtils.createLog(
-                                getIdTypePair(call),
-                                call.request.uri
-                            )
-                        )
-                        val id = call.parameters["id"] ?: throw MissingRequestParameterException("id is null")
-                        val company = dbQuery { companyService.get(id.toInt()) }.toDataClass()
-                        call.respond(HttpStatusCode.OK, company)
-                    }
-                }
+            }
+        }
 
+        authenticate(UserTypes.Company.name, UserTypes.Freel.name) {
+            get("company/all") {
+                val pair = getIdTypePair(call)
+                call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
+                val companies = dbQuery {
+                    companyService.getAll().map { it.toDataClass() }
+                }
+                call.respond(HttpStatusCode.OK, companies)
+            }
+
+            route("/{id}") {
+                get {
+                    call.application.environment.log.info(
+                        LogUtils.createLog(
+                            getIdTypePair(call),
+                            call.request.uri
+                        )
+                    )
+                    val id = call.parameters["id"] ?: throw MissingRequestParameterException("id is null")
+                    val company = dbQuery { companyService.get(id.toInt()) }.toDataClass()
+                    call.respond(HttpStatusCode.OK, company)
+                }
             }
         }
     }

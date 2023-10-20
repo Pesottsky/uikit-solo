@@ -75,6 +75,10 @@ class CompanyService(database: Database) {
             ?: throw NotFoundException(notFoundTextError)
     }
 
+    fun getByUserId(id: Int): ExposedCompany {
+        return ExposedUser.findById(id)?.company ?: throw NotFoundException(notFoundTextError)
+    }
+
     fun update(userId: Int, company: Company): ExposedCompany {
         val exposedCompany = ExposedUser.findById(userId)?.company ?: throw NotFoundException(notFoundTextError)
         if (exposedCompany.id.value != company.id) throw NotFoundException(notFoundTextError)
