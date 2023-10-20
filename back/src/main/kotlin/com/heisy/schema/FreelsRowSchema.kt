@@ -94,11 +94,11 @@ class FreelsRowsService(database: Database) {
      * Принадлоежит ли запись пользователю
      */
     fun checkRowForUpdate(rowId: Int, userId: Int): ExposedFreelsRow {
-        val row = ExposedFreelsRow.findById(rowId) ?: throw NotFoundException(notFoundError)
+        val row = ExposedFreelsRow.findById(rowId) ?: throw NotFoundException("1")
 
-        val table = ExposedUser.findById(userId)?.tables?.firstOrNull() ?: throw NotFoundException(notFoundError)
-        // Строка не из таблицы, которая принадлежит пользователю
-        if (!table.rows.map { it.id.value }.contains(row.id.value)) throw NotFoundException(notFoundError)
+        val table = ExposedUser.findById(userId)?.tables?.firstOrNull() ?: throw NotFoundException("2")
+        // Строка из таблицы, которая не принадлежит пользователю
+        if (!table.rows.map { it.id.value }.contains(row.id.value)) throw NotFoundException("3")
 
         return row
     }

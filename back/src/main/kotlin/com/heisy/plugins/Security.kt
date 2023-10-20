@@ -45,6 +45,8 @@ fun Application.configureSecurity() {
 
     install(CORS) {
         allowMethod(HttpMethod.Options)
+        allowMethod(HttpMethod.Delete)
+        allowMethod(HttpMethod.Put)
         allowHost(allowHost)
         allowHeader(HttpHeaders.Authorization)
         allowHeader(HttpHeaders.ContentType)
