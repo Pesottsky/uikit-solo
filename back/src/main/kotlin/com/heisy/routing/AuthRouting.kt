@@ -9,6 +9,7 @@ import com.heisy.plugins.UserTypes
 import com.heisy.plugins.getIdTypePair
 import com.heisy.schema.ForgetPassword
 import com.heisy.schema.Token
+import com.heisy.schema.User
 import com.heisy.utils.LogUtils
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -38,7 +39,30 @@ fun Application.configureAuthRouting(authUseCase: IAuthUseCase) {
 
         route("/registration") {
             post {
-                val token = authUseCase.registerCompany(call.receive())
+                val user: User = call.receive()
+                val token = authUseCase.registerCompany(user)
+                launch(Dispatchers.IO + SupervisorJob()) {
+                    EmailSender.sendMail(
+                        call.application, MailBundle(
+                            to = user.login,
+                            from = MailFrom.HELLO,
+                            subject = MailSubjects.CompanyRegistration,
+                            text = "Привет, вы зарегистрировались на сервисе Soloteam! \n" +
+                                    "\n" +
+                                    "Soloteam помогает создавать и управлять вашей базой фрилансеров, вовремя находить людей на проект и не тратить время на переговоры.\n" +
+                                    "\n" +
+                                    "Вы сможете:\n" +
+                                    "— организовать и управлять своей базой фрилансеров\n" +
+                                    "— легко добавлять новых специалистов и не терять старых\n" +
+                                    "— всегда видеть свежую информацию, занятость и расценки\n" +
+                                    "\n" +
+                                    "Можем импортировать вашу, уже существующую базу, напишите нам в телеграм — @vviiktoor.\n" +
+                                    "Мы всегда рады помочь, любые вопросы по работе сервиса и предложения — пишите на service@soloteam.io или лично в телеграм @vviiktoor\n" +
+                                    "\n" +
+                                    "Спасибо, что вы с нами"
+                        )
+                    )
+                }
                 call.respond(HttpStatusCode.Created, token)
             }
 
@@ -65,15 +89,17 @@ fun Application.configureAuthRouting(authUseCase: IAuthUseCase) {
         route("forget_password") {
             post {
                 val forgetPassword = call.receive<ForgetPassword>()
-//                val code = authUseCase.forgetPassword(call.application, forgetPassword)
-//                val text = app.environment.config.property("smtp.${bundle.from.configParam}.password").getString()
+                val code = authUseCase.forgetPassword(call.application, forgetPassword)
                 launch(Dispatchers.IO + SupervisorJob()) {
                     EmailSender.sendMail(
                         call.application, MailBundle(
                             to = forgetPassword.login,
                             from = MailFrom.NO_REPLAY,
                             subject = MailSubjects.PasswordRecovery,
-                            text = "message text"
+                            text = "Здравствуйте, мы получили запрос на сброс вашего пароля Soloteam.\n" +
+                                    "Для сброса пароля перейдите по ссылке ${call.application.environment.config.property("path.recovery").getString() + code} и следуйте дальнейшим шагам.\n" +
+                                    "\n" +
+                                    "С уважением, команда Soloteam"
                         )
                     )
                 }

@@ -3,9 +3,11 @@ package com.heisy.utils
 import com.heisy.data.usecase.AuthUseCase
 import com.heisy.domain.usecase.IAuthUseCase
 import com.heisy.schema.*
+import io.ktor.server.application.*
 import org.jetbrains.exposed.sql.Database
 
 object InjectionUtils {
+    private var application: Application? = null
     private var mDatabase: Database? = null
 
     private var refreshLifeTime = 0
@@ -26,6 +28,11 @@ object InjectionUtils {
 
     // useCases
     private var authUseCase: IAuthUseCase? = null
+
+    fun provideApplication(app: Application? = null): Application {
+        if (application == null && app != null) application = app
+        return application!!
+    }
 
 
     fun provideDataBase(database: Database? = null): Database {

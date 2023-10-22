@@ -117,7 +117,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Token'
-        "400":
+        "401":
           content:
             application/json:
               examples:
@@ -668,7 +668,7 @@ components:
     Loading:
       type: object
       properties:
-        level_key:
+        loading_key:
           type: integer
         description:
           type: string

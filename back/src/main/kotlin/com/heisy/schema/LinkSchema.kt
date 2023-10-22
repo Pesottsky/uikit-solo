@@ -1,5 +1,7 @@
 package com.heisy.schema
 
+import com.heisy.utils.StringUtils
+import io.ktor.server.application.*
 import io.ktor.server.plugins.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -53,7 +55,7 @@ class ExposedLink(id: EntityID<Int>) : IntEntity(id) {
     fun toDataClass() = run {
         Link(
             id = this.id.value,
-            link = this.link.toString(),
+            link = StringUtils.linkToFront(this.link.toString()),
             isRegister = this.isRegister ?: false,
             isEmailSending = this.isEmailSending ?: false
         )
@@ -87,12 +89,18 @@ class LinksService(database: Database) {
     fun update(invite: Invite): ExposedLink {
         val exposedLink = ExposedLink.findById(invite.linkId) ?: throw NotFoundException()
         exposedLink.apply {
-            this.isEmailSending = true
             this.email = invite.email
         }
         return exposedLink
     }
 
+    fun onEmailSending(invite: Invite): ExposedLink {
+        val exposedLink = ExposedLink.findById(invite.linkId) ?: throw NotFoundException()
+        exposedLink.apply {
+            this.isEmailSending = true
+        }
+        return exposedLink
+    }
 
     fun findByUUID(uuid: String): ExposedLink? {
         val convertUUID = UUID.fromString(uuid)

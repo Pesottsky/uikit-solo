@@ -33,8 +33,8 @@ jwt:
 #  service:
 #    login: "$SMTP_SERVICE_LOGIN"
 #    password: "$SMTP_SERVICE_PASSWORD"
-#  authorization:
-#    path: "$AUTHORIZATION_PATH"
+path:
+  registration: "$REGISTRATION_PATH:http://localhost:3100/signup?link="
+  #  recovery: "$RECOVERY_PATH"
 recovery:
   password: "$RECOVERY:604800000"
-#  path: "$RECOVERY_PATH"

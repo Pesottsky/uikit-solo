@@ -156,19 +156,35 @@ fun Application.configureTablesRouting(
                         val exposedLink = linksService.update(invite)
                         exposedLink.toDataClass()
                     }
-
-                    // TODO рассылка приглашение в сервис
                     launch(Dispatchers.IO + SupervisorJob()) {
                         EmailSender.sendMail(
                             call.application, MailBundle(
-                                to = "noreplay@soloteam.io",
-                                from = MailFrom.NO_REPLAY,
+                                to = invite.email,
+                                from = MailFrom.HELLO,
                                 subject = MailSubjects.InviteByLink,
-                                text = "message text"
+                                text = "Привет! Это приглашение от компании, которая хочет вас добавить в свою базу фрилансеров. Так она сможет видеть вашу занятость, портфолио и не потеряет ваш контакт.\n" +
+                                        "\n" +
+                                        "1. Перейдите по ссылке ${link.link} и зарегистрируйтесь\n" +
+                                        "2. Заполните информацию о себе \n" +
+                                        "3. Обновляйте ваш статус, когда открыты к проектам, а когда заняты\n" +
+                                        "\n" +
+                                        "Вы автоматически добавитесь в базу компании после регистрации\n" +
+                                        "\n" +
+                                        "Платформа Soloteam помогает компаниям создавать и работать с базой фрилансеров, вовремя находить людей на проекты и быстрее согласовывать условия.\n" +
+                                        "\n" +
+                                        "Вы сможете:\n" +
+                                        "— быстро делиться профилем фрилансера с заказчиками\n" +
+                                        "— обновлять статус занятости, чтобы компании знали когда прийти к вам с проектом\n" +
+                                        "— быть на связи с заказчиками\n" +
+                                        "\n" +
+                                        "Мы всегда рады вам помочь, любые вопросы по работе сервиса и предложения — пишите нам на service@soloteam.io или лично в телеграм @vviiktoor\n" +
+                                        "\n" +
+                                        "Рады видеть вас в Soloteam"
                             )
                         )
+                        dbQuery { linksService.onEmailSending(invite) }
                     }
-                    call.respond(HttpStatusCode.Created, link)
+                    call.respond(HttpStatusCode.Created, link.copy(isEmailSending = true))
                 }
             }
 
