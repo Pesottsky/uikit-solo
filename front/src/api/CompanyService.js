@@ -13,8 +13,26 @@ class CompanyService {
     static async updateRowInBaseById(id, payload) {
         return await httpClient.put(`/table/row/${id}`, payload);
     }
+    static async removeRowInBase(id) {
+        return await httpClient.delete(`/table/row/${id}`);
+    }
     static async generateLink(id) {
         return await httpClient.get('/link', { params: { row_id: id } });
+    }
+    static async sendInviteByEmail(payload) {
+        return await httpClient.post('/send/email', payload);
+    }
+    static async getCompanyInfo() {
+        return await httpClient.get('/company');
+    }
+    static async updateCompanyInfo(payload) {
+        return await httpClient.put('/company', payload);
+    }
+    static async getComment(id) {
+        return await httpClient.get('/comment', { params: { profile_id: id } });
+    }
+    static async createComment(payload) {
+        return await httpClient.post('/comment', payload)
     }
 }
 

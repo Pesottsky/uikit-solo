@@ -1,9 +1,9 @@
 <template>
-    <h1>Фрилансер. Занятость</h1>
+    <Employment />
 </template>
 
 <script setup>
-
+    import Employment from '../../components/Freelancer/Employment/Employment.vue';
 </script>
 
 <style lang="scss" scoped>

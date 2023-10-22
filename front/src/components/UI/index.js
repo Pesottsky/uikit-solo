@@ -13,6 +13,7 @@ import Chip from './Chip/Chip.vue';
 import Conteneditable from './Contenteditable/Contenteditable.vue';
 import Skeleton from './Skeleton/Skeleton.vue';
 import Textarea from './Textarea/Textarea.vue';
+import Radiobutton from './Radiobutton/Radiobutton.vue';
 
 export {
     Button,
@@ -29,5 +30,6 @@ export {
     Chip,
     Conteneditable,
     Skeleton,
-    Textarea
+    Textarea,
+    Radiobutton
 }

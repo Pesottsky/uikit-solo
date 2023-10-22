@@ -1,7 +1,7 @@
 <template>
     <Header>
         <template #title>
-            <h2>{{ currentBase?.name || 'Загрузка ...' }}</h2>
+            <InputHeadless v-model="nameBase" :isSubTitle="true" :is-max="false" />
             <Button :type="BUTTON_TYPE.TINY" :icon="true" v-if="currentBase">
                 <EditIcon />
             </Button>
@@ -19,9 +19,9 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { inject } from 'vue';
+    import { inject, onMounted, ref } from 'vue';
     import Header from '../../Header/Header.vue';
-    import { Button } from '../../UI';
+    import { Button, InputHeadless } from '../../UI';
     import { ImportIcon, EditIcon, AddUserIcon } from '../../Icons';
     import BUTTON_TYPE from '@/constants/buttonTypes';
     import { FakeFreelancer } from '../../../constants/hardData';
@@ -32,6 +32,8 @@
 
     const openRightSidebar = inject('openRightSidebar');
     const openInviteModal = inject('openInviteModal');
+
+    const nameBase = ref(null);
 
     function openSidebar(freelancer=null) {
         openRightSidebar();
@@ -49,10 +51,16 @@
         if (!companyError.value) {
             const data = await storeCompany.generateInviteLink();
             if (data) {
-                openInviteModal({ link: data.link });
+                openInviteModal(data);
             }
         }
     }
+
+    onMounted(() => {
+        if (currentBase.value) {
+            nameBase.value = currentBase.value.name;
+        }
+    })
 
 </script>
 

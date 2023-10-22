@@ -2,9 +2,6 @@
     <Header>
         <template #title>
             <h2>Название компании</h2>
-            <Button :type="BUTTON_TYPE.TINY" :icon="true">
-                <EditIcon />
-            </Button>
         </template>
         <template #action>
             <Button :type="BUTTON_TYPE.TETRARY" label="Пригласить" :icon="true">

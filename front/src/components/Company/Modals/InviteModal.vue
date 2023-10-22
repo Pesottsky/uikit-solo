@@ -2,14 +2,24 @@
     <Backdrop @on-close="closeWindow" v-if="isShowModal">
         <div class="modal-window">
             <div class="invite__email">
-                <div class="invite__item">
-                    <h3 class="modal-window__title">Отправить приглашение на почту</h3>
-                    <p>Пришлем ссылка для создания профиля, и он появиться в вашей базе</p>
-                </div>
-                <div class="invite__item">
-                    <Input label="Почта фрилансера" placeholder="example@gmail.com" v-model="state.email" :error="validate.email.$errors[0]?.$message" />
-                    <Button label="Отправить приглашение" @on-click="sendInvite" />
-                </div>
+                <template v-if="!successEmail">
+                    <div class="invite__item">
+                        <h3 class="modal-window__title">Отправить приглашение на почту</h3>
+                        <p>Пришлем ссылку для создания профиля, и он появиться в вашей базе</p>
+                    </div>
+                    <div class="invite__item">
+                        <Input label="Почта фрилансера" placeholder="example@gmail.com" v-model="state.email" :error="validate.email.$errors[0]?.$message" />
+                        <Button label="Отправить приглашение" @on-click="sendInvite" />
+                    </div>
+                </template>
+                <template v-else>
+                    <div class="invite__item invite__item_small">
+                        <SuccessIcon />
+                        <h3 class="modal-window__title">Готово! Отправили приглашение фрилансеру на почту)</h3>
+                        <p>Там будет краткий расссказ про сервис и инструкция как завести аккаунт.</p>
+                        <p>Скоро фрилансер появится в вашей базе.</p>
+                    </div>
+                </template>
             </div>
             <div class="invite__link">
                 <div class="invite__item">
@@ -28,21 +38,31 @@
 
 <script setup>
     import { reactive, ref } from 'vue';
+    import { storeToRefs } from 'pinia';
     import { Backdrop, Button, Input } from '../../UI';
     import { ImportIcon } from '../../Icons';
+    import SuccessIcon from '../../Icons/Success/SuccessIcon.vue';
     import { copyToClipboard } from '../../../helpers/clipboard';
     import BUTTON_TYPE from '../../../constants/buttonTypes';
     import NOTIFICATION_MESSAGES from '../../../constants/notificationMessages';
     import ERROR_MESSAGES from '../../../constants/errorMessages';
     import { useNoticeStore } from '../../../stores/notice.store';
+    import { useCompanyStore } from '../../../stores/company.store';
     import { useVuelidate } from '@vuelidate/core';
     import { required, email, helpers } from '@vuelidate/validators';
 
+
     const storeNotice = useNoticeStore();
+    const storeCompany = useCompanyStore();
+    const { companyError } = storeToRefs(storeCompany)
 
     const isShowModal = ref(false);
-
+    const successEmail = ref(false);
+    
     const linkInvite = ref(null);
+    const linkInfo = ref(null);
+
+    const clearFrrelancer = ref(true);
 
     const state = reactive({
         email: ''
@@ -62,14 +82,32 @@
     async function sendInvite() {
         const result = await validate.value.$validate();
         if (!result) return;
+
+        await storeCompany.sendInviteByEmail({
+            link_id: linkInfo.value.id,
+            email: state.email
+        })
+        if (!companyError.value) {
+            successEmail.value = true;
+        }
     }
 
     function closeWindow() {
         isShowModal.value = false;
+        if (clearFrrelancer.value) {
+            storeCompany.setFreelancer(null);
+        }
     }
-    function openWindow({ link }) {
-        linkInvite.value = link;
+    function openWindow(data, { isClearFreelancer=true }={}) {
+        linkInvite.value = data?.link;
+        linkInfo.value = data;
         isShowModal.value = true;
+        successEmail.value = data?.is_email_sending || false;
+
+        state.email = '';
+        validate.value.$reset();
+
+        clearFrrelancer.value = isClearFreelancer;
     }
 
     defineExpose({
@@ -97,6 +135,8 @@
 
         &__title {
             font-family: Antonym;
+            font-weight: 500;
+            line-height: 120%;
         }
     }
 
@@ -119,6 +159,10 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+
+            &_small {
+                gap: 12px;
+            }
         }
     }
 </style>

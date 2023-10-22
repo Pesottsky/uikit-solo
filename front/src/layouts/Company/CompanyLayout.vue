@@ -16,7 +16,7 @@
     import AccountMenu from '@/components/Company/AccountMenu/AccountMenu.vue';
     import Content from '@/components/Content/Content.vue';
     import ImportModal from '@/components/Company/Modals/ImportModal.vue';
-    import { provide, ref } from 'vue';
+    import { onMounted, provide, ref } from 'vue';
     import { useCompanyStore } from '../../stores/company.store';
 
     const storeCompany = useCompanyStore();
@@ -25,4 +25,8 @@
 
     provide('openImportModal', () => importModalRef.value?.open());
     provide('createBase', () => storeCompany.createBase());
+
+    onMounted(() => {
+        storeCompany.getCompanyInfo();
+    })
 </script>

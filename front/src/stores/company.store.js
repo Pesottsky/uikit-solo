@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
-import { computed, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import ROUTES_NAMES from '../constants/routesNames';
 import { useNoticeStore } from './notice.store';
 import CompanyService from '../api/CompanyService';
-import { NOTIFICATION_POSITION, NOTIFICATION_TYPE } from '../constants/notification';
+import NOTIFICATION_MESSAGES from '../constants/notificationMessages';
 import { FakeFreelancer } from '../constants/hardData';
 
 export const useCompanyStore = defineStore('companyStore', () => {
@@ -14,10 +14,19 @@ export const useCompanyStore = defineStore('companyStore', () => {
     const route = useRoute();
     
     const companyLoading = ref(false);
+    const commentLoading = ref(false);
+
     const companyError = ref(null);
 
     const bases = ref([]);
     const currentFreelancer = ref(null);
+
+    const companyInfo = reactive({
+        id: null,
+        name: '',
+        link: '',
+        about: '',
+    })
 
     const fakeFreelancers = ref([
         new FakeFreelancer({ id: 'f1' }),
@@ -25,11 +34,19 @@ export const useCompanyStore = defineStore('companyStore', () => {
         new FakeFreelancer({ id: 'f3' })
     ])
 
+    const commentFreelancer = ref(null);
+
     const currentBase = computed(() => {
         if (route.params?.id) return bases.value.find(item => item.id == route.params.id);
         return null;
     })
 
+    function setCompanyInfo({ id, name, link, about }) {
+        companyInfo.name = name;
+        companyInfo.link = link;
+        companyInfo.about = about;
+        companyInfo.id = id;
+    }
     function setFreelancer(freelancer) {
         currentFreelancer.value = freelancer;
     }
@@ -48,7 +65,14 @@ export const useCompanyStore = defineStore('companyStore', () => {
         if (currentBase.value.rows.length) {
             currentBase.value.rows = currentBase.value.rows.filter(item => !item.fake);
         } else {
-            fakeFreelancers.value.splice(-1);
+            if (fakeFreelancers.value.length > 3) fakeFreelancers.value.splice(-1);
+        }
+    }
+
+    function setLinkData(linkData) {
+        const index = currentBase.value.rows.findIndex(item => item.id === currentFreelancer.value.id);
+        if (index >= 0) {
+            currentBase.value.rows[index].link = linkData;
         }
     }
 
@@ -74,7 +98,7 @@ export const useCompanyStore = defineStore('companyStore', () => {
 
         try {
 
-            const name = Math.random().toString(36).substring(2);
+            const name = 'Фрилансеры';// Math.random().toString(36).substring(2);
 
             const data = await CompanyService.createBase(name);
             bases.value.push(data);
@@ -104,7 +128,7 @@ export const useCompanyStore = defineStore('companyStore', () => {
             deleteFakeFreelancer();
 
             if (setNotification) {
-                storeNotice.setMessage('Фрилансер создан');
+                storeNotice.setMessage(NOTIFICATION_MESSAGES.FREELANCER_CREATED);
             }
 
         } catch(e) {
@@ -120,13 +144,32 @@ export const useCompanyStore = defineStore('companyStore', () => {
 
         try {
 
-            const id = currentFreelancer.value.profile.id;
+            const profileId = currentFreelancer.value.profile.id;
 
-            const data = await CompanyService.updateRowInBaseById(id, payload);
+            payload.price = Number(payload.price);
 
-            const row = currentBase.value.rows.find(item => item.id === id);
-            if (row) row = data;
+            const data = await CompanyService.updateRowInBaseById(profileId, payload);
 
+            const index = currentBase.value.rows.findIndex(item => item.profile.id === profileId);
+            if (index >= 0) {
+                currentBase.value.rows[index].profile = data;
+            }
+
+        } catch(e) {
+            companyError.value = e || 'Ошибка сервера';
+            storeNotice.setError(companyError.value);
+        } finally {
+            companyLoading.value = false;
+        }
+    }
+    async function removeRowInBase() {
+        companyError.value = null;
+        companyLoading.value = true;
+        try {
+            await CompanyService.removeRowInBase(currentFreelancer.value.id);
+            const index = currentBase.value.rows.findIndex(item => item.id === currentFreelancer.value.id);
+            currentBase.value.rows.splice(index, 1);
+            storeNotice.setMessage(NOTIFICATION_MESSAGES.FREELANCER_REMOVED);
         } catch(e) {
             companyError.value = e || 'Ошибка сервера';
             storeNotice.setError(companyError.value);
@@ -141,13 +184,105 @@ export const useCompanyStore = defineStore('companyStore', () => {
         companyLoading.value = true;
 
         try {
-            const data = await CompanyService.generateLink(currentFreelancer.value.profile.id);
+            const data = await CompanyService.generateLink(currentFreelancer.value.id);
+            setLinkData(data);
+
             return data;
         } catch(e) {
             companyError.value = e || 'Ошибка сервера';
             storeNotice.setError(companyError.value);
         } finally {
             companyLoading.value = false;
+        }
+    }
+    async function sendInviteByEmail({ link_id=null, email=null }) {
+        companyError.value = null;
+        companyLoading.value = true;
+
+        try {
+
+            const payload = {
+                link_id,
+                email,
+                row_id: currentFreelancer.value.id
+            }
+
+            const data = await CompanyService.sendInviteByEmail(payload);
+            setLinkData(data);
+            
+        } catch(e) {
+            companyError.value = e || 'Ошибка сервера';
+            storeNotice.setError(companyError.value);
+        } finally {
+            companyLoading.value = false;
+        }
+    }
+
+    async function getCompanyInfo() {
+        companyError.value = null;
+        companyLoading.value = true;
+
+        try {
+            const data = await CompanyService.getCompanyInfo();
+            setCompanyInfo(data);
+        } catch(e) {
+            companyError.value = e || 'Ошибка сервера';
+            storeNotice.setError(companyError.value);
+        } finally {
+            companyLoading.value = false;
+        }
+    }
+    async function updateCompanyInfo(payload) {
+        companyError.value = null;
+        companyLoading.value = true;
+
+        try {
+            payload.id = companyInfo.id;
+            await CompanyService.updateCompanyInfo(payload);
+            setCompanyInfo(payload);
+            storeNotice.setMessage(NOTIFICATION_MESSAGES.UPDATE_INFO_COMPANY);
+        } catch(e) {
+            companyError.value = e || 'Ошибка сервера';
+            storeNotice.setError(companyError.value);
+        } finally {
+            companyLoading.value = false;
+        }
+    }
+
+    async function getComment() {
+        companyError.value = null;
+        commentLoading.value = true;
+
+        try {
+            const { comment } = await CompanyService.getComment(currentFreelancer.value.profile.id);
+            commentFreelancer.value = comment;
+        } catch(e) {
+            companyError.value = e || 'Ошибка сервера';
+            storeNotice.setError(companyError.value);
+        } finally {
+            commentLoading.value = false;
+        }
+    }
+    async function createComment({ comment }) {
+        companyError.value = null;
+        commentLoading.value = true;
+
+        try {
+            const payload = {
+                profile_id: currentFreelancer.value.profile.id,
+                comment
+            }
+
+            await CompanyService.createComment(payload);
+            commentFreelancer.value = comment;
+
+            storeNotice.setMessage(NOTIFICATION_MESSAGES.SAVE_COMMENT);
+
+        } catch(e) {
+            companyError.value = e || 'Ошибка сервера';
+            storeNotice.setError(companyError.value);
+        } finally {
+            commentLoading.value = false;
         }
     }
 
@@ -170,15 +305,24 @@ export const useCompanyStore = defineStore('companyStore', () => {
         currentBase,
         currentFreelancer,
         companyLoading,
+        commentLoading,
         companyError,
         fakeFreelancers,
+        companyInfo,
+        commentFreelancer,
         getBases,
         createBase,
         createRowInBase,
+        removeRowInBase,
         setFreelancer,
         updateRowInBase,
         createFakeFreelancer,
         deleteFakeFreelancer,
-        generateInviteLink
+        generateInviteLink,
+        sendInviteByEmail,
+        updateCompanyInfo,
+        getCompanyInfo,
+        getComment,
+        createComment
     }
 })

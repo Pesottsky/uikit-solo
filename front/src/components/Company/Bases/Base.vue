@@ -17,7 +17,7 @@
     const inviteModalRef = ref(null);
 
     provide('openRightSidebar', () => rightSidebarRef.value?.open());
-    provide('openInviteModal', () => inviteModalRef.value?.open());
+    provide('openInviteModal', (data, props) => inviteModalRef.value?.open(data, props));
 </script>
 
 <style lang="scss" scoped>

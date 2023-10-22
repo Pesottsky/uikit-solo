@@ -49,6 +49,14 @@ const publicRouter = [
                 meta: {
                     roles: []
                 }
+            },
+            {
+                path: 'freelancers/:id',
+                name: ROUTES_NAMES.FREELANCER_PROFILE_PUBLIC,
+                component: () => import('../views/Freelancer/ProfilePublicView.vue'),
+                meta: {
+                    roles: []
+                }
             }
         ]
     }

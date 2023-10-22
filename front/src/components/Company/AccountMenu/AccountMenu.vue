@@ -2,9 +2,15 @@
     <div class="sidebar-menu__title sidebar-menu__title_first">
         <span class="menu-title__name">Компания</span>
     </div>
-    <RouterLink :to="{ name: ROUTES_NAMES.COMPANY_PROFILE }" class="link_reset sidebar-menu__item" exact-active-class="sidebar-menu__item_active">
-        Название компании
-    </RouterLink>
+    <template v-if="companyLoading">
+        <Skeleton />
+        <Skeleton />
+    </template>
+    <template v-else>
+        <RouterLink :to="{ name: ROUTES_NAMES.COMPANY_PROFILE }" class="link_reset sidebar-menu__item" exact-active-class="sidebar-menu__item_active">
+            {{ companyInfo.name }}
+        </RouterLink>
+    </template>
     <div class="sidebar-menu__title">
         <span class="menu-title__name">База фрилансеров</span>
         <template v-if="bases.length">
@@ -56,7 +62,7 @@
     const createBase = inject('createBase');
 
     const storeCompany = useCompanyStore();
-    const { bases, companyLoading } = storeToRefs(storeCompany);
+    const { companyInfo, bases, companyLoading } = storeToRefs(storeCompany);
 
     const contextMenuRef = ref(null);
 

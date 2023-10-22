@@ -2,23 +2,26 @@
     <input 
         type="text" 
         class="input-headless" 
-        :class="{ 'input-headless_max': isMax, 'input-headless_title': isTitle }" 
+        :class="{ 'input-headless_max': isMax, 'input-headless_title': isTitle, 'input-headless_subtitle': isSubTitle }" 
         :style="inputStyle" 
-        :placeholder="placeholder" 
+        :placeholder="placeholder"
+        :readonly="readonly"
         v-model="inputValue" 
         @input="onInput"
     >
-    <div class="buffer" :class="{ 'buffer_title': isTitle }" ref="bufferRef">{{ inputValue || placeholder }}</div>
+    <div class="buffer" :class="{ 'buffer_title': isTitle, 'buffer_subtitle': isSubTitle }" ref="bufferRef">{{ inputValue || placeholder }}</div>
 </template>
 
 <script setup>
-    import { computed, onMounted, reactive, ref } from 'vue';
+    import { computed, onMounted, reactive, ref, nextTick } from 'vue';
 
     const props = defineProps({
         modelValue: { type: String },
         placeholder: { type: String, default: 'Мой ответ' },
         isMax: { type: Boolean, default: true },
-        isTitle: { type: Boolean, default: false }
+        isTitle: { type: Boolean, default: false },
+        isSubTitle: { type: Boolean, default: false },
+        readonly: { type: Boolean }
     })
 
     const emits = defineEmits(['update:modelValue']);
@@ -37,10 +40,13 @@
 
     function onInput() {
         if (props.isMax) return;
-        inputStyle.width = `${bufferRef.value?.clientWidth + 14}px`
+        inputStyle.width = `${bufferRef.value?.clientWidth + 16}px`
     }
 
-    onMounted(() => onInput())
+    onMounted(async () => {
+        await nextTick();
+        onInput();
+    })
 
 </script>
 
@@ -51,11 +57,12 @@
     }
     .input-headless {
         max-width: 100%;
-        height: 20px;
+        height: 36px;
         border: 1px solid transparent;
         outline: none;
         padding: 1px 6px;
         border-radius: 6px;
+        background: transparent;
 
         &_max {
             width: 100%;
@@ -67,6 +74,13 @@
             line-height: 100%;
             height: 48px;
         }
+        &_subtitle {
+            font-family: Antonym;
+            font-size: 24px;
+            font-weight: 500;
+            line-height: 100%;
+            height: 40px;
+        }
 
         &:focus {
             border-color: var(--black-opacity-30);
@@ -74,6 +88,13 @@
 
         &::placeholder {
             color: var(--black-opacity-30);
+        }
+        &:hover:not(&:focus) {
+            background: var(--gray-light-hover);
+        }
+
+        &:read-only {
+            pointer-events: none;
         }
 
     }
@@ -88,6 +109,12 @@
         &_title {
             font-family: Antonym;
             font-size: 32px;
+            font-weight: 500;
+            line-height: 100%;
+        }
+        &_subtitle {
+            font-family: Antonym;
+            font-size: 24px;
             font-weight: 500;
             line-height: 100%;
         }

@@ -1,9 +1,9 @@
 <template>
-    <h1>Фрилансер. Стартовый экран</h1>
+    <Start />
 </template>
 
 <script setup>
-
+    import Start from '../../components/Freelancer/Start/Start.vue';
 </script>
 
 <style lang="scss" scoped>

@@ -80,7 +80,8 @@ export const useAuthStore = defineStore('authStore', () => {
 
         try {
             const data = await AuthService.registrationFreelancer({ login, first_name, last_name, password });
-            setAuth(data);
+            setAuth(data, false);
+            router.replace({ name: ROUTES_NAMES.FREELANCER_START_SCREEN });
 
         } catch(e) {
             authError.value = e || 'Ошибка сервера';
@@ -122,7 +123,7 @@ export const useAuthStore = defineStore('authStore', () => {
         authError.value = null;
 
         try {
-            // await AuthService.logout();
+            await AuthService.logout();
             clearAuth();
         } catch(e) {
             authError.value = e || 'Ошибка сервера';

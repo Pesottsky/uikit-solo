@@ -7,6 +7,8 @@
                 :placeholder="placeholder" 
                 class="textarea__element"
                 :class="{ invalid: error, 'textarea__element_headless': isHeadless }"
+                ref="textareaRef"
+                :readonly="readonly"
                 @input="onInput"
             ></textarea>
         </div>
@@ -19,7 +21,7 @@
 </template>
 
 <script setup>
-    import { computed } from 'vue';
+    import { computed, onMounted, ref } from 'vue';
 
     const props = defineProps({
         modelValue: { type: String },
@@ -27,10 +29,13 @@
         placeholder: { type: String, default: 'Мой ответ' },
         hint: { type: String },
         error: { type: String },
-        isHeadless: { type: Boolean, default: false }
+        isHeadless: { type: Boolean, default: false },
+        readonly: { type: Boolean }
     })
 
     const emits = defineEmits(['update:modelValue']);
+
+    const textareaRef = ref(null);
 
     const inputValue = computed({
         get() {
@@ -45,6 +50,13 @@
         e.target.style.height = 0;
         e.target.style.height = (e.target.scrollHeight + 1) + "px";
     }
+
+    onMounted(() => {
+        if (props.modelValue) {
+            const event = new Event('input');
+            textareaRef.value.dispatchEvent(event);
+        }
+    })
 
 </script>
 
@@ -82,13 +94,17 @@
         
             display: flex;
             width: 100%;
-            padding: 12px;
+            padding: 10px 12px;
             gap: 8px;
-            font-family: inherit;
+
+            font-family: Golos Text;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 140%;
 
             &_headless {
-                height: 20px;
-                padding: 1px 6px;
+                height: 34px;
+                padding: 7px 6px;
                 background-color: transparent;
 
                 &::placeholder {
@@ -97,6 +113,9 @@
 
                 &:focus {
                     border: 1px solid var(--black-opacity-30);
+                }
+                &:hover:not(&:focus) {
+                    background: var(--gray-light-hover);
                 }
             }
 
@@ -132,6 +151,10 @@
                 color: var(--black);
                 background: var(--gray-light);
                 border: 1px solid transparent;
+            }
+
+            &:read-only {
+                pointer-events: none;
             }
         }
         &__hint {

@@ -17,76 +17,96 @@
             </div>
             <div class="sidebar-content">
                 <div class="sidebar-content__name">
-                    <InputHeadless placeholder="Имя" v-model="state.first_name" :is-title="true" :is-max="false" />
-                    <InputHeadless placeholder="Фамилия" v-model="state.last_name" :is-title="true" :is-max="false" />
+                    <InputHeadless placeholder="Имя" :readonly="!isChangeData" v-model="state.first_name" :is-title="true" :is-max="false" />
+                    <InputHeadless placeholder="Фамилия" :readonly="!isChangeData" v-model="state.last_name" :is-title="true" :is-max="false" />
                 </div>
-                <div class="sidebar-content__link-access" v-if="false">
-                    <span class="text_gray">Отправили ссылку на приглашение</span> ivanov@gmail.com
+                <div class="sidebar-content__link-access" v-if="currentFreelancer?.link">
+                    <template v-if="currentFreelancer.link.is_email_sending">
+                        <span class="text_gray">Отправили ссылку на приглашение</span> [ email ]
+                    </template>
+                    <template v-else>
+                        <span class="text_gray">Создали ссылку на приглашение</span> {{ generateLink(currentFreelancer.profile) }}
+                    </template>
                 </div>
                 <div class="sidebar-content__invite">
-                    <Button :type="BUTTON_TYPE.SECONDARY" label="Пригласить" :icon="true">
+                    <Button :type="BUTTON_TYPE.SECONDARY" label="Пригласить" :icon="true" @on-click="sendInvite">
                         <ImportIcon />
                     </Button>
                     <span class="text_gray">Отправим фрилансеру ссылку на почту, и он сам заполнит профиль</span>
                 </div>
                 <div class="sidebar-content__anketa">
-                    <div class="grid-column">Загрузка</div>
+                    <div class="grid-column text_gray">Загрузка</div>
                     <div class="grid-column grid-column_margin_left">
                         <Chip :type="CHIP_TYPE.UNKNOWN" text="Не ясно" />
                     </div>
-                    <div class="grid-column">Грейд</div>
+                    <div class="grid-column text_gray">Грейд</div>
                     <div class="grid-column grid-column_margin_left">Пусто</div>
-                    <div class="grid-column">Ставка</div>
+                    <div class="grid-column text_gray">Ставка</div>
                     <div class="grid-column">
-                        <InputHeadless placeholder="Пусто" v-model="state.price" />
+                        <InputHeadless placeholder="Пусто" :readonly="!isChangeData" v-model="state.price" />
                     </div>
-                    <div class="grid-column">Портфолио</div>
+                    <div class="grid-column text_gray">Портфолио</div>
                     <div class="grid-column">
-                        <InputHeadless placeholder="https://" v-model="state.portfolio" />
+                        <InputHeadless placeholder="https://" :readonly="!isChangeData" v-model="state.portfolio" />
                     </div>
-                    <div class="grid-column">Опыт</div>
+                    <div class="grid-column text_gray">Опыт</div>
                     <div class="grid-column">
-                        <InputHeadless placeholder="Пусто" v-model="state.experience" />
+                        <InputHeadless placeholder="Пусто" :readonly="!isChangeData" v-model="state.experience" />
                     </div>
-                    <div class="grid-column">Скилы</div>
+                    <div class="grid-column text_gray">Скилы</div>
                     <div class="grid-column">
-                        <InputHeadless placeholder="Пусто" v-model="state.skills" />
+                        <InputHeadless placeholder="Пусто" :readonly="!isChangeData" v-model="state.skills" />
                     </div>
-                    <div class="grid-column">Резюме</div>
+                    <div class="grid-column text_gray">Резюме</div>
                     <div class="grid-column">
-                        <Textarea placeholder="Пусто" :is-headless="true" v-model="state.summary" />
+                        <Textarea placeholder="Пусто" :readonly="!isChangeData" :is-headless="true" v-model="state.summary" />
                     </div>
-                    <div class="grid-column">Email</div>
+                    <div class="grid-column text_gray">Email</div>
                     <div class="grid-column">
-                        <InputHeadless placeholder="email@mail.ru" v-model="state.email" />
+                        <InputHeadless placeholder="email@mail.ru" :readonly="!isChangeData" v-model="state.email" />
                     </div>
-                    <div class="grid-column">Телеграм</div>
+                    <div class="grid-column text_gray">Телеграм</div>
                     <div class="grid-column">
-                        <InputHeadless placeholder="@telegram" v-model="state.telegram" />
+                        <InputHeadless placeholder="@telegram" :readonly="!isChangeData" v-model="state.telegram" />
+                    </div>
+                </div>
+                <div class="sidebar-content__anketa sidebar-content__anketa_border-top" v-if="!!currentFreelancer && !currentFreelancer?.fake">
+                    <div class="grid-column grid-column_column">
+                        <p class="text_gray">Ваши комментарии</p>
+                        <span class="font-caption text_gray">(видны только вам)</span>
+                    </div>
+                    <div class="grid-column grid-column_row">
+                        <Textarea placeholder="Оставить комментарий" :is-headless="true" v-model="commentFreelancer" />
+                        <Button :icon="true" :disabled="commentLoading" @on-click="onSaveComment">
+                            <ArrowTopWhiteIcon />
+                        </Button>
                     </div>
                 </div>
             </div>
             <div class="sidebar-footer">
-                <Button :type="BUTTON_TYPE.TETRARY" label="Удалить" @on-click="onClose" />
+                <Button :type="BUTTON_TYPE.TETRARY" label="Удалить" @on-click="removeFreelancer" />
             </div>
         </div>
     </Backdrop>
 </template>
 
 <script setup>
-    import { Button, Backdrop, Textarea, Chip, InputHeadless } from '../../UI';
-    import { DoubleArrowRightIcon, ImportIcon } from '../../Icons';
+    import { Button, Backdrop, Textarea, Chip, InputHeadless, Skeleton } from '../../UI';
+    import { DoubleArrowRightIcon, ImportIcon, ArrowTopWhiteIcon } from '../../Icons';
     import BUTTON_TYPE from '../../../constants/buttonTypes';
     import CHIP_TYPE from '../../../constants/chipTypes';
     import NOTIFICATION_MESSAGES from '../../../constants/notificationMessages';
-    import { reactive, ref, watch } from 'vue';
+    import { inject, reactive, ref, watch } from 'vue';
     import { useCompanyStore } from '../../../stores/company.store';
     import { useNoticeStore } from '../../../stores/notice.store';
     import { copyToClipboard } from '../../../helpers/clipboard';
+    import { generateLink } from '../../../helpers/profile';
     import { storeToRefs } from 'pinia';
 
+    const openInviteModal = inject('openInviteModal')
+
     const storeCompany = useCompanyStore();
-    const { currentFreelancer } = storeToRefs(storeCompany);
+    const { currentFreelancer, commentFreelancer, commentLoading } = storeToRefs(storeCompany);
 
     const storeNotice = useNoticeStore();
 
@@ -103,12 +123,13 @@
     })
     const isShow = ref(false);
     const isShowSidebar = ref(false);
+    const isChangeData = ref(false);
 
     function shareFreelancer() {
         const cb = () => {
-            storeNotice.setMessage(NOTIFICATION_MESSAGES.SUCCESS_COPY_URL_FREELANCER);
+            storeNotice.setMessage(NOTIFICATION_MESSAGES.COPY_URL_FREELANCER);
         }
-        const url = `${window.location.origin}/freelancers/${currentFreelancer.value.profile.id}`;
+        const url = generateLink(currentFreelancer.value.profile);
         copyToClipboard(url, cb);
         
     }
@@ -117,6 +138,21 @@
             await storeCompany.updateRowInBase({ ...state })
         } else {
             await storeCompany.createRowInBase({ ...state });
+        }
+    }
+    async function onSaveComment() {
+        await storeCompany.createComment({ comment: commentFreelancer.value });
+    }
+    async function removeFreelancer() {
+        await storeCompany.removeRowInBase();
+        onClose();
+    }
+    async function sendInvite() {
+        if (currentFreelancer.value?.link) {
+            openInviteModal(currentFreelancer.value.link, { isClearFreelancer: false });
+        } else {
+            const data = await storeCompany.generateInviteLink();
+            openInviteModal(data, { isClearFreelancer: false });
         }
     }
 
@@ -148,8 +184,13 @@
             Object.keys(state).map(key => {
                 state[key] = String(currentFreelancer.value?.profile?.[key] || '');
             })
+
+            if (!value?.fake) storeCompany.getComment();
+
+            //isChangeData.value = value.can_change;
         } else {
             clearState();
+            isChangeData.value = true;
         }
     })
 
@@ -234,6 +275,13 @@
                 grid-template-columns: 2fr 5fr;
                 column-gap: 12px;
                 row-gap: 4px;
+                padding-top: 4px;
+                
+                &_border {
+                    &-top {
+                        border-top: 1px solid var(--black-opacity-10);
+                    }
+                }
             }
         }
 
@@ -255,13 +303,24 @@
 
     .grid-column {
         width: 100%;
+        min-height: 36px;
         height: auto;
-        padding: 8px 0px;
         display: flex;
         justify-content: flex-start;
+        align-items: center;
+        gap: 4px;
 
         &_margin_left {
             margin-left: 7px;
+        }
+
+        &_column {
+            padding-top: 4px;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        &_row {
+            align-items: flex-start;
         }
     }
 </style>

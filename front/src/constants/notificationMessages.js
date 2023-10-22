@@ -1,6 +1,11 @@
 const NOTIFICATION_MESSAGES = {
-    SUCCESS_COPY_URL_FREELANCER: 'Ссылка на профиль фрилансера скопирована',
-    COPY_LINK_INVITE_FREELANCER: 'Ссылка скопирована'
+    COPY_URL_FREELANCER: 'Ссылка на профиль фрилансера скопирована',
+    COPY_LINK_INVITE_FREELANCER: 'Ссылка скопирована',
+    FREELANCER_CREATED: 'Фрилансер создан',
+    UPDATE_INFO_COMPANY: 'Информация о компании обновлена',
+    SAVE_COMMENT: 'Комментарий сохранен',
+    FREELANCER_REMOVED: 'Фрилансер удален из базы',
+    EMPLOYMENT_CHANGE: 'Статус занятости обновлен'
 }
 
 export default NOTIFICATION_MESSAGES;

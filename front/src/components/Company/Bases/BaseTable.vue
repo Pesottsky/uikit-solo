@@ -40,7 +40,7 @@
                 v-for="item in freelancers"
                 :count="10" 
                 :key="item.profile.id" 
-                :is-fake="item?.fake"
+                :is-fake="item?.fake || isNullFreelancer(item.profile)"
                 :selected="item.profile.id === currentFreelancer?.profile?.id"
                 @click="() => openSidebar(item)"
             >
@@ -59,11 +59,12 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
+    import { computed, inject } from 'vue';
     import { Table, TableRow, TableColumn, Chip, Skeleton } from '../../UI';
     import CHIP_TYPE_BY_NAME from '@/constants/chipTypeByName';
     import { useCompanyStore } from '../../../stores/company.store';
-    import { storeToRefs } from 'pinia';
-    import { computed, inject } from 'vue';
+    import { isNullFreelancer } from '../../../helpers/profile';
 
     const storeCompany = useCompanyStore();
     const { currentBase, companyLoading, fakeFreelancers, currentFreelancer } = storeToRefs(storeCompany);
