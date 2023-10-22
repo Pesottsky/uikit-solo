@@ -211,6 +211,9 @@ paths:
             schema:
               $ref: '#/components/schemas/Invite'
       responses:
+        responses:
+          "200":
+            description: 200 если пользователь с такой почтой зарегистрирован. Надо обновить таблицу
         "201":
           description: Created
           content:
@@ -253,7 +256,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Profile'
-      responses:
         "201":
           description: Created
           content:
@@ -356,7 +358,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Profile'
-  /update_loading:
+  /loading:
+    get:
+      tags:
+        - Кейсы фрилансера
+      summary: Получение списка рабочей нагрузки
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Loading'
     post:
       tags:
         - Кейсы фрилансера
@@ -373,6 +388,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Profile'
+  /grade:
+    get:
+      tags:
+        - Кейсы фрилансера
+      summary: Получение уровней фрилансера
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grade'
   /profile/{id}:
     get:
       tags:

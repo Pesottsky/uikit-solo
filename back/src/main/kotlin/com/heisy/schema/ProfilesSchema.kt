@@ -122,7 +122,6 @@ class ProfilesService(database: Database) {
 
     fun get(id: Int): ExposedProfile? = ExposedProfile.findById(id)
 
-
     fun create(profile: Profile): ExposedProfile {
         val exposedProfile = ExposedProfile.new {
             firstName = profile.firstName

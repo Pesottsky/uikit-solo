@@ -97,7 +97,7 @@ fun Application.configureTablesRouting(
                         val profileResult = dbQuery {
                             val row = rowService.checkRowForUpdate(rowId.toInt(), pair.first)
                             rowService.checkForOwner(row)
-                            val profileResult = profilesService.get(profile.id!!) ?: throw NotFoundException()
+                            val profileResult = profilesService.get(row.profile.id.value) ?: throw NotFoundException()
                             profilesService.updateByCompany(profileResult, profile).toDataClass()
                         }
                         call.respond(HttpStatusCode.Accepted, profileResult)
@@ -109,7 +109,6 @@ fun Application.configureTablesRouting(
                         val rowId = call.parameters["row_id"] ?: throw BadRequestException("row_id is null")
                         val table = dbQuery {
                             val row = rowService.checkRowForUpdate(rowId.toInt(), pair.first)
-                            rowService.checkForOwner(row)
                             rowService.delete(row)
                             tablesService.getByUserId(pair.first).map { it.toDataClass() }
                         }
@@ -149,7 +148,7 @@ fun Application.configureTablesRouting(
                     // Приглашение сгенерировали на почту, которая уже зарегана в системе
                     if (exposedFreel != null) {
                         dbQuery { row.profile = exposedFreel.profile }
-                        call.respond(HttpStatusCode.Found)
+                        call.respond(HttpStatusCode.OK)
                         return@post
                     }
                     val link = dbQuery {

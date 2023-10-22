@@ -3,6 +3,9 @@ package com.heisy.routing
 import com.heisy.plugins.UserTypes
 import com.heisy.plugins.dbQuery
 import com.heisy.plugins.getIdTypePair
+import com.heisy.schema.ExposedFreel
+import com.heisy.schema.ExposedGrade
+import com.heisy.schema.ExposedLoading
 import com.heisy.schema.ProfilesService
 import com.heisy.utils.LogUtils
 import io.ktor.http.*
@@ -20,12 +23,8 @@ fun Application.configureProfileRouting(profileService: ProfilesService) {
                 get {
                     val pair = getIdTypePair(call)
                     call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
-                    val profile = dbQuery { profileService.get(pair.first)?.toDataClass() }
-                    if (profile == null) {
-                        call.respond(HttpStatusCode.NoContent)
-                    } else {
-                        call.respond(HttpStatusCode.OK, profile)
-                    }
+                    val profile = dbQuery { ExposedFreel.findById(pair.first)?.getProfile() ?: NotFoundException() }
+                    call.respond(HttpStatusCode.OK, profile)
                 }
 
                 put {
@@ -38,7 +37,14 @@ fun Application.configureProfileRouting(profileService: ProfilesService) {
 
             }
 
-            route("/update_loading") {
+            route("/loading") {
+                get {
+                    val pair = getIdTypePair(call)
+                    call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
+                    val loadingList =
+                        dbQuery { ExposedLoading.all().map { it.toDataClass() } }
+                    call.respond(HttpStatusCode.OK, loadingList)
+                }
                 post {
                     val pair = getIdTypePair(call)
                     call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
@@ -47,6 +53,18 @@ fun Application.configureProfileRouting(profileService: ProfilesService) {
                     call.respond(HttpStatusCode.Accepted, profile)
                 }
             }
+
+            route("/grade") {
+                get {
+                    val pair = getIdTypePair(call)
+                    call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
+                    val gradeList =
+                        dbQuery { ExposedGrade.all().map { it.toDataClass() } }
+                    call.respond(HttpStatusCode.OK, gradeList)
+                }
+            }
+
+
         }
 
         get("/profile/{id}") {
