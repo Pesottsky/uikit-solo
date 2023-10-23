@@ -12,20 +12,34 @@
     import { Input, Textarea, Button } from '../../UI';
     import BUTTON_TYPE from '../../../constants/buttonTypes';
     import { useCompanyStore } from '../../../stores/company.store';
-    import { reactive } from 'vue';
+    import { onMounted, reactive, watch } from 'vue';
 
     const storeCompany = useCompanyStore();
     const { companyInfo } = storeToRefs(storeCompany);
 
     const state = reactive({
-        name: companyInfo.value.name,
-        link: companyInfo.value.link,
-        about: companyInfo.value.about
+        name: '',
+        link: '',
+        about: ''
     })
 
     function onSave() {
         storeCompany.updateCompanyInfo({ ...state });
     }
+    function setState() {
+        state.name = companyInfo.value.name;
+        state.link = companyInfo.value.link;
+        state.about = companyInfo.value.about;
+    }
+
+    watch(companyInfo, value => {
+        setState();
+    }, { deep: true })
+
+    onMounted(() => {
+        setState();
+    })
+
 </script>
 
 <style lang="scss" scoped>

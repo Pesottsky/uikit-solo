@@ -4,10 +4,30 @@
         <p class="start__text">Здесь ты можешь отслеживать занятость чтобы заказчики понимали когда можно обращаться и быть с нмим на связи</p>
         <p class="start__text">А еще делить профилем портфолио, чтоб не теряться</p>
     </div>
+
+    <SuccessAppendModal ref="successAppendModalRef" />
+
 </template>
 
 <script setup>
+    import { onMounted, ref } from 'vue';
+    import SuccessAppendModal from '../Modals/SuccessAppendModal.vue';
 
+    import { useRoute, useRouter } from 'vue-router';
+
+    import ROUTES_NAMES from '../../../constants/routesNames';
+
+    const route = useRoute();
+    const router = useRouter();
+
+    const successAppendModalRef = ref(null);
+
+    onMounted(() => {
+        if (route.query?.link) {
+            successAppendModalRef.value?.open();
+            router.replace({ name: ROUTES_NAMES.FREELANCER_START_SCREEN, query: {} });
+        }
+    })
 </script>
 
 <style lang="scss" scoped>

@@ -19,12 +19,12 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { inject, onMounted, ref } from 'vue';
+    import { inject, onMounted, ref, watch } from 'vue';
     import Header from '../../Header/Header.vue';
     import { Button, InputHeadless } from '../../UI';
     import { ImportIcon, EditIcon, AddUserIcon } from '../../Icons';
     import BUTTON_TYPE from '@/constants/buttonTypes';
-    import { FakeFreelancer } from '../../../constants/hardData';
+    import { FakeFreelancer } from '../../../constants/FakeFreelancer';
     import { useCompanyStore } from '../../../stores/company.store';
 
     const storeCompany = useCompanyStore();
@@ -55,6 +55,12 @@
             }
         }
     }
+
+    watch(currentBase, value => {
+        if (value) {
+            nameBase.value = value.name;
+        }
+    })
 
     onMounted(() => {
         if (currentBase.value) {

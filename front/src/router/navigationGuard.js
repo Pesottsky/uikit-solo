@@ -13,12 +13,16 @@ const navigationGuard = (to, from, next) => {
 
     const metaRoles = to?.meta?.roles || [];
 
+    if (metaRoles.includes(ROLES.ANY)) {
+        return next();
+    }
+
     if (isAuthenticated.value) {
         if (!metaRoles.includes(userRole) || !metaRoles.length) {
             if (userRole === ROLES.COMPANY) {
                 return next({ name: ROUTES_NAMES.COMPANY_PROFILE });
             } else if (userRole === ROLES.FREELANCER) {
-                return next({ name: ROUTES_NAMES.FREELANCER_START_SCREEN });
+                return next({ name: ROUTES_NAMES.FREELANCER_EMPLOYMENT });
             }
             return next({ name: ROUTES_NAMES.NOT_FOUND });
         }

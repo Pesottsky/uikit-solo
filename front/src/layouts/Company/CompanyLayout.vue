@@ -25,8 +25,4 @@
 
     provide('openImportModal', () => importModalRef.value?.open());
     provide('createBase', () => storeCompany.createBase());
-
-    onMounted(() => {
-        storeCompany.getCompanyInfo();
-    })
 </script>

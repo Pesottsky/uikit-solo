@@ -25,7 +25,7 @@
             <Button label="Зарегистрироваться" class="width_max" :disabled="authLoading" @on-click="onRegistration" />
         </template>
         <template #links>
-            <RouterLink :to="{ name: ROUTES_NAMES.LOGIN }">Есть аккаунт</RouterLink>
+            <RouterLink :to="{ name: ROUTES_NAMES.LOGIN, query: { link: route.query?.link } }">Есть аккаунт</RouterLink>
             <span class="v-splitter"></span>
             <RouterLink :to="{ path: '/forgot-password' }">Забыли пароль?</RouterLink>
         </template>

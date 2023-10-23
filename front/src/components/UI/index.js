@@ -14,6 +14,7 @@ import Conteneditable from './Contenteditable/Contenteditable.vue';
 import Skeleton from './Skeleton/Skeleton.vue';
 import Textarea from './Textarea/Textarea.vue';
 import Radiobutton from './Radiobutton/Radiobutton.vue';
+import Quote from './Quote/Quote.vue';
 
 export {
     Button,
@@ -31,5 +32,6 @@ export {
     Conteneditable,
     Skeleton,
     Textarea,
-    Radiobutton
+    Radiobutton,
+    Quote
 }

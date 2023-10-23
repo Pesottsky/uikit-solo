@@ -8,6 +8,7 @@
 .wrapper {
     display: flex;
     flex-direction: row;
+    height: 100vh;
 }
 
 .link_reset {
@@ -19,4 +20,12 @@
 }
 .error {
     color: var(--input-error);
+}
+
+.stripe {
+    position: relative;
+    width: 100%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }

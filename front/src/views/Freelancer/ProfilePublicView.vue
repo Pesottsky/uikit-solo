@@ -1,11 +1,7 @@
 <template>
-    <h1>Фрилансер. Публичный профиль</h1>
+    <PublicFreelancer />
 </template>
 
 <script setup>
-
+    import PublicFreelancer from '../../components/Public/Freelancer/PublicFreelancer.vue';
 </script>
-
-<style lang="scss" scoped>
-
-</style>

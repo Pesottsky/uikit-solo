@@ -5,7 +5,7 @@ class AuthService {
         return httpClient.post('/registration', payload);
     }
     static async registrationFreelancer(payload, link=null) {
-        const url = link ? `/registration/freel/${link}` : '/registration/freel';
+        const url = link ? `/registration/freel?link=${link}` : '/registration/freel';
         return await httpClient.post(url, payload);
     }
     static async login(payload) {

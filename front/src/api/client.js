@@ -14,6 +14,8 @@ httpClient.interceptors.request.use(
         const store = useAuthStore()
         if (store.isAuthenticated) {
             config.headers.Authorization = `Bearer ${store.userData.access}`;
+        } else {
+            delete config.headers.Authorization;
         }
         return config;
     }

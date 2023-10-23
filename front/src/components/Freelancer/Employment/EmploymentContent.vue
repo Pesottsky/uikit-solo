@@ -3,39 +3,51 @@
         <div class="employment__card">
             <AccountCard />
         </div>
-        <Radiobutton label="Изменить занятость" :data="EMPLOYMENT_VALUE" v-model="employment" />
+        <Radiobutton label="Изменить занятость" :data="employmentList" size="big" v-model="employment" />
     </div>
 </template>
 
 <script setup>
-    import { computed, ref, watch } from 'vue';
+    import { computed, onMounted, ref, watch } from 'vue';
 
     import AccountCard from '../AccountCard/AccountCard.vue';
     import { Radiobutton } from '../../UI';
 
-    import { EMPLOYMENT_VALUE, EMPLOYMENT_NAME } from '../../../constants/employment'
+    import { EMPLOYMENT_NAME } from '../../../constants/employment'
 
     import { useFreelancerStore } from '../../../stores/freelancer.store';
+    import { storeToRefs } from 'pinia';
 
     const storeFreelancer = useFreelancerStore();
+    const { directory, freelancerProfile } = storeToRefs(storeFreelancer);
 
     const employment = ref(EMPLOYMENT_NAME.FREE);
     const timer = ref(null);
 
-    const activeEmployment = computed(() => EMPLOYMENT_VALUE.find(item => item.value === employment.value));
+    const activeEmployment = computed(() => employmentList.value.find(item => item.value === employment.value));
+    const employmentList = computed(() => directory.value.loading.map(item => ({ level: item.loading_key, value: item.description })));
 
     watch(employment, value => {
-        if (value) {
+        if (value && value !== freelancerProfile.value?.loading?.description) {
             if (timer.value) clearTimeout(timer.value);
 
             timer.value = setTimeout(() => {
                 const payload = {
-                    level_key: activeEmployment.value.level, 
+                    loading_key: activeEmployment.value.level, 
                     description: activeEmployment.value.value
                 }
                 storeFreelancer.updateEmploymentStatus(payload);
             }, 300)
         }
+    })
+
+    watch(freelancerProfile, value => {
+        if (value) {
+            employment.value = value?.loading?.description;
+        }
+    })
+    onMounted(() => {
+        employment.value = freelancerProfile.value?.loading?.description;
     })
 
 </script>

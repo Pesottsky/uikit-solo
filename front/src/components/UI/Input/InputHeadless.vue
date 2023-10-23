@@ -1,22 +1,23 @@
 <template>
     <input 
-        type="text" 
+        :type="type" 
         class="input-headless" 
         :class="{ 'input-headless_max': isMax, 'input-headless_title': isTitle, 'input-headless_subtitle': isSubTitle }" 
         :style="inputStyle" 
         :placeholder="placeholder"
         :readonly="readonly"
-        v-model="inputValue" 
+        v-model="inputValue"
         @input="onInput"
     >
-    <div class="buffer" :class="{ 'buffer_title': isTitle, 'buffer_subtitle': isSubTitle }" ref="bufferRef">{{ inputValue || placeholder }}</div>
+    <div class="buffer" :class="{ 'buffer_title': isTitle, 'buffer_subtitle': isSubTitle }" ref="bufferRef">{{ modelValue || placeholder }}</div>
 </template>
 
 <script setup>
-    import { computed, onMounted, reactive, ref, nextTick } from 'vue';
+    import { computed, onMounted, reactive, ref, nextTick, watch } from 'vue';
 
     const props = defineProps({
-        modelValue: { type: String },
+        type: { type: String },
+        modelValue: { type: [String, Number] },
         placeholder: { type: String, default: 'Мой ответ' },
         isMax: { type: Boolean, default: true },
         isTitle: { type: Boolean, default: false },
@@ -36,7 +37,8 @@
             emits('update:modelValue', value)
         }
     });
-    const inputStyle = reactive({ width: `${bufferRef.value?.clientWidth}px` });
+
+    const inputStyle = reactive({ width: `${bufferRef.value?.clientWidth + 16}px` });
 
     function onInput() {
         if (props.isMax) return;
@@ -63,6 +65,12 @@
         padding: 1px 6px;
         border-radius: 6px;
         background: transparent;
+
+        color: var(--black);
+        font-family: Golos Text;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 140%;
 
         &_max {
             width: 100%;

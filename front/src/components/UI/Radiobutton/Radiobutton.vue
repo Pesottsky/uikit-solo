@@ -1,8 +1,11 @@
 <template>
-    <div class="radiobutton__container">
+    <div class="radiobutton__container" :class="{ 'radiobutton__container_outline': isBackground }">
         <label class="radiobutton__label" v-if="label">{{ label }}</label>
         <div class="radiobutton__content">
-            <label v-for="item in data" class="radiobutton__item" :class="{ 'radiobutton__item_checked': inputValue === item.value }">
+            <label 
+            v-for="item in data" class="radiobutton__item" 
+            :class="{ 'radiobutton__item_checked': inputValue === item.value, 'radiobutton__item_big': size === 'big' }"
+            >
                 <div class="radiobutton__radio" :class="{ 'radiobutton__radio_checked': inputValue === item.value }"></div>
                 <input type="radio" class="radiobutton__element" v-model="inputValue" :value="item.value">
                 {{ item.value }}
@@ -17,7 +20,9 @@
     const props = defineProps({
         label: { type: String },
         modelValue: { type: String },
-        data: { type: Array, default: () => [] }
+        data: { type: Array, default: () => [] },
+        size: { type: String },
+        isBackground: { type: Boolean, default: false }
     })
 
     const emits = defineEmits(['update:modelValue']);
@@ -34,10 +39,25 @@
 
 <style lang="scss" scoped>
     .radiobutton {
+
+        font-size: 14px;
+
         &__container {
+            width: 100%;
             display: flex;
             flex-direction: column;
             gap: 16px;
+
+            &_outline {
+                padding: 8px 6px;
+                border-radius: 6px;
+                background: var(--gray-light);
+                border: 1px solid transparent;
+
+                &:hover {
+                    border-color: var(--black-opacity-10);
+                }
+            }
         }
         &__label {
             color: var(--black-opacity-50);
@@ -58,9 +78,12 @@
 
             color: var(--black);
             font-family: Golos Text;
-            font-size: 18px;
             font-weight: 400;
             line-height: 140%;
+
+            &_big {
+                font-size: 18px;
+            }
 
             &:hover:not(&_checked) {
                 .radiobutton__radio {

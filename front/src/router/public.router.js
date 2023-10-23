@@ -1,3 +1,4 @@
+import ROLES from "../constants/roles";
 import ROUTES_NAMES from "../constants/routesNames";
 import SIGN_UP_TYPE from "../constants/signUpType";
 
@@ -29,7 +30,7 @@ const publicRouter = [
                 name: ROUTES_NAMES.NOT_FOUND,
                 component: () => import('../views/NotFoundView.vue'),
                 meta: {
-                    roles: []
+                    roles: [ROLES.ANY]
                 }
             },
             {
@@ -49,16 +50,16 @@ const publicRouter = [
                 meta: {
                     roles: []
                 }
-            },
-            {
-                path: 'freelancers/:id',
-                name: ROUTES_NAMES.FREELANCER_PROFILE_PUBLIC,
-                component: () => import('../views/Freelancer/ProfilePublicView.vue'),
-                meta: {
-                    roles: []
-                }
             }
         ]
+    },
+    {
+        path: '/freelancers/:id',
+        name: ROUTES_NAMES.FREELANCER_PROFILE_PUBLIC,
+        component: () => import('../views/Freelancer/ProfilePublicView.vue'),
+        meta: {
+            roles: [ROLES.ANY]
+        }
     }
 ]
 

@@ -12,7 +12,7 @@
                         label="Поделиться" 
                         @on-click="shareFreelancer" 
                     />
-                    <Button label="Сохранить" @on-click="onSave" />
+                    <Button v-if="isChangeData" label="Сохранить" @on-click="onSave" />
                 </div>
             </div>
             <div class="sidebar-content">
@@ -20,15 +20,15 @@
                     <InputHeadless placeholder="Имя" :readonly="!isChangeData" v-model="state.first_name" :is-title="true" :is-max="false" />
                     <InputHeadless placeholder="Фамилия" :readonly="!isChangeData" v-model="state.last_name" :is-title="true" :is-max="false" />
                 </div>
-                <div class="sidebar-content__link-access" v-if="currentFreelancer?.link">
+                <Quote v-if="currentFreelancer?.link && isChangeData">
                     <template v-if="currentFreelancer.link.is_email_sending">
                         <span class="text_gray">Отправили ссылку на приглашение</span> [ email ]
                     </template>
                     <template v-else>
-                        <span class="text_gray">Создали ссылку на приглашение</span> {{ generateLink(currentFreelancer.profile) }}
+                        <span class="text_gray">Создали ссылку на приглашение</span> {{ currentFreelancer.link.link }}
                     </template>
-                </div>
-                <div class="sidebar-content__invite">
+                </Quote>
+                <div class="sidebar-content__invite" v-if="isChangeData">
                     <Button :type="BUTTON_TYPE.SECONDARY" label="Пригласить" :icon="true" @on-click="sendInvite">
                         <ImportIcon />
                     </Button>
@@ -47,7 +47,8 @@
                     </div>
                     <div class="grid-column text_gray">Портфолио</div>
                     <div class="grid-column">
-                        <InputHeadless placeholder="https://" :readonly="!isChangeData" v-model="state.portfolio" />
+                        <InputHeadless v-if="isChangeData" placeholder="https://" v-model="state.portfolio" />
+                        <a v-else :href="state.portfolio" target="_blank">{{ state.portfolio }}</a>
                     </div>
                     <div class="grid-column text_gray">Опыт</div>
                     <div class="grid-column">
@@ -91,7 +92,7 @@
 </template>
 
 <script setup>
-    import { Button, Backdrop, Textarea, Chip, InputHeadless, Skeleton } from '../../UI';
+    import { Button, Backdrop, Textarea, Chip, InputHeadless, Quote } from '../../UI';
     import { DoubleArrowRightIcon, ImportIcon, ArrowTopWhiteIcon } from '../../Icons';
     import BUTTON_TYPE from '../../../constants/buttonTypes';
     import CHIP_TYPE from '../../../constants/chipTypes';
@@ -187,7 +188,7 @@
 
             if (!value?.fake) storeCompany.getComment();
 
-            //isChangeData.value = value.can_change;
+            isChangeData.value = value.can_change;
         } else {
             clearState();
             isChangeData.value = true;
@@ -243,10 +244,12 @@
         }
 
         &-content {
-            flex: 1 1 auto;
+            height: calc(100vh - 78px);
             display: flex;
             flex-direction: column;
             gap: 24px;
+            overflow-x: hidden;
+            overflow-y: auto;
 
             &__name {
                 width: 100%;
@@ -254,11 +257,6 @@
                 display: flex;
                 align-items: center;
                 padding: 8px 6px;
-            }
-
-            &__link-access {
-                padding: 4px 12px;
-                border-left: 1px solid var(--black);
             }
 
             &__invite {

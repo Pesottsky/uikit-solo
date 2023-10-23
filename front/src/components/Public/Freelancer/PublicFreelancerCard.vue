@@ -1,0 +1,63 @@
+<template>
+    <div class="freelancer-card">
+        <div class="freelancer-card__title">
+            <h1>{{ userName }}</h1>
+            <Button v-if="isCompany" label="Добавить в базу" :icon="true">
+                <PlusWhiteIcon />
+            </Button>
+        </div>
+        <FreelancerCard :freelancer="freelancerProfile" :is-edit="false" />
+    </div>
+</template>
+
+<script setup>
+import { storeToRefs } from 'pinia';
+    import { computed, onMounted } from 'vue';
+
+    import { useRoute } from 'vue-router';
+
+    import FreelancerCard from '../../Freelancer/FreelacerCard/FreelancerCard.vue';
+    import { Button } from '../../UI';
+    import { PlusWhiteIcon } from '../../Icons';
+
+    import { useFreelancerStore } from '../../../stores/freelancer.store';
+
+    const storeFreelancer = useFreelancerStore();
+    const { freelancerProfile } = storeToRefs(storeFreelancer);
+
+    const props = defineProps({
+        isCompany: { type: Boolean, default: false },
+        isPublic: { type: Boolean, default: false }
+    })
+
+    const route = useRoute();
+
+    const userName = computed(() => `${freelancerProfile.value?.first_name} ${freelancerProfile.value?.last_name}`);
+    const marginLeft = computed(() => props.isPublic ? 'auto' : '0px');
+
+    onMounted(() => {
+        storeFreelancer.getProfileById(route.params.id);
+    })
+</script>
+
+<style lang="scss" scoped>
+    .freelancer-card {
+        box-sizing: content-box;
+        width: 620px;
+        display: flex;
+        flex-direction: column;
+        gap: 48px;
+        padding: 64px 72px;
+        margin: 32px v-bind(marginLeft) 32px;
+        border-radius: 6px;
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        background: #FFF;
+        box-shadow: -8px 4px 40px 0px rgba(0, 0, 0, 0.05);
+
+        &__title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    }
+</style>

@@ -24,7 +24,7 @@
     const props = defineProps({
         label: { type: String },
         type: { type: String, default: 'text' },
-        modelValue: { type: String },
+        modelValue: { type: [String, Number] },
         placeholder: { type: String, default: 'Мой ответ' },
         hint: { type: String },
         error: { type: String }

@@ -20,6 +20,8 @@
     const storeFreelancer = useFreelancerStore();
 
     onMounted(() => {
+        storeFreelancer.getGrade();
+        storeFreelancer.getLoading();
         storeFreelancer.getProfile();
     })
 </script>

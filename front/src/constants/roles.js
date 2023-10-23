@@ -1,6 +1,7 @@
 const ROLES = {
     COMPANY: 'Company',
-    FREELANCER: 'Freel'
+    FREELANCER: 'Freel',
+    ANY: 'Any'
 }
 
 export default ROLES;

@@ -46,12 +46,15 @@
             >
                 <TableColumn :span="2">{{ item.profile.first_name || 'Имя' }} {{ item.profile.last_name || 'Фамилия' }}</TableColumn>
                 <TableColumn>
-                    <Chip :type="CHIP_TYPE_BY_NAME['Неизвестно']" text="Не ясно" v-if="!item.profile.loading" />
+                    <Chip 
+                    :type="CHIP_TYPE_BY_NAME[item.profile.loading?.description] || CHIP_TYPES.UNKNOWN" 
+                    :text="item.profile.loading?.description || 'Не ясно'"
+                />
                 </TableColumn>
                 <TableColumn>{{ item.profile.experience || '--' }}</TableColumn>
                 <TableColumn>{{ item.profile.price || '--' }}</TableColumn>
                 <TableColumn :span="3">{{ item.profile.summary || '--' }}</TableColumn>
-                <TableColumn :span="2">{{ item.profile.portfolio || '--' }}</TableColumn>
+                <TableColumn :span="2"><span class="stripe">{{ item.profile.portfolio || '--' }}</span></TableColumn>
             </TableRow>
         </Table>
         <div class="table-wrapper__add" @click="() => openSidebar()">+</div>
@@ -63,6 +66,7 @@
     import { computed, inject } from 'vue';
     import { Table, TableRow, TableColumn, Chip, Skeleton } from '../../UI';
     import CHIP_TYPE_BY_NAME from '@/constants/chipTypeByName';
+    import CHIP_TYPES from '../../../constants/chipTypes';
     import { useCompanyStore } from '../../../stores/company.store';
     import { isNullFreelancer } from '../../../helpers/profile';
 

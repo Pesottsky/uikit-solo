@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 
 import { useNoticeStore } from "./notice.store";
 import FreelancerService from "../api/FreelancerService";
@@ -13,6 +13,30 @@ export const useFreelancerStore = defineStore('freelancerStore', () => {
 
     const freelancerProfile = ref(null);
 
+    const directory = reactive({
+        loading: [],
+        grade: [],
+    })
+
+    async function getLoading() {
+        try {
+            const data = await FreelancerService.getLoading();
+            directory.loading = data;
+        } catch(e) {
+            freelancerError.value = e || 'Ошибка сервера';
+            storeNotice.setError(freelancerError.value);
+        }
+    }
+    async function getGrade() {
+        try {
+            const data = await FreelancerService.getGrade();
+            directory.grade = data;
+        } catch(e) {
+            freelancerError.value = e || 'Ошибка сервера';
+            storeNotice.setError(freelancerError.value);
+        }
+    }
+    
     async function getProfile() {
         freelancerError.value = null;
 
@@ -24,12 +48,25 @@ export const useFreelancerStore = defineStore('freelancerStore', () => {
             storeNotice.setError(freelancerError.value);
         }
     }
-    async function updateEmploymentStatus({ level_key, description }) {
+    async function getProfileById(id) {
+        freelancerLoading.value = true;
+        freelancerError.value = null;
+        try {
+            const data = await FreelancerService.getProfileById(id);
+            freelancerProfile.value = data;
+        } catch(e) {
+            freelancerError.value = e || 'Ошибка сервера';
+            storeNotice.setError(freelancerError.value);
+        } finally {
+            freelancerLoading.value = false;
+        }
+    }
+    async function updateEmploymentStatus({ loading_key, description }) {
         freelancerError.value = null;
         freelancerLoading.value = true;
 
         try {
-            const data = await FreelancerService.updateLoading({ level_key, description });
+            const data = await FreelancerService.updateLoading({ loading_key, description });
             freelancerProfile.value = data;
 
             storeNotice.setMessage(NOTIFICATION_MESSAGES.EMPLOYMENT_CHANGE);
@@ -40,12 +77,36 @@ export const useFreelancerStore = defineStore('freelancerStore', () => {
             freelancerLoading.value = false;
         }
     }
+    async function updateProfile(payload) {
+        freelancerLoading.value = true;
+        freelancerError.value = null;
+        
+        try {
+
+            payload.price = Number(payload.price);
+
+            const data = await FreelancerService.updateProfile(payload);
+            freelancerProfile.value = data;
+
+            storeNotice.setMessage('Информация обновлена');
+        } catch(e) {
+            freelancerError.value = e || 'Ошибка сервера';
+            storeNotice.setError(freelancerError.value);
+        } finally {
+            freelancerLoading.value = false;
+        }
+    }
 
     return {
+        directory,
         freelancerError,
         freelancerLoading,
         freelancerProfile,
+        getLoading,
+        getGrade,
         getProfile,
-        updateEmploymentStatus
+        updateEmploymentStatus,
+        updateProfile,
+        getProfileById
     }
 })

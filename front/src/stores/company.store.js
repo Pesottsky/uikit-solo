@@ -5,7 +5,7 @@ import ROUTES_NAMES from '../constants/routesNames';
 import { useNoticeStore } from './notice.store';
 import CompanyService from '../api/CompanyService';
 import NOTIFICATION_MESSAGES from '../constants/notificationMessages';
-import { FakeFreelancer } from '../constants/hardData';
+import { FakeFreelancer } from '../constants/FakeFreelancer';
 
 export const useCompanyStore = defineStore('companyStore', () => {
 
@@ -144,13 +144,13 @@ export const useCompanyStore = defineStore('companyStore', () => {
 
         try {
 
-            const profileId = currentFreelancer.value.profile.id;
+            const rowId = currentFreelancer.value.id;
 
             payload.price = Number(payload.price);
 
-            const data = await CompanyService.updateRowInBaseById(profileId, payload);
+            const data = await CompanyService.updateRowInBaseById(rowId, payload);
 
-            const index = currentBase.value.rows.findIndex(item => item.profile.id === profileId);
+            const index = currentBase.value.rows.findIndex(item => item.id === rowId);
             if (index >= 0) {
                 currentBase.value.rows[index].profile = data;
             }

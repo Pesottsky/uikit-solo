@@ -79,6 +79,7 @@
     }
 
     onMounted(() => {
+        storeCompany.getCompanyInfo();
         storeCompany.getBases();
     })
 

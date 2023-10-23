@@ -3,13 +3,14 @@ import { computed, ref } from "vue";
 
 import ROUTES_NAMES from '../constants/routesNames';
 import ROLES from '../constants/roles';
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 import AuthService from "../api/AuthService";
 
 export const useAuthStore = defineStore('authStore', () => {
 
     const router = useRouter();
+    const route = useRoute();
 
     const authError = ref(null);
     const authLoading = ref(false);
@@ -79,9 +80,12 @@ export const useAuthStore = defineStore('authStore', () => {
         authError.value = null;
 
         try {
-            const data = await AuthService.registrationFreelancer({ login, first_name, last_name, password });
+
+            const link = route.query?.link;
+
+            const data = await AuthService.registrationFreelancer({ login, first_name, last_name, password }, link);
             setAuth(data, false);
-            router.replace({ name: ROUTES_NAMES.FREELANCER_START_SCREEN });
+            router.replace({ name: ROUTES_NAMES.FREELANCER_START_SCREEN, query: { link } });
 
         } catch(e) {
             authError.value = e || 'Ошибка сервера';
