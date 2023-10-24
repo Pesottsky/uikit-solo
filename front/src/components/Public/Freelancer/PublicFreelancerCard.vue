@@ -2,7 +2,7 @@
     <div class="freelancer-card">
         <div class="freelancer-card__title">
             <h1>{{ userName }}</h1>
-            <Button v-if="isCompany" label="Добавить в базу" :icon="true">
+            <Button v-if="isCompany" label="Добавить в базу" :icon="true" @on-click="pushToBase">
                 <PlusWhiteIcon />
             </Button>
         </div>
@@ -21,9 +21,12 @@ import { storeToRefs } from 'pinia';
     import { PlusWhiteIcon } from '../../Icons';
 
     import { useFreelancerStore } from '../../../stores/freelancer.store';
+    import { useCompanyStore } from '../../../stores/company.store';
 
     const storeFreelancer = useFreelancerStore();
     const { freelancerProfile } = storeToRefs(storeFreelancer);
+
+    const storeCompany = useCompanyStore();
 
     const props = defineProps({
         isCompany: { type: Boolean, default: false },
@@ -32,8 +35,15 @@ import { storeToRefs } from 'pinia';
 
     const route = useRoute();
 
-    const userName = computed(() => `${freelancerProfile.value?.first_name} ${freelancerProfile.value?.last_name}`);
+    const userName = computed(() => {
+        if (!freelancerProfile.value?.first_name && !freelancerProfile.value?.last_name) return 'Имя Фамилия';
+        return `${freelancerProfile.value?.first_name || 'Имя'} ${freelancerProfile.value?.last_name}`
+    });
     const marginLeft = computed(() => props.isPublic ? 'auto' : '0px');
+
+    function pushToBase() {
+        storeCompany.pushRowInBase(freelancerProfile.value.id);
+    }
 
     onMounted(() => {
         storeFreelancer.getProfileById(route.params.id);

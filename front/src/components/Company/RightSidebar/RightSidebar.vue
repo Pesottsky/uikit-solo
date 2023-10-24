@@ -17,8 +17,13 @@
             </div>
             <div class="sidebar-content">
                 <div class="sidebar-content__name">
-                    <InputHeadless placeholder="Имя" :readonly="!isChangeData" v-model="state.first_name" :is-title="true" :is-max="false" />
-                    <InputHeadless placeholder="Фамилия" :readonly="!isChangeData" v-model="state.last_name" :is-title="true" :is-max="false" />
+                    <template v-if="isChangeData">
+                        <InputHeadless placeholder="Имя" v-model="state.first_name" :is-title="true" :is-max="false" />
+                        <InputHeadless placeholder="Фамилия" v-model="state.last_name" :is-title="true" :is-max="false" />
+                    </template>
+                    <template v-else>
+                        <h1>{{ state.first_name }} {{ state.last_name }}</h1>
+                    </template>
                 </div>
                 <Quote v-if="currentFreelancer?.link && isChangeData">
                     <template v-if="currentFreelancer.link.is_email_sending">
@@ -40,14 +45,17 @@
                         <Chip :type="CHIP_TYPE.UNKNOWN" text="Не ясно" />
                     </div>
                     <div class="grid-column text_gray">Грейд</div>
-                    <div class="grid-column grid-column_margin_left">Пусто</div>
+                    <div class="grid-column" :class="{ 'grid-column_margin_left': !isChangeData }">
+                        <Dropdown v-if="isChangeData" v-model="state.grade" :list="gradeList" placeholder="Пусто" />
+                        <p v-else>{{ state.grade || 'Пусто' }}</p>
+                    </div>
                     <div class="grid-column text_gray">Ставка</div>
                     <div class="grid-column">
-                        <InputHeadless placeholder="Пусто" :readonly="!isChangeData" v-model="state.price" />
+                        <InputHeadless placeholder="Пусто" type="number" :readonly="!isChangeData" v-model="state.price" />
                     </div>
                     <div class="grid-column text_gray">Портфолио</div>
-                    <div class="grid-column">
-                        <InputHeadless v-if="isChangeData" placeholder="https://" v-model="state.portfolio" />
+                    <div class="grid-column" :class="{ 'grid-column_margin_left': !isChangeData }">
+                        <InputHeadless v-if="isChangeData || !state.portfolio" :readonly="!isChangeData" placeholder="https://" v-model="state.portfolio" />
                         <a v-else :href="state.portfolio" target="_blank">{{ state.portfolio }}</a>
                     </div>
                     <div class="grid-column text_gray">Опыт</div>
@@ -92,14 +100,15 @@
 </template>
 
 <script setup>
-    import { Button, Backdrop, Textarea, Chip, InputHeadless, Quote } from '../../UI';
+    import { Button, Backdrop, Textarea, Chip, InputHeadless, Quote, Dropdown } from '../../UI';
     import { DoubleArrowRightIcon, ImportIcon, ArrowTopWhiteIcon } from '../../Icons';
     import BUTTON_TYPE from '../../../constants/buttonTypes';
     import CHIP_TYPE from '../../../constants/chipTypes';
     import NOTIFICATION_MESSAGES from '../../../constants/notificationMessages';
-    import { inject, reactive, ref, watch } from 'vue';
+    import { computed, inject, reactive, ref, watch } from 'vue';
     import { useCompanyStore } from '../../../stores/company.store';
     import { useNoticeStore } from '../../../stores/notice.store';
+    import { useFreelancerStore } from '../../../stores/freelancer.store';
     import { copyToClipboard } from '../../../helpers/clipboard';
     import { generateLink } from '../../../helpers/profile';
     import { storeToRefs } from 'pinia';
@@ -110,6 +119,8 @@
     const { currentFreelancer, commentFreelancer, commentLoading } = storeToRefs(storeCompany);
 
     const storeNotice = useNoticeStore();
+    const storeFreelancer = useFreelancerStore();
+    const { directory } = storeToRefs(storeFreelancer);
 
     const state = reactive({
         first_name: '',
@@ -121,10 +132,13 @@
         experience: '',
         portfolio: '',
         price: '',
+        grade: '',
     })
     const isShow = ref(false);
     const isShowSidebar = ref(false);
     const isChangeData = ref(false);
+
+    const gradeList = computed(() => directory.value.grade.map(item => ({ value: item.description, active: false })));
 
     function shareFreelancer() {
         const cb = () => {
@@ -135,11 +149,16 @@
         
     }
     async function onSave() {
+
+        state.grade = directory.value.grade.find(item => item.description === state.grade);
+
         if (currentFreelancer.value && !currentFreelancer.value?.fake) {
             await storeCompany.updateRowInBase({ ...state })
         } else {
             await storeCompany.createRowInBase({ ...state });
         }
+
+        state.grade = state.grade.description;
     }
     async function onSaveComment() {
         await storeCompany.createComment({ comment: commentFreelancer.value });
@@ -152,6 +171,7 @@
         if (currentFreelancer.value?.link) {
             openInviteModal(currentFreelancer.value.link, { isClearFreelancer: false });
         } else {
+            await storeCompany.createRowInBase({ ...state }, { setNotification: false });
             const data = await storeCompany.generateInviteLink();
             openInviteModal(data, { isClearFreelancer: false });
         }
@@ -183,7 +203,11 @@
 
         if (value) {
             Object.keys(state).map(key => {
-                state[key] = String(currentFreelancer.value?.profile?.[key] || '');
+                if (key === 'grade') {
+                    state[key] = currentFreelancer.value?.profile?.[key]?.description || '';
+                } else {
+                    state[key] = String(currentFreelancer.value?.profile?.[key] || '');
+                }
             })
 
             if (!value?.fake) storeCompany.getComment();

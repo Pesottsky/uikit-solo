@@ -15,6 +15,7 @@ import Skeleton from './Skeleton/Skeleton.vue';
 import Textarea from './Textarea/Textarea.vue';
 import Radiobutton from './Radiobutton/Radiobutton.vue';
 import Quote from './Quote/Quote.vue';
+import Dropdown from './Dropdown/Dropdown.vue';
 
 export {
     Button,
@@ -33,5 +34,6 @@ export {
     Skeleton,
     Textarea,
     Radiobutton,
-    Quote
+    Quote,
+    Dropdown
 }

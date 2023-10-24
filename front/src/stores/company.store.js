@@ -3,6 +3,7 @@ import { computed, reactive, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import ROUTES_NAMES from '../constants/routesNames';
 import { useNoticeStore } from './notice.store';
+import { useAuthStore } from './auth.store';
 import CompanyService from '../api/CompanyService';
 import NOTIFICATION_MESSAGES from '../constants/notificationMessages';
 import { FakeFreelancer } from '../constants/FakeFreelancer';
@@ -10,6 +11,7 @@ import { FakeFreelancer } from '../constants/FakeFreelancer';
 export const useCompanyStore = defineStore('companyStore', () => {
 
     const storeNotice = useNoticeStore();
+    const storeAuth = useAuthStore();
     const router = useRouter();
     const route = useRoute();
     
@@ -50,6 +52,7 @@ export const useCompanyStore = defineStore('companyStore', () => {
     function setFreelancer(freelancer) {
         currentFreelancer.value = freelancer;
     }
+
     function createFakeFreelancer() {
         const freelancer = new FakeFreelancer({ id: 'f4', created: true });
 
@@ -110,6 +113,17 @@ export const useCompanyStore = defineStore('companyStore', () => {
             companyLoading.value = false;
         }
     }
+    async function renameBase(name) {
+        companyError.value = null;
+
+        try {
+            await CompanyService.renameBase(currentBase.value.id, name);
+            currentBase.value.name = name;
+        } catch(e) {
+            companyError.value = e || 'Ошибка сервера';
+            storeNotice.setError(companyError.value);
+        }
+    }
 
     async function createRowInBase(payload, { setNotification=true }={}) {
 
@@ -155,6 +169,29 @@ export const useCompanyStore = defineStore('companyStore', () => {
                 currentBase.value.rows[index].profile = data;
             }
 
+        } catch(e) {
+            companyError.value = e || 'Ошибка сервера';
+            storeNotice.setError(companyError.value);
+        } finally {
+            companyLoading.value = false;
+        }
+    }
+    async function pushRowInBase(payload) {
+        companyLoading.value = true;
+        companyError.value = null;
+        
+        try {
+            if (storeAuth.isAuthenticated) {
+                if (bases.value.length) {
+                    await CompanyService.pushRowInBaseByProfileId(payload);
+                    await getBases();
+                    storeNotice.setMessage(NOTIFICATION_MESSAGES.FREELANCER_APPENDED);
+                }
+                sessionStorage.removeItem('PROFILE_ID_FOR_PUSH_BASE');
+            } else {
+                sessionStorage.setItem('PROFILE_ID_FOR_PUSH_BASE', payload);
+                router.push({ name: ROUTES_NAMES.SIGN_UP });
+            }
         } catch(e) {
             companyError.value = e || 'Ошибка сервера';
             storeNotice.setError(companyError.value);
@@ -286,20 +323,6 @@ export const useCompanyStore = defineStore('companyStore', () => {
         }
     }
 
-    async function test() {
-
-        companyError.value = null;
-        companyLoading.value = true;
-
-        try {
-            
-        } catch(e) {
-            companyError.value = e || 'Ошибка сервера';
-        } finally {
-            companyLoading.value = false;
-        }
-    }
-
     return {
         bases,
         currentBase,
@@ -323,6 +346,8 @@ export const useCompanyStore = defineStore('companyStore', () => {
         updateCompanyInfo,
         getCompanyInfo,
         getComment,
-        createComment
+        createComment,
+        pushRowInBase,
+        renameBase
     }
 })

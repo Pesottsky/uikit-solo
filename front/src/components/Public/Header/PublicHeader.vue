@@ -2,12 +2,8 @@
     <header class="header">
         <LogoIcon />
         <div class="header__actions">
-            <RouterLink :to="{ name: ROUTES_NAMES.LOGIN }">
-                <Button :type="BUTTON_TYPE.TETRARY" label="Войти" />
-            </RouterLink>
-            <RouterLink :to="{ name: ROUTES_NAMES.SIGN_UP }">
-                <Button :type="BUTTON_TYPE.SECONDARY" label="Регистрация" />
-            </RouterLink>
+            <Button :type="BUTTON_TYPE.TETRARY" label="Войти" @on-click="toLogin" />
+            <Button :type="BUTTON_TYPE.SECONDARY" label="Регистрация" @on-click="toSignup" />
         </div>
     </header>
 </template>
@@ -17,6 +13,16 @@
     import { LogoIcon } from '@/components/Icons';
     import BUTTON_TYPE from '@/constants/buttonTypes';
     import ROUTES_NAMES from "@/constants/routesNames";
+    import { useRouter } from 'vue-router';
+
+    const router = useRouter();
+
+    function toLogin() {
+        router.push({ name: ROUTES_NAMES.LOGIN });
+    }
+    function toSignup() {
+        router.push({ name: ROUTES_NAMES.SIGN_UP });
+    }
 </script>
 
 <style lang="scss" scoped>

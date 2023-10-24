@@ -15,7 +15,11 @@ export const useFreelancerStore = defineStore('freelancerStore', () => {
 
     const directory = reactive({
         loading: [],
-        grade: [],
+        grade: [
+            { level_key: 0, description: 'Тест 1' },
+            { level_key: 0, description: 'Тест 2' },
+            { level_key: 0, description: 'Тест 3' },
+        ],
     })
 
     async function getLoading() {

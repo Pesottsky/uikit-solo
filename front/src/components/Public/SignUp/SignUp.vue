@@ -8,16 +8,52 @@
         </template>
         <template #form-data>
             <div class="auth-form__item">
-                <Input placeholder="Название" v-model="state.name" label="Компания" v-if="isCompany" :error="validate.name.$errors[0]?.$message" />
+                <Input
+                    v-if="isCompany"
+                    placeholder="Название"
+                    v-model="state.name"
+                    label="Компания" 
+                    :error="validate.name.$errors[0]?.$message"
+                    @on-focus="validate.name.$reset" 
+                />
                 <template v-else>
-                    <Input placeholder="Имя" v-model="state.name" label="Как вас зовут" :error="validate.name.$errors[0]?.$message" />
-                    <Input placeholder="Фамилия" v-model="state.surName" :error="validate.surName.$errors[0]?.$message" />
+                    <Input 
+                        placeholder="Имя" 
+                        v-model="state.name" 
+                        label="Как вас зовут" 
+                        :error="validate.name.$errors[0]?.$message" 
+                        @on-focus="validate.name.$reset"
+                    />
+                    <Input 
+                        placeholder="Фамилия" 
+                        v-model="state.surName" 
+                        :error="validate.surName.$errors[0]?.$message"
+                        @on-focus="validate.surName.$reset"
+                    />
                 </template>
-                <Input placeholder="Почта" v-model="state.email" type="email" :error="validate.email.$errors[0]?.$message" />
+                <Input 
+                    placeholder="Почта"
+                    v-model="state.email"
+                    type="email"
+                    :error="validate.email.$errors[0]?.$message"
+                    @on-focus="validate.email.$reset"
+                />
             </div>
             <div class="auth-form__item">
-                <Input placeholder="Пароль" v-model="state.password" type="password" :error="validate.password.$errors[0]?.$message" />
-                <Input placeholder="Подтверждение пароля" v-model="state.repeatPassword" type="password" :error="validate.repeatPassword.$errors[0]?.$message" />
+                <Input 
+                    placeholder="Пароль"
+                    v-model="state.password"
+                    type="password"
+                    :error="validate.password.$errors[0]?.$message"
+                    @on-focus="validate.password.$reset"
+                />
+                <Input 
+                    placeholder="Подтверждение пароля"
+                    v-model="state.repeatPassword"
+                    type="password"
+                    :error="validate.repeatPassword.$errors[0]?.$message"
+                    @on-focus="validate.repeatPassword.$reset"
+                />
             </div>
         </template>
         <template #form-action>
@@ -25,7 +61,7 @@
             <Button label="Зарегистрироваться" class="width_max" :disabled="authLoading" @on-click="onRegistration" />
         </template>
         <template #links>
-            <RouterLink :to="{ name: ROUTES_NAMES.LOGIN, query: { link: route.query?.link } }">Есть аккаунт</RouterLink>
+            <RouterLink :to="{ name: ROUTES_NAMES.LOGIN }">Есть аккаунт</RouterLink>
             <span class="v-splitter"></span>
             <RouterLink :to="{ path: '/forgot-password' }">Забыли пароль?</RouterLink>
         </template>
@@ -33,7 +69,7 @@
 </template>
 
 <script setup>
-    import { reactive, computed } from 'vue';
+    import { reactive, computed, watch } from 'vue';
     import ROUTES_NAMES from '../../../constants/routesNames';
     import SIGN_UP_TYPE from '../../../constants/signUpType';
     import ERROR_MESSAGES from '../../../constants/errorMessages';
@@ -137,6 +173,14 @@
             })
         }
     }
+
+    function onFocus() {
+        console.log('FOCUS');
+    }
+
+    watch(route, () => {
+        validate.value.$reset();
+    })
 
 </script>
 

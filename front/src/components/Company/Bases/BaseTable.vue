@@ -51,7 +51,7 @@
                     :text="item.profile.loading?.description || 'Не ясно'"
                 />
                 </TableColumn>
-                <TableColumn>{{ item.profile.experience || '--' }}</TableColumn>
+                <TableColumn>{{ item.profile.grade?.description || '--' }}</TableColumn>
                 <TableColumn>{{ item.profile.price || '--' }}</TableColumn>
                 <TableColumn :span="3">{{ item.profile.summary || '--' }}</TableColumn>
                 <TableColumn :span="2"><span class="stripe">{{ item.profile.portfolio || '--' }}</span></TableColumn>
