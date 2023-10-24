@@ -1,13 +1,18 @@
 version: '3'
 services:
-  # front:
-  #   build:
-  #     context: ./front
-  #   container_name: front
-  #   ports:
-  #     - 8080:80
-  #   networks:
-  #     – mynet
+  front:
+     build:
+       context: ./front
+     container_name: front
+     environment:
+       back: back
+       access: access
+       refresh: refresh
+       type_name: type_name
+     ports:
+       - "8080:80"
+     networks:
+       - mynet
   back:
     build:
       context: ./back
@@ -18,15 +23,17 @@ services:
       DB_HOST: db
       DB_USER: db_user
       DB_PASSWORD: 1234
+      DB_PORT: 3306
       COMPANY_SECRET: company_secret
       FREEL_SECRET: freel_secret
       COMPANY_AUDIENCE: tikhonov
       FREEL_AUDIENCE: pesotskiy
-      #      REALM: soloteam
-      #      ALLOW_HOST: *
+      DB_TABLE: main
       REFRESH: 10000000
       ACCESS: 30000
       RECOVERY: 604800000
+      REGISTRATION_PATH: http://localhost:3100/signup?link=
+      RECOVERY_PATH: http://localhost:3100/signup?link=
       #      SMTP_SERVICE_LOGIN: service@soloteam.io
       #      SMTP_SERVICE_PASSWORD:
       #      SMTP_HELLO_LOGIN: hello@soloteam.io

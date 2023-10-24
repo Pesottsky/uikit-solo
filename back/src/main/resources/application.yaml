@@ -3,23 +3,22 @@ ktor:
     modules:
       - com.heisy.ApplicationKt.module
   deployment:
-#    domain: "$DOMAIN"
-    port: "$PORT:81"
-    host: "$HOST:0.0.0.0"
-    db: "$DB_HOST:127.0.0.1"
-    db_user: "$DB_USER:db_user"
-    db_password: "$DB_PASSWORD:1234"
-    db_port: "$DB_PORT:3306"
-    db_table: "$DB_TABLE:main"
+    port: "$PORT"
+    host: "$HOST"
+    db: "$DB_HOST"
+    db_user: "$DB_USER"
+    db_password: "$DB_PASSWORD"
+    db_port: "$DB_PORT"
+    db_table: "$DB_TABLE"
 jwt:
-  company_secret: "$COMPANY_SECRET:company_secret"
-  freel_secret: "$FREEL_SECRET:freel_secret"
-  company_audience: "$COMPANY_AUDIENCE:company_audience"
-  freel_audience: "$FREEL_AUDIENCE:freel_audience"
+  company_secret: "$COMPANY_SECRET"
+  freel_secret: "$FREEL_SECRET"
+  company_audience: "$COMPANY_AUDIENCE"
+  freel_audience: "$FREEL_AUDIENCE"
   realm: "$REALM:soloteam"
   allow_host: "$ALLOW_HOST:*"
-  refresh_lifetime: "$REFRESH:100000000"
-  access_lifetime: "$ACCESS:30000"
+  refresh_lifetime: "$REFRESH"
+  access_lifetime: "$ACCESS"
 #smtp:
 #  no_replay:
 #    login: "$SMTP_NOREPLAY_LOGIN"
@@ -34,7 +33,7 @@ jwt:
 #    login: "$SMTP_SERVICE_LOGIN"
 #    password: "$SMTP_SERVICE_PASSWORD"
 path:
-  registration: "$REGISTRATION_PATH:http://localhost:3100/signup?link="
-  #  recovery: "$RECOVERY_PATH"
+  registration: "$REGISTRATION_PATH"
+  recovery: "$RECOVERY_PATH"
 recovery:
-  password: "$RECOVERY:604800000"
+  password: "$RECOVERY"

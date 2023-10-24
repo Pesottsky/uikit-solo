@@ -7,7 +7,7 @@ FROM node:18.17-alpine as build-stage
 WORKDIR /app
 
 # Copy the working directory in the container
-COPY ./front/package*.json ./
+COPY ./package*.json ./
 
 # Install the project dependecies
 # if you npm then npm install 
