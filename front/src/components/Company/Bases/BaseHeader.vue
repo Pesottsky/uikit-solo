@@ -1,8 +1,8 @@
 <template>
     <Header>
         <template #title>
-            <InputHeadless v-model="nameBase" :isSubTitle="true" :is-max="false" />
-            <Button :type="BUTTON_TYPE.TINY" :icon="true" v-if="currentBase">
+            <InputHeadless v-model="nameBase" :isSubTitle="true" :is-max="false" ref="nameBaseRef" @onFocusOut="changeNameBase" />
+            <Button :type="BUTTON_TYPE.TINY" :icon="true" v-if="currentBase" @on-click="setFocusNameBase">
                 <EditIcon />
             </Button>
         </template>
@@ -34,6 +34,7 @@
     const openInviteModal = inject('openInviteModal');
 
     const nameBase = ref(null);
+    const nameBaseRef = ref(null);
 
     function openSidebar(freelancer=null) {
         openRightSidebar();
@@ -54,6 +55,13 @@
                 openInviteModal(data);
             }
         }
+    }
+    async function changeNameBase() {
+        await storeCompany.renameBase(nameBase.value);
+    }
+
+    function setFocusNameBase() {
+        nameBaseRef.value?.setFocus();
     }
 
     watch(currentBase, value => {

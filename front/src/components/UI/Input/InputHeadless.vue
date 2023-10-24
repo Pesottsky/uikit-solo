@@ -1,5 +1,6 @@
 <template>
     <input 
+        ref="inputRef"
         :type="type" 
         class="input-headless" 
         :class="{ 'input-headless_max': isMax, 'input-headless_title': isTitle, 'input-headless_subtitle': isSubTitle }" 
@@ -8,6 +9,7 @@
         :readonly="readonly"
         v-model="inputValue"
         @input="onInput"
+        @focusout="focusOut"
     >
     <div class="buffer" :class="{ 'buffer_title': isTitle, 'buffer_subtitle': isSubTitle }" ref="bufferRef">{{ modelValue || placeholder }}</div>
 </template>
@@ -25,15 +27,17 @@
         readonly: { type: Boolean }
     })
 
-    const emits = defineEmits(['update:modelValue']);
+    const emits = defineEmits(['update:modelValue', 'onFocusOut']);
 
     const bufferRef = ref(null);
+    const inputRef = ref(null);
 
     const inputValue = computed({
         get() {
             return props.modelValue
         },
         set(value) {
+            if (value < 0 && props.type == 'number') value = null;
             emits('update:modelValue', value)
         }
     });
@@ -44,10 +48,20 @@
         if (props.isMax) return;
         inputStyle.width = `${bufferRef.value?.clientWidth + 16}px`
     }
+    function setFocus() {
+        inputRef.value.focus();
+    }
+    function focusOut() {
+        emits('onFocusOut');
+    }
 
     onMounted(async () => {
         await nextTick();
         onInput();
+    })
+
+    defineExpose({
+        setFocus
     })
 
 </script>

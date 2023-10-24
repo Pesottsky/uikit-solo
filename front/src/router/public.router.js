@@ -7,9 +7,19 @@ import { useAuthStore } from "../stores/auth.store";
 function setSignUpParams(to, from, next) {
     const types = [SIGN_UP_TYPE.COMPANY, SIGN_UP_TYPE.FREELANCER];
     if (!types.includes(to.query?.type)) {
-        return next({ name: to.name, query: { ...to.query, type: SIGN_UP_TYPE.COMPANY } })
+        const type = to.query?.link ? SIGN_UP_TYPE.FREELANCER : SIGN_UP_TYPE.COMPANY;
+        return next({ name: to.name, query: { ...to.query, type } })
     }
     next();
+}
+
+function transferLink(to, from, next) {
+
+    if (from.query?.link && !to.query?.link) {
+        return next({ name: to.name, query: { link: from.query.link } });
+    }
+
+    next()
 }
 
 function resetAuthError(to, from, next) {
@@ -37,7 +47,7 @@ const publicRouter = [
                 path: 'login',
                 name: ROUTES_NAMES.LOGIN,
                 component: () => import('../views/Auth/LoginView.vue'),
-                beforeEnter: [resetAuthError],
+                beforeEnter: [resetAuthError, transferLink],
                 meta: {
                     roles: []
                 }
@@ -46,7 +56,7 @@ const publicRouter = [
                 path: 'signup',
                 name: ROUTES_NAMES.SIGN_UP,
                 component: () => import('../views/Auth/SignUpView.vue'),
-                beforeEnter: [setSignUpParams, resetAuthError],
+                beforeEnter: [setSignUpParams, transferLink, resetAuthError],
                 meta: {
                     roles: []
                 }

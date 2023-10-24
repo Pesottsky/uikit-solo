@@ -26,7 +26,7 @@
 
         <div class="card__name">Ставка за час</div>
         <div class="card__value">
-            <Input v-if="isEdit" type="Number" placeholder="Пусто" v-model="state.price" />
+            <Input v-if="isEdit" type="number" placeholder="Пусто" v-model="state.price" />
             <p v-else>{{ state.price }}</p>
         </div>
 

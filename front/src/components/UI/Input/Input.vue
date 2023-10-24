@@ -8,6 +8,7 @@
                 v-model="inputValue"
                 class="input__element"
                 :class="{ invalid: error }"
+                @focus="$emit('onFocus')"
             />
         </div>
         <span
@@ -30,13 +31,14 @@
         error: { type: String }
     })
 
-    const emits = defineEmits(['update:modelValue']);
+    const emits = defineEmits(['update:modelValue', 'onFocus']);
 
     const inputValue = computed({
         get() {
             return props.modelValue
         },
         set(value) {
+            if (value < 0 && props.type == 'number') value = null;
             emits('update:modelValue', value)
         }
     });

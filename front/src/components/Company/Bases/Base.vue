@@ -11,10 +11,17 @@
     import BaseTable from './BaseTable.vue';
     import RightSidebar from '../RightSidebar/RightSidebar.vue';
     import InviteModal from '../Modals/InviteModal.vue';
-    import { provide, ref } from 'vue';
+    import { onMounted, provide, ref } from 'vue';
+    import { useFreelancerStore } from '../../../stores/freelancer.store';
+
+    const storeFreelancer = useFreelancerStore();
 
     const rightSidebarRef = ref(null);
     const inviteModalRef = ref(null);
+
+    onMounted(() => {
+        storeFreelancer.getGrade();
+    })
 
     provide('openRightSidebar', () => rightSidebarRef.value?.open());
     provide('openInviteModal', (data, props) => inviteModalRef.value?.open(data, props));

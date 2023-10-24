@@ -25,4 +25,11 @@
 
     provide('openImportModal', () => importModalRef.value?.open());
     provide('createBase', () => storeCompany.createBase());
+
+    onMounted(() => {
+        const id = sessionStorage.getItem('PROFILE_ID_FOR_PUSH_BASE');
+        if (id) {
+            storeCompany.pushRowInBase(id);
+        }
+    })
 </script>

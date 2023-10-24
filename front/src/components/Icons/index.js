@@ -9,6 +9,8 @@ import MoreIcon from './MoreIcon.vue';
 import AddUserIcon from './AddUserIcon.vue';
 import DoubleArrowRightIcon from './DoubleArrowRightIcon.vue';
 import ArrowTopWhiteIcon from './Arrow/ArrowTopWhiteIcon.vue';
+import ArrowCheckTopIcon from './ArrowCheck/ArrowCheckTop.vue';
+import ArrowCheckBottomIcon from './ArrowCheck/ArrowCheckBottom.vue';
 
 export {
     LogoIcon,
@@ -21,5 +23,7 @@ export {
     MoreIcon,
     AddUserIcon,
     DoubleArrowRightIcon,
-    ArrowTopWhiteIcon
+    ArrowTopWhiteIcon,
+    ArrowCheckTopIcon,
+    ArrowCheckBottomIcon
 }
