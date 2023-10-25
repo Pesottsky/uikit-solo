@@ -9,6 +9,7 @@ services:
        access: access
        refresh: refresh
        type_name: type_name
+       password_length: 8 
      ports:
        - "8080:80"
      networks:
@@ -36,7 +37,7 @@ services:
       RECOVERY_PATH: http://localhost:3100/signup?link=
       #      SMTP_SERVICE_LOGIN: service@soloteam.io
       #      SMTP_SERVICE_PASSWORD:
-      #      SMTP_HELLO_LOGIN: hello@soloteam.io
+      SMTP_HELLO_LOGIN: hello@soloteam.io
       #      SMTP_HELLO_PASSWORD:
       #      SMTP_INFO_LOGIN: info@soloteam.io
       #      SMTP_INFO_PASSWORD:
