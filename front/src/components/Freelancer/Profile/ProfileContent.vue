@@ -7,7 +7,7 @@
         <AccountCard />
         <div class="profile__card">
             <FreelancerCard ref="cardRef" :freelancer="freelancerProfile" v-if="freelancerProfile" />
-            <Button label="Сохранить изменения" :type="BUTTON_TYPE.SECONDARY" @on-click="saveCard" />
+            <Button label="Сохранить изменения" :disabled="freelancerLoading" :loading="freelancerLoading" :type="BUTTON_TYPE.SECONDARY" @on-click="saveCard" />
         </div>
     </div>
 </template>
@@ -26,7 +26,7 @@
 
 
     const storeFreelancer = useFreelancerStore();
-    const { freelancerProfile, directory } = storeToRefs(storeFreelancer);
+    const { freelancerProfile, freelancerLoading, directory } = storeToRefs(storeFreelancer);
     
     const cardRef = ref(null);
 

@@ -12,7 +12,7 @@
                         label="Поделиться" 
                         @on-click="shareFreelancer" 
                     />
-                    <Button v-if="isChangeData" label="Сохранить" @on-click="onSave" />
+                    <Button v-if="isChangeData" label="Сохранить" :disabled="companyLoading" :loading="companyLoading" @on-click="onSave" />
                 </div>
             </div>
             <div class="sidebar-content">
@@ -93,7 +93,7 @@
                 </div>
             </div>
             <div class="sidebar-footer">
-                <Button :type="BUTTON_TYPE.TETRARY" label="Удалить" @on-click="removeFreelancer" />
+                <Button :type="BUTTON_TYPE.TETRARY" label="Удалить" :loading="companyLoading" :disabled="companyLoading" @on-click="removeFreelancer" />
             </div>
         </div>
     </Backdrop>
@@ -116,7 +116,7 @@
     const openInviteModal = inject('openInviteModal')
 
     const storeCompany = useCompanyStore();
-    const { currentFreelancer, commentFreelancer, commentLoading } = storeToRefs(storeCompany);
+    const { currentFreelancer, commentFreelancer, commentLoading, companyLoading } = storeToRefs(storeCompany);
 
     const storeNotice = useNoticeStore();
     const storeFreelancer = useFreelancerStore();

@@ -58,12 +58,12 @@
         </template>
         <template #form-action>
             <p class="error" v-if="authError">{{ authError }}</p>
-            <Button label="Зарегистрироваться" class="width_max" :disabled="authLoading" @on-click="onRegistration" />
+            <Button label="Зарегистрироваться" class="width_max" :disabled="authLoading" :loading="authLoading" @on-click="onRegistration" />
         </template>
         <template #links>
             <RouterLink :to="{ name: ROUTES_NAMES.LOGIN }">Есть аккаунт</RouterLink>
             <span class="v-splitter"></span>
-            <RouterLink :to="{ path: '/forgot-password' }">Забыли пароль?</RouterLink>
+            <RouterLink :to="{ path: ROUTES_NAMES.FORGOT_PASSWORD }">Забыли пароль?</RouterLink>
         </template>
     </AuthForm>
 </template>
@@ -144,7 +144,10 @@
             },
             password: { 
                 required: helpers.withMessage(ERROR_MESSAGES.REQUIRED, required), 
-                minLength: helpers.withMessage(ERROR_MESSAGES.MIN_LENGTH(5), minLength(5))
+                minLength: helpers.withMessage(
+                    ERROR_MESSAGES.MIN_LENGTH(import.meta.env.VITE_MIN_LENGTH_PASSWORD), 
+                    minLength(import.meta.env.VITE_MIN_LENGTH_PASSWORD)
+                )
             },
             repeatPassword: { 
                 required: helpers.withMessage(ERROR_MESSAGES.REQUIRED, required), 

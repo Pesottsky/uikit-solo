@@ -26,15 +26,17 @@
         <Skeleton />
         <Skeleton />
     </template>
-    <RouterLink
-        v-for="item in bases"
-        :key="item.id"
-        :to="{ name: ROUTES_NAMES.COMPANY_BASE, params: { id: item.id } }"
-        class="link_reset sidebar-menu__item"
-        exact-active-class="sidebar-menu__item_active"
-    >
-        {{ item.name }}
-    </RouterLink>
+    <template v-else>
+        <RouterLink
+            v-for="item in bases"
+            :key="item.id"
+            :to="{ name: ROUTES_NAMES.COMPANY_BASE, params: { id: item.id } }"
+            class="link_reset sidebar-menu__item"
+            exact-active-class="sidebar-menu__item_active"
+        >
+            {{ item.name }}
+        </RouterLink>
+    </template>
     <template v-if="!bases?.length && !companyLoading">
         <Button label="Создать новую базу" :icon="true" @on-click="createBase">
             <PlusWhiteIcon />

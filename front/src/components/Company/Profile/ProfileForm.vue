@@ -3,7 +3,7 @@
         <Input label="Название компании" placeholder="Введите название" v-model="state.name" />
         <Input label="Ссылка на сайт" placeholder="https://" v-model="state.link" />
         <Textarea label="О комании" placeholder="Описание компании" v-model="state.about" />
-        <Button label="Сохранить изменения" :type="BUTTON_TYPE.SECONDARY" @on-click="onSave" />
+        <Button label="Сохранить изменения" :type="BUTTON_TYPE.SECONDARY" :disabled="companyLoading" :loading="companyLoading" @on-click="onSave" />
     </section>
 </template>
 
@@ -15,7 +15,7 @@
     import { onMounted, reactive, watch } from 'vue';
 
     const storeCompany = useCompanyStore();
-    const { companyInfo } = storeToRefs(storeCompany);
+    const { companyInfo, companyLoading } = storeToRefs(storeCompany);
 
     const state = reactive({
         name: '',
