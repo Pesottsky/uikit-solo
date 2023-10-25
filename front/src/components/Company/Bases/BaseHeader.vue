@@ -10,7 +10,7 @@
             <Button :type="BUTTON_TYPE.TETRARY" label="Добавить" :icon="true" @on-click="() => openSidebar()">
                 <AddUserIcon />
             </Button>
-            <Button :type="BUTTON_TYPE.TETRARY" label="Пригласить" :icon="true" @on-click="inviteFreelancer">
+            <Button :type="BUTTON_TYPE.TETRARY" label="Пригласить" :disabled="companyLoading" :loading="companyLoading" :icon="true" @on-click="inviteFreelancer">
                 <ImportIcon />
             </Button>
         </template>
@@ -28,7 +28,7 @@
     import { useCompanyStore } from '../../../stores/company.store';
 
     const storeCompany = useCompanyStore();
-    const { currentBase, companyError } = storeToRefs(storeCompany);
+    const { currentBase, companyError, companyLoading } = storeToRefs(storeCompany);
 
     const openRightSidebar = inject('openRightSidebar');
     const openInviteModal = inject('openInviteModal');

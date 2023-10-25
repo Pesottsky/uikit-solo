@@ -1,0 +1,78 @@
+<template>
+    <AuthForm>
+        <template #title>
+            <h1>Сбросить пароль</h1>
+        </template>
+        <template #form-data>
+            <Input 
+                label="Новый пароль"
+                placeholder="Пароль"
+                v-model="state.password"
+                :error="validate.password.$errors[0]?.$message"
+                @on-focus="validate.password.$reset"
+            />
+            <Input
+                placeholder="Подтверждение пароля"
+                v-model="state.repeatPassword"
+                :error="validate.repeatPassword.$errors[0]?.$message"
+                @on-focus="validate.repeatPassword.$reset"
+            />
+        </template>
+        <template #form-action>
+            <Button label="Сбросить пароль" class="width_max" :disabled="authLoading" :loading="authLoading" @on-click="onClick" />
+        </template>
+        <template #links>
+            <RouterLink :to="{ name: ROUTES_NAMES.LOGIN }">Есть аккаунт</RouterLink>
+        </template>
+    </AuthForm>
+</template>
+
+<script setup>
+    import { reactive } from 'vue';
+    import { storeToRefs } from 'pinia';
+    import AuthForm from '../AuthForm/AuthForm.vue';
+    import { Input, Button } from '../../UI';
+    import ROUTES_NAMES from '../../../constants/routesNames';
+    import ERROR_MESSAGES from '../../../constants/errorMessages';
+
+    import { useVuelidate } from '@vuelidate/core';
+    import { required, minLength, helpers } from '@vuelidate/validators';
+
+    import { useAuthStore } from '../../../stores/auth.store';
+
+    const storeAuth = useAuthStore();
+    const { authLoading } = storeToRefs(storeAuth);
+
+    const state = reactive({
+        password: '',
+        repeatPassword: ''
+    })
+    const rules = {
+        password: { 
+            required: helpers.withMessage(ERROR_MESSAGES.REQUIRED, required),
+            minLength: helpers.withMessage(
+                ERROR_MESSAGES.MIN_LENGTH(import.meta.env.VITE_MIN_LENGTH_PASSWORD), 
+                minLength(import.meta.env.VITE_MIN_LENGTH_PASSWORD)
+            )
+        },
+        repeatPassword: {
+            required: helpers.withMessage(ERROR_MESSAGES.REQUIRED, required),
+            noMatch: helpers.withMessage(ERROR_MESSAGES.NO_MATCH_PASSWORD, noMatch)
+        }
+    }
+    const validate = useVuelidate(rules, state);
+
+    function noMatch(value) {
+        return value === state.password;
+    }
+    async function onClick() {
+        const result = await validate.value.$validate();
+        if (!result) return;
+        
+        alert('Какой то запрос на сервер');
+    }
+</script>
+
+<style lang="scss" scoped>
+
+</style>

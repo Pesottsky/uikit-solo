@@ -2,6 +2,8 @@ const ROUTES_NAMES = {
     LOGIN: 'Login',
     SIGN_UP: 'SignUp',
     NOT_FOUND: 'NotFound',
+    FORGOT_PASSWORD: 'ForgotPassword',
+    RESET_PASSWORD: 'ResetPassword',
     
     COMPANY_PROFILE: 'CompanyProfile',
     COMPANY_BASE_UNKNOWN: 'CompanyBaseUnknown',

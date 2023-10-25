@@ -12,6 +12,9 @@ import ArrowTopWhiteIcon from './Arrow/ArrowTopWhiteIcon.vue';
 import ArrowCheckTopIcon from './ArrowCheck/ArrowCheckTop.vue';
 import ArrowCheckBottomIcon from './ArrowCheck/ArrowCheckBottom.vue';
 
+import SpinerBlackIcon from './Spiner/SpinerBlackIcon.vue';
+import SpinerWhiteIcon from './Spiner/SpinerWhiteIcon.vue';
+
 export {
     LogoIcon,
     NotFoundIcon,
@@ -25,5 +28,7 @@ export {
     DoubleArrowRightIcon,
     ArrowTopWhiteIcon,
     ArrowCheckTopIcon,
-    ArrowCheckBottomIcon
+    ArrowCheckBottomIcon,
+    SpinerBlackIcon,
+    SpinerWhiteIcon
 }

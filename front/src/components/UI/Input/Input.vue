@@ -53,6 +53,9 @@
     .input {
         &__container {
             width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
         &__label {
             opacity: .5;
@@ -119,6 +122,8 @@
             position: relative;
             font-size: 12px;
             opacity: .6;
+            line-height: 140%;
+            margin-left: 12px;
 
             &_error {
                 color: var(--input-error);

@@ -60,6 +60,22 @@ const publicRouter = [
                 meta: {
                     roles: []
                 }
+            },
+            {
+                path: 'forgot-password',
+                name: ROUTES_NAMES.FORGOT_PASSWORD,
+                component: () => import('../views/Auth/ForgotPasswordView.vue'),
+                meta: {
+                    roles: []
+                }
+            },
+            {
+                path: 'reset-password',
+                name: ROUTES_NAMES.RESET_PASSWORD,
+                component: () => import('../views/Auth/ResetPasswordView.vue'),
+                meta: {
+                    roles: []
+                }
             }
         ]
     },

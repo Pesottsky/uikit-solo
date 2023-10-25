@@ -1,5 +1,9 @@
 <template>
     <button :class="['button', `button_${type}`, 'font-body']" :disabled="disabled" @click.stop="onClick">
+        <i class="icon icon_spiner" v-if="loading">
+            <SpinerWhiteIcon v-if="type == 'primary'" />
+            <SpinerBlackIcon v-else />
+        </i>
         {{ label }}
         <i v-if="icon" class="icon">
             <slot></slot>
@@ -8,6 +12,8 @@
 </template>
 
 <script setup>
+    import { SpinerBlackIcon, SpinerWhiteIcon } from '../../Icons';
+
     const props = defineProps({
         label: {
             type: String,
@@ -125,5 +131,16 @@
         width: 16px;
         height: 16px;
         opacity: 0.5;
+
+        &_spiner {
+            animation: spiner 1.5s linear infinite;
+            opacity: 1;
+        }
+    }
+
+    @keyframes spiner {
+        100% {
+            transform: rotate(360deg);
+        }
     }
 </style>

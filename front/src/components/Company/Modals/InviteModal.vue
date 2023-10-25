@@ -8,8 +8,14 @@
                         <p>Пришлем ссылку для создания профиля, и он появиться в вашей базе</p>
                     </div>
                     <div class="invite__item">
-                        <Input label="Почта фрилансера" placeholder="example@gmail.com" v-model="state.email" :error="validate.email.$errors[0]?.$message" />
-                        <Button label="Отправить приглашение" @on-click="sendInvite" />
+                        <Input 
+                            label="Почта фрилансера"
+                            placeholder="example@gmail.com" 
+                            v-model="state.email" 
+                            :error="validate.email.$errors[0]?.$message"
+                            @on-focus="validate.email.$reset"
+                        />
+                        <Button label="Отправить приглашение" :disabled="companyLoading" :loading="companyLoading" @on-click="sendInvite" />
                     </div>
                 </template>
                 <template v-else>
@@ -54,7 +60,7 @@
 
     const storeNotice = useNoticeStore();
     const storeCompany = useCompanyStore();
-    const { companyError } = storeToRefs(storeCompany)
+    const { companyError, companyLoading } = storeToRefs(storeCompany)
 
     const isShowModal = ref(false);
     const successEmail = ref(false);

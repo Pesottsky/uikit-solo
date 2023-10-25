@@ -9,12 +9,12 @@
         </template>
         <template #form-action>
             <p class="error" v-if="authError">{{ authError }}</p>
-            <Button label="Войти" class="width_max" :disabled="authLoading" @on-click="onLogin" />
+            <Button label="Войти" class="width_max" :disabled="authLoading" :loading="authLoading" @on-click="onLogin" />
         </template>
         <template #links>
             <RouterLink :to="{ name: ROUTES_NAMES.SIGN_UP }">Регистрация</RouterLink>
             <span class="v-splitter"></span>
-            <RouterLink :to="{ path: '/forgot-password' }">Забыли пароль?</RouterLink>
+            <RouterLink :to="{ name: ROUTES_NAMES.FORGOT_PASSWORD }">Забыли пароль?</RouterLink>
         </template>
     </AuthForm>
 </template>
