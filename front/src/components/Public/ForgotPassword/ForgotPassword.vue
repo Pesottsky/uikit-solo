@@ -17,6 +17,7 @@
 
 <script setup>
     import { reactive } from 'vue';
+    import { storeToRefs } from 'pinia';
     import AuthForm from '../AuthForm/AuthForm.vue';
     import { Input, Button } from '../../UI';
     import ROUTES_NAMES from '../../../constants/routesNames';

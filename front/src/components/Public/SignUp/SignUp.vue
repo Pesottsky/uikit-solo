@@ -63,7 +63,7 @@
         <template #links>
             <RouterLink :to="{ name: ROUTES_NAMES.LOGIN }">Есть аккаунт</RouterLink>
             <span class="v-splitter"></span>
-            <RouterLink :to="{ path: ROUTES_NAMES.FORGOT_PASSWORD }">Забыли пароль?</RouterLink>
+            <RouterLink :to="{ name: ROUTES_NAMES.FORGOT_PASSWORD }">Забыли пароль?</RouterLink>
         </template>
     </AuthForm>
 </template>
