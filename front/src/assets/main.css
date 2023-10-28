@@ -29,3 +29,16 @@
     text-overflow: ellipsis;
     overflow: hidden;
 }
+
+.cursor_pointer {
+    cursor: pointer;
+}
+.cursor_not-allowed {
+    cursor: not-allowed;
+}
+.truncate-text {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}

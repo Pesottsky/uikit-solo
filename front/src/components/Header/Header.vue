@@ -1,5 +1,5 @@
 <template>
-    <header class="header">
+    <header class="header" :class="{ 'header_company': isCompany }">
         <div class="header__title">
             <slot name="title"></slot>
         </div>
@@ -10,7 +10,9 @@
 </template>
 
 <script setup>
-
+    defineProps({
+        isCompany: { type: Boolean }
+    })
 </script>
 
 <style lang="scss" scoped>
@@ -33,6 +35,10 @@
             justify-content: flex-end;
             align-items: center;
             gap: 5px;
+        }
+
+        &_company {
+            padding: 0px 0px 10px 0px;
         }
     }
 </style>

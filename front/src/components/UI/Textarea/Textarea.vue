@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-    import { computed, onMounted, ref } from 'vue';
+    import { computed, onMounted, ref, watch, nextTick } from 'vue';
 
     const props = defineProps({
         modelValue: { type: String },
@@ -51,7 +51,8 @@
         e.target.style.height = (e.target.scrollHeight + 1) + "px";
     }
 
-    onMounted(() => {
+    onMounted(async () => {
+        await nextTick();
         if (props.modelValue) {
             const event = new Event('input');
             textareaRef.value.dispatchEvent(event);
@@ -68,6 +69,9 @@
     .textarea {
         &__container {
             width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
         &__label {
             opacity: .5;
@@ -163,6 +167,8 @@
             position: relative;
             font-size: 12px;
             opacity: .6;
+            margin-left: 12px;
+            line-height: 140%;
 
             &_error {
                 color: var(--input-error);

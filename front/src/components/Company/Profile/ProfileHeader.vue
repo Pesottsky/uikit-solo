@@ -1,5 +1,5 @@
 <template>
-    <Header>
+    <Header :is-company="true">
         <template #title>
             <h2>Название компании</h2>
         </template>

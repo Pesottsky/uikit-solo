@@ -62,7 +62,7 @@
             }
         }
         &_unknown {
-            background: var(--gray-light-hover);
+            background: var(--gray-light);
             color: var(--black-opacity-50);
 
             .chip__indicator {

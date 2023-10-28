@@ -29,7 +29,8 @@
 <style lang="scss" scoped>
     .sidebar {
         width: 233px;
-        padding: 24px 16px;
+        min-width: 233px;
+        padding: 24px 16px 24px 14px;
         background-color: var(--white);
         display: flex;
         flex-direction: column;
@@ -38,7 +39,7 @@
         height: 100vh;
 
         &__icon {
-            margin-left: 8px;
+            margin-left: 10px;
         }
         &-menu {
             flex: 1 1 auto;

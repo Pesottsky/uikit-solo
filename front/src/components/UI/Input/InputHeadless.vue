@@ -1,4 +1,5 @@
 <template>
+    <div class="buffer" :class="{ 'buffer_title': isTitle, 'buffer_subtitle': isSubTitle }" ref="bufferRef"></div>
     <input 
         ref="inputRef"
         :type="type" 
@@ -11,7 +12,6 @@
         @input="onInput"
         @focusout="focusOut"
     >
-    <div class="buffer" :class="{ 'buffer_title': isTitle, 'buffer_subtitle': isSubTitle }" ref="bufferRef">{{ modelValue || placeholder }}</div>
 </template>
 
 <script setup>
@@ -32,12 +32,14 @@
     const bufferRef = ref(null);
     const inputRef = ref(null);
 
+
     const inputValue = computed({
         get() {
             return props.modelValue
         },
         set(value) {
             if (value < 0 && props.type == 'number') value = null;
+            bufferRef.value.textContent = value || props.placeholder;
             emits('update:modelValue', value)
         }
     });
@@ -55,8 +57,16 @@
         emits('onFocusOut');
     }
 
+    watch(props, () => {
+        if (bufferRef.value.textContent === 'Мой ответ') {
+            bufferRef.value.textContent = props.modelValue || props.placeholder;
+            onInput();
+        }
+    })
+
     onMounted(async () => {
         await nextTick();
+        bufferRef.value.textContent = props.modelValue || props.placeholder;
         onInput();
     })
 
@@ -101,7 +111,7 @@
             font-size: 24px;
             font-weight: 500;
             line-height: 100%;
-            height: 40px;
+            height: 35px;
         }
 
         &:focus {

@@ -51,7 +51,7 @@
         <div class="card__name">Резюме</div>
         <div class="card__value">
             <template v-if="isEdit">
-                <Textarea v-if="visibleTextarea" placeholder="Пусто" v-model="state.summary" />
+                <Textarea v-if="visibleTextarea" placeholder="Пусто" hint="Напишите через запятую области, например: Концепты, айдентика" v-model="state.summary" />
             </template>
             <p v-else>{{ state.summary }}</p>
         </div>
@@ -137,6 +137,7 @@
             align-items: center;
         }
         &__name {
+            align-items: flex-start;
             color: var(--black-opacity-50);
             font-family: Golos Text;
             font-size: 14px;

@@ -43,6 +43,7 @@
 
         &:hover:not(&_header):not(&_hover_disabled) {
             background: var(--gray-light-hover);
+            cursor: pointer;
         }
     }
 </style>
