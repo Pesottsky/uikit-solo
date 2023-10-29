@@ -1,8 +1,8 @@
 <template>
-    <Header>
+    <Header :is-company="true">
         <template #title>
             <InputHeadless v-model="nameBase" :isSubTitle="true" :is-max="false" ref="nameBaseRef" @onFocusOut="changeNameBase" />
-            <Button :type="BUTTON_TYPE.TINY" :icon="true" v-if="currentBase" @on-click="setFocusNameBase">
+            <Button :type="BUTTON_TYPE.TINY" size="big" :icon="true" v-if="currentBase" @on-click="setFocusNameBase">
                 <EditIcon />
             </Button>
         </template>

@@ -41,6 +41,7 @@
             </div>
             <div class="auth-form__item">
                 <Input 
+                    label="Пароль"
                     placeholder="Пароль"
                     v-model="state.password"
                     type="password"

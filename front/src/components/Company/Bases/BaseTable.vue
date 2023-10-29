@@ -42,9 +42,9 @@
                 :key="item.profile.id" 
                 :is-fake="item?.fake || isNullFreelancer(item.profile)"
                 :selected="item.profile.id === currentFreelancer?.profile?.id"
-                @click="() => openSidebar(item)"
+                @click="(e) => openSidebar(e, item)"
             >
-                <TableColumn :span="2">{{ item.profile.first_name || 'Имя' }} {{ item.profile.last_name || 'Фамилия' }}</TableColumn>
+                <TableColumn :span="2">{{ getUserName(item.profile) }}</TableColumn>
                 <TableColumn>
                     <Chip 
                     :type="CHIP_TYPE_BY_NAME[item.profile.loading?.description] || CHIP_TYPES.UNKNOWN" 
@@ -53,8 +53,11 @@
                 </TableColumn>
                 <TableColumn>{{ item.profile.grade?.description || '--' }}</TableColumn>
                 <TableColumn>{{ item.profile.price || '--' }}</TableColumn>
-                <TableColumn :span="3">{{ item.profile.summary || '--' }}</TableColumn>
-                <TableColumn :span="2"><span class="stripe">{{ item.profile.portfolio || '--' }}</span></TableColumn>
+                <TableColumn :span="3"><div class="truncate-text">{{ item.profile.summary || '--' }}</div></TableColumn>
+                <TableColumn :span="2">
+                    <a v-if="item.profile.portfolio" :href="item.profile.portfolio" class="stripe" target="_blank">{{ item.profile.portfolio }}</a>
+                    <span v-else >---</span>
+                </TableColumn>
             </TableRow>
         </Table>
         <div class="table-wrapper__add" @click="() => openSidebar()">+</div>
@@ -68,7 +71,7 @@
     import CHIP_TYPE_BY_NAME from '@/constants/chipTypeByName';
     import CHIP_TYPES from '../../../constants/chipTypes';
     import { useCompanyStore } from '../../../stores/company.store';
-    import { isNullFreelancer } from '../../../helpers/profile';
+    import { isNullFreelancer, getUserName } from '../../../helpers/profile';
 
     const storeCompany = useCompanyStore();
     const { currentBase, companyLoading, fakeFreelancers, currentFreelancer } = storeToRefs(storeCompany);
@@ -82,7 +85,9 @@
 
     const openRightSidebar = inject('openRightSidebar');
 
-    function openSidebar(freelancer=null) {
+    function openSidebar(e, freelancer=null) {
+        if (e && e.target.tagName === 'A') return;
+        
         openRightSidebar();
 
         storeCompany.setFreelancer(freelancer);

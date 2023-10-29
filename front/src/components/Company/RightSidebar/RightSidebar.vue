@@ -2,7 +2,7 @@
     <Backdrop v-if="isShow" @on-close="onClose">
         <div class="sidebar" :class="{ 'sidebar_opened': isShowSidebar }">
             <div class="sidebar-header">
-                <div class="sidebar-header__item">
+                <div class="sidebar-header__item cursor_pointer">
                     <DoubleArrowRightIcon @click="onClose" />
                 </div>
                 <div class="sidebar-header__item sidebar-header__item_right">
@@ -40,60 +40,71 @@
                     <span class="text_gray">Отправим фрилансеру ссылку на почту, и он сам заполнит профиль</span>
                 </div>
                 <div class="sidebar-content__anketa">
-                    <div class="grid-column text_gray">Загрузка</div>
-                    <div class="grid-column grid-column_margin_left">
-                        <Chip :type="CHIP_TYPE.UNKNOWN" text="Не ясно" />
+                    <div class="grid-column grid-column__name text_gray">Загрузка</div>
+                    <div class="grid-column grid-column_margin_left" title="Загрузку будет обновлять фрилансер">
+                        <Chip :type="CHIP_TYPE.UNKNOWN" text="Не ясно" class="cursor_not-allowed" />
                     </div>
-                    <div class="grid-column text_gray">Грейд</div>
+                    <div class="grid-column grid-column__name text_gray">Грейд</div>
                     <div class="grid-column" :class="{ 'grid-column_margin_left': !isChangeData }">
                         <Dropdown v-if="isChangeData" v-model="state.grade" :list="gradeList" placeholder="Пусто" />
                         <p v-else>{{ state.grade || 'Пусто' }}</p>
                     </div>
-                    <div class="grid-column text_gray">Ставка</div>
+                    <div class="grid-column grid-column__name text_gray">Ставка</div>
                     <div class="grid-column">
                         <InputHeadless placeholder="Пусто" type="number" :readonly="!isChangeData" v-model="state.price" />
                     </div>
-                    <div class="grid-column text_gray">Портфолио</div>
+                    <div class="grid-column grid-column__name text_gray">Портфолио</div>
                     <div class="grid-column" :class="{ 'grid-column_margin_left': !isChangeData }">
                         <InputHeadless v-if="isChangeData || !state.portfolio" :readonly="!isChangeData" placeholder="https://" v-model="state.portfolio" />
                         <a v-else :href="state.portfolio" target="_blank">{{ state.portfolio }}</a>
                     </div>
-                    <div class="grid-column text_gray">Опыт</div>
+                    <div class="grid-column grid-column__name text_gray">Опыт</div>
                     <div class="grid-column">
                         <InputHeadless placeholder="Пусто" :readonly="!isChangeData" v-model="state.experience" />
                     </div>
-                    <div class="grid-column text_gray">Скилы</div>
+                    <div class="grid-column grid-column__name text_gray">Скилы</div>
                     <div class="grid-column">
                         <InputHeadless placeholder="Пусто" :readonly="!isChangeData" v-model="state.skills" />
                     </div>
-                    <div class="grid-column text_gray">Резюме</div>
+                    <div class="grid-column grid-column__name text_gray">Резюме</div>
                     <div class="grid-column">
                         <Textarea placeholder="Пусто" :readonly="!isChangeData" :is-headless="true" v-model="state.summary" />
                     </div>
-                    <div class="grid-column text_gray">Email</div>
+                    <div class="grid-column grid-column__name text_gray">Email</div>
                     <div class="grid-column">
                         <InputHeadless placeholder="email@mail.ru" :readonly="!isChangeData" v-model="state.email" />
                     </div>
-                    <div class="grid-column text_gray">Телеграм</div>
+                    <div class="grid-column grid-column__name text_gray">Телеграм</div>
                     <div class="grid-column">
                         <InputHeadless placeholder="@telegram" :readonly="!isChangeData" v-model="state.telegram" />
                     </div>
                 </div>
-                <div class="sidebar-content__anketa sidebar-content__anketa_border-top" v-if="!!currentFreelancer && !currentFreelancer?.fake">
-                    <div class="grid-column grid-column_column">
-                        <p class="text_gray">Ваши комментарии</p>
-                        <span class="font-caption text_gray">(видны только вам)</span>
+                <div class="sidebar-content__comment">
+                    <div class="sidebar-content__row">
+                        <p class="text_gray">
+                            Ваши комментарии
+                            <span class="font-caption">(видны только вам)</span>
+                        </p>
+                        <Button 
+                            label="Сохранить" 
+                            :type="BUTTON_TYPE.TETRARY" 
+                            :loading="commentLoading" 
+                            :disabled="commentLoading || currentFreelancer?.fake" 
+                            @on-click="onSaveComment"
+                        />
                     </div>
-                    <div class="grid-column grid-column_row">
-                        <Textarea placeholder="Оставить комментарий" :is-headless="true" v-model="commentFreelancer" />
-                        <Button :icon="true" :disabled="commentLoading" @on-click="onSaveComment">
-                            <ArrowTopWhiteIcon />
-                        </Button>
+                    <div class="sidebar-content__row">
+                        <Textarea 
+                            placeholder="Оставить комментарий" 
+                            :is-headless="true" 
+                            v-model="commentFreelancer"
+                            :readonly="commentLoading || currentFreelancer?.fake"
+                        />
                     </div>
                 </div>
-            </div>
-            <div class="sidebar-footer">
-                <Button :type="BUTTON_TYPE.TETRARY" label="Удалить" :loading="companyLoading" :disabled="companyLoading" @on-click="removeFreelancer" />
+                <div class="sidebar-content__actions">
+                    <Button :type="BUTTON_TYPE.TETRARY" label="Удалить" :loading="companyLoading" :disabled="companyLoading" @on-click="removeFreelancer" />
+                </div>
             </div>
         </div>
     </Backdrop>
@@ -298,12 +309,24 @@
                 column-gap: 12px;
                 row-gap: 4px;
                 padding-top: 4px;
-                
-                &_border {
-                    &-top {
-                        border-top: 1px solid var(--black-opacity-10);
-                    }
-                }
+            }
+
+            &__comment {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                border-top: 1px solid var(--black-opacity-10);
+                padding-top: 8px;
+            }
+            &__row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            &__actions {
+                display: flex;
+                justify-content: flex-start;
             }
         }
 
@@ -334,6 +357,11 @@
 
         &_margin_left {
             margin-left: 7px;
+        }
+
+        &__name {
+            padding: 8px 0px;
+            align-items: flex-start;
         }
 
         &_column {

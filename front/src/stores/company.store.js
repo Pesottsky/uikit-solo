@@ -133,6 +133,7 @@ export const useCompanyStore = defineStore('companyStore', () => {
         try {
 
             payload.price = Number(payload.price) || 0;
+            if (!payload.grade) payload.grade = null;
 
             const data = await CompanyService.createRowInBase(payload);
 

@@ -1,5 +1,5 @@
 <template>
-    <section class="profile">
+    <section class="profile" v-if="!companyLoading">
         <Input label="Название компании" placeholder="Введите название" v-model="state.name" />
         <Input label="Ссылка на сайт" placeholder="https://" v-model="state.link" />
         <Textarea label="О комании" placeholder="Описание компании" v-model="state.about" />

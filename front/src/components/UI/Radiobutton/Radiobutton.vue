@@ -1,10 +1,10 @@
 <template>
-    <div class="radiobutton__container" :class="{ 'radiobutton__container_outline': isBackground }">
+    <div class="radiobutton__container" :class="{ 'radiobutton__container_outline': isBackground, 'radiobutton__container_size_big': size === 'big' }">
         <label class="radiobutton__label" v-if="label">{{ label }}</label>
         <div class="radiobutton__content">
             <label 
             v-for="item in data" class="radiobutton__item" 
-            :class="{ 'radiobutton__item_checked': inputValue === item.value, 'radiobutton__item_big': size === 'big' }"
+            :class="{ 'radiobutton__item_checked': inputValue === item.value }"
             >
                 <div class="radiobutton__radio" :class="{ 'radiobutton__radio_checked': inputValue === item.value }"></div>
                 <input type="radio" class="radiobutton__element" v-model="inputValue" :value="item.value">
@@ -58,6 +58,17 @@
                     border-color: var(--black-opacity-10);
                 }
             }
+
+            &_size {
+                &_big {
+                    .radiobutton__item {
+                        font-size: 18px;
+                    }
+                    .radiobutton__content {
+                        gap: 16px;
+                    }
+                }
+            }
         }
         &__label {
             color: var(--black-opacity-50);
@@ -69,7 +80,7 @@
         &__content {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 8px;
         }
         &__item {
             display: flex;
@@ -80,10 +91,6 @@
             font-family: Golos Text;
             font-weight: 400;
             line-height: 140%;
-
-            &_big {
-                font-size: 18px;
-            }
 
             &:hover:not(&_checked) {
                 .radiobutton__radio {

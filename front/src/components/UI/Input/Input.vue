@@ -67,7 +67,7 @@
             position: relative;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 8px;
         }
         &__element {
             color: var(--black);

@@ -1,5 +1,5 @@
 <template>
-    <button :class="['button', `button_${type}`, 'font-body']" :disabled="disabled" @click.stop="onClick">
+    <button :class="['button', `button_${type}`, 'font-body', classSize]" :disabled="disabled" @click.stop="onClick">
         <i class="icon icon_spiner" v-if="loading">
             <SpinerWhiteIcon v-if="type == 'primary'" />
             <SpinerBlackIcon v-else />
@@ -12,6 +12,7 @@
 </template>
 
 <script setup>
+    import { computed } from 'vue';
     import { SpinerBlackIcon, SpinerWhiteIcon } from '../../Icons';
 
     const props = defineProps({
@@ -31,10 +32,13 @@
         },
         loading: {
             type: Boolean
-        }
+        },
+        size: { type: String, default: null }
     })
 
     const emits = defineEmits(['onClick'])
+
+    const classSize = computed(() => props.size ? `button_${props.type}_${props.size}` : null);
 
     function onClick(e) {
         if (!props.disabled && !props.loading) {
@@ -115,6 +119,10 @@
             background: #ffffff00;
             border: 0px;
             border-radius: 4px;
+
+            &_big {
+                padding: 16px;
+            }
 
             &:enabled:hover{
                 background: var(--secondary-hover);

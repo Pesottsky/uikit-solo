@@ -33,8 +33,8 @@
         }
         
 
-        &:first-child {
-            border-left: 1px solid var(--gray-light);
+        &:last-child {
+            border-right: none;
         }
 
         &_center {
