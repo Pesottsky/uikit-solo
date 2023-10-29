@@ -21,7 +21,7 @@
     </template>
     <template v-else>
         <PublicHeader />
-        <PublicFreelancerCard :is-company="true" :is-public="true" />
+        <PublicFreelancerCard :is-company="true" />
     </template>
 </template>
 

@@ -53,8 +53,9 @@
 <style lang="scss" scoped>
     .modal-window {
         position: absolute;
-        top: 227px;
-        left: 233px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
         width: 814px;
         height: 378px;
         padding: 32px 48px;

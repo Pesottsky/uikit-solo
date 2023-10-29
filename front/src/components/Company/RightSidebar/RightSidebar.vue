@@ -79,16 +79,27 @@
                         <InputHeadless placeholder="@telegram" :readonly="!isChangeData" v-model="state.telegram" />
                     </div>
                 </div>
-                <div class="sidebar-content__anketa sidebar-content__anketa_border-top">
-                    <div class="grid-column grid-column_column">
-                        <p class="text_gray">Ваши комментарии</p>
-                        <span class="font-caption text_gray">(видны только вам)</span>
+                <div class="sidebar-content__comment">
+                    <div class="sidebar-content__row">
+                        <p class="text_gray">
+                            Ваши комментарии
+                            <span class="font-caption">(видны только вам)</span>
+                        </p>
+                        <Button 
+                            label="Сохранить" 
+                            :type="BUTTON_TYPE.TETRARY" 
+                            :loading="commentLoading" 
+                            :disabled="commentLoading || currentFreelancer?.fake" 
+                            @on-click="onSaveComment"
+                        />
                     </div>
-                    <div class="grid-column grid-column_row">
-                        <Textarea placeholder="Оставить комментарий" :is-headless="true" v-model="commentFreelancer" />
-                        <Button :icon="true" :disabled="commentLoading" @on-click="onSaveComment">
-                            <ArrowTopWhiteIcon />
-                        </Button>
+                    <div class="sidebar-content__row">
+                        <Textarea 
+                            placeholder="Оставить комментарий" 
+                            :is-headless="true" 
+                            v-model="commentFreelancer"
+                            :readonly="commentLoading || currentFreelancer?.fake"
+                        />
                     </div>
                 </div>
                 <div class="sidebar-content__actions">
@@ -298,12 +309,19 @@
                 column-gap: 12px;
                 row-gap: 4px;
                 padding-top: 4px;
-                
-                &_border {
-                    &-top {
-                        border-top: 1px solid var(--black-opacity-10);
-                    }
-                }
+            }
+
+            &__comment {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                border-top: 1px solid var(--black-opacity-10);
+                padding-top: 8px;
+            }
+            &__row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
             }
 
             &__actions {

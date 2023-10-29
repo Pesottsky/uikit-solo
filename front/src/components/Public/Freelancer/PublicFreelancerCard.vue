@@ -29,8 +29,7 @@ import { storeToRefs } from 'pinia';
     const storeCompany = useCompanyStore();
 
     const props = defineProps({
-        isCompany: { type: Boolean, default: false },
-        isPublic: { type: Boolean, default: false }
+        isCompany: { type: Boolean, default: false }
     })
 
     const route = useRoute();
@@ -39,7 +38,6 @@ import { storeToRefs } from 'pinia';
         if (!freelancerProfile.value?.first_name && !freelancerProfile.value?.last_name) return 'Имя Фамилия';
         return `${freelancerProfile.value?.first_name || 'Имя'} ${freelancerProfile.value?.last_name}`
     });
-    const marginLeft = computed(() => props.isPublic ? 'auto' : '0px');
 
     function pushToBase() {
         storeCompany.pushRowInBase(freelancerProfile.value.id);
@@ -58,7 +56,7 @@ import { storeToRefs } from 'pinia';
         flex-direction: column;
         gap: 48px;
         padding: 64px 72px;
-        margin: 32px v-bind(marginLeft) 32px;
+        margin: 32px auto;
         border-radius: 6px;
         border: 1px solid rgba(0, 0, 0, 0.03);
         background: #FFF;

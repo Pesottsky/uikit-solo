@@ -44,7 +44,7 @@
                 :selected="item.profile.id === currentFreelancer?.profile?.id"
                 @click="(e) => openSidebar(e, item)"
             >
-                <TableColumn :span="2">{{ item.profile.first_name || 'Имя' }} {{ item.profile.last_name || 'Фамилия' }}</TableColumn>
+                <TableColumn :span="2">{{ getUserName(item.profile) }}</TableColumn>
                 <TableColumn>
                     <Chip 
                     :type="CHIP_TYPE_BY_NAME[item.profile.loading?.description] || CHIP_TYPES.UNKNOWN" 
@@ -71,7 +71,7 @@
     import CHIP_TYPE_BY_NAME from '@/constants/chipTypeByName';
     import CHIP_TYPES from '../../../constants/chipTypes';
     import { useCompanyStore } from '../../../stores/company.store';
-    import { isNullFreelancer } from '../../../helpers/profile';
+    import { isNullFreelancer, getUserName } from '../../../helpers/profile';
 
     const storeCompany = useCompanyStore();
     const { currentBase, companyLoading, fakeFreelancers, currentFreelancer } = storeToRefs(storeCompany);
