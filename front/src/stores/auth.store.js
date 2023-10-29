@@ -114,11 +114,11 @@ export const useAuthStore = defineStore('authStore', () => {
                 const data = await AuthService.refresh(userData.value.refresh);
                 setAuth(data, false);
             } else {
-                await logout();
+                clearAuth();
             }
             
         } catch(e) {
-            await logout();
+            clearAuth();
         }
     }
     async function logout() {

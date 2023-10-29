@@ -15,7 +15,10 @@
                     <span class="modal-window__line">
                         <CrookedLine />
                     </span>
-                    <span>Напишите нам в телеграм <a href="#">@soloteamcont</a>, скажите email и скиньте файл — адрес аккаунта ваш</span>
+                    <span>
+                        Напишите нам в телеграм <a :href="supportUrl">{{ supportName }}</a>
+                        , скажите email и скиньте файл — адрес аккаунта ваш
+                    </span>
                 </div>
                 <div class="modal-window__item">
                     <div class="modal-window__step">
@@ -24,18 +27,23 @@
                     В течении нескольких дней мы перенесем в таблицу в ваш аккаунт
                 </div>
             </div>
-            <p>По всем вопросам импортаи переноса пишите нам <a href="#">@soloteamcont</a></p>
+            <p>
+                По всем вопросам импортаи переноса пишите нам
+                <a :href="supportUrl">{{ supportName }}</a>
+            </p>
         </div>
     </Backdrop>
 </template>
 
 <script setup>
-    import { ref } from 'vue';
+    import { computed, ref } from 'vue';
     import Backdrop from '../../UI/Backdrop/Backdrop.vue';
     import { CheckMarkIcon } from '../../Icons';
     import CrookedLine from '../../Icons/CrookedLine.vue';
 
     const isShowModal = ref(false);
+    const supportName = computed(() => import.meta.env.VITE_SUPPORT_TELEGRAM_NAME);
+    const supportUrl = computed(() => import.meta.env.VITE_SUPPORT_TELEGRAM_URL)
 
     function closeWindow() {
         isShowModal.value = false;

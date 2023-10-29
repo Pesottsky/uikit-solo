@@ -62,7 +62,7 @@
     function onClose() {
         setTimeout(() => {
             isOpenList.value = false;
-        }, 100)
+        }, 150)
     }
 
     onMounted(() => {

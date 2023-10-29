@@ -42,7 +42,11 @@
                 <div class="sidebar-content__anketa">
                     <div class="grid-column grid-column__name text_gray">Загрузка</div>
                     <div class="grid-column grid-column_margin_left" title="Загрузку будет обновлять фрилансер">
-                        <Chip :type="CHIP_TYPE.UNKNOWN" text="Не ясно" class="cursor_not-allowed" />
+                        <Chip 
+                            :type="CHIP_TYPE_BY_NAME[state.loading] || CHIP_TYPE.UNKNOWN" 
+                            :text="state.loading || 'Не ясно'" 
+                            class="cursor_not-allowed" 
+                        />
                     </div>
                     <div class="grid-column grid-column__name text_gray">Грейд</div>
                     <div class="grid-column" :class="{ 'grid-column_margin_left': !isChangeData }">
@@ -54,7 +58,7 @@
                         <InputHeadless placeholder="Пусто" type="number" :readonly="!isChangeData" v-model="state.price" />
                     </div>
                     <div class="grid-column grid-column__name text_gray">Портфолио</div>
-                    <div class="grid-column" :class="{ 'grid-column_margin_left': !isChangeData }">
+                    <div class="grid-column">
                         <InputHeadless v-if="isChangeData || !state.portfolio" :readonly="!isChangeData" placeholder="https://" v-model="state.portfolio" />
                         <a v-else :href="state.portfolio" target="_blank">{{ state.portfolio }}</a>
                     </div>
@@ -83,7 +87,7 @@
                     <div class="sidebar-content__row">
                         <p class="text_gray">
                             Ваши комментарии
-                            <span class="font-caption">(видны только вам)</span>
+                            <span class="font-caption text_gray">(видны только вам)</span>
                         </p>
                         <Button 
                             label="Сохранить" 
@@ -123,6 +127,7 @@
     import { copyToClipboard } from '../../../helpers/clipboard';
     import { generateLink } from '../../../helpers/profile';
     import { storeToRefs } from 'pinia';
+import CHIP_TYPE_BY_NAME from '../../../constants/chipTypeByName';
 
     const openInviteModal = inject('openInviteModal')
 
@@ -144,6 +149,7 @@
         portfolio: '',
         price: '',
         grade: '',
+        loading: null
     })
     const isShow = ref(false);
     const isShowSidebar = ref(false);
@@ -214,7 +220,7 @@
 
         if (value) {
             Object.keys(state).map(key => {
-                if (key === 'grade') {
+                if (key === 'grade' || key === 'loading') {
                     state[key] = currentFreelancer.value?.profile?.[key]?.description || '';
                 } else {
                     state[key] = String(currentFreelancer.value?.profile?.[key] || '');
