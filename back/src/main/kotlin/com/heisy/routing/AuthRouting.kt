@@ -8,6 +8,7 @@ import com.heisy.email.MailSubjects
 import com.heisy.plugins.UserTypes
 import com.heisy.plugins.getIdTypePair
 import com.heisy.schema.ForgetPassword
+import com.heisy.schema.Freel
 import com.heisy.schema.Token
 import com.heisy.schema.User
 import com.heisy.utils.LogUtils
@@ -25,7 +26,12 @@ fun Application.configureAuthRouting(authUseCase: IAuthUseCase) {
     routing {
         route("/login") {
             post {
-                val token = authUseCase.login(call.receive())
+                val link = call.request.queryParameters["link"]
+                val token: Token = if (link != null) {
+                    authUseCase.loginByLink(link, call.receive())
+                } else {
+                    authUseCase.login(call.receive())
+                }
                 call.respond(HttpStatusCode.Created, token)
             }
         }
@@ -46,7 +52,7 @@ fun Application.configureAuthRouting(authUseCase: IAuthUseCase) {
                         call.application, MailBundle(
                             to = user.login,
                             from = MailFrom.HELLO,
-                            subject = MailSubjects.CompanyRegistration,
+                            subject = MailSubjects.Registration,
                             text = "Привет, вы зарегистрировались на сервисе Soloteam! \n" +
                                     "\n" +
                                     "Soloteam помогает создавать и управлять вашей базой фрилансеров, вовремя находить людей на проект и не тратить время на переговоры.\n" +
@@ -69,10 +75,37 @@ fun Application.configureAuthRouting(authUseCase: IAuthUseCase) {
             route("/freel") {
                 post {
                     val link = call.request.queryParameters["link"]
+                    val freel =  call.receive<Freel>()
                     val token: Token = if (link != null) {
-                        authUseCase.registerFreelByLink(link, call.receive())
+                        authUseCase.registerFreelByLink(link, freel)
                     } else {
-                        authUseCase.registerFreel(call.receive())
+                        authUseCase.registerFreel(freel)
+                    }
+                    launch(Dispatchers.IO + SupervisorJob()) {
+                        EmailSender.sendMail(
+                            call.application, MailBundle(
+                                to = freel.login,
+                                from = MailFrom.HELLO,
+                                subject = MailSubjects.Registration,
+                                text = "Привет, вы зарегистрировались на сервисе Soloteam! \n" +
+                                        "\n" +
+                                        "Soloteam помогает фрилансерам быть на связи с заказчиками и получать заказы.\n" +
+                                        "\n" +
+                                        "Вы сможете:\n" +
+                                        "— в один клик делиться резюме и портфолио\n" +
+                                        "— уведомлять заказчиков, что вы открыты к новым заказам\n" +
+                                        "— не терять контакты и планировать проекты на будущее\n" +
+                                        "\n" +
+                                        "Что дальше?\n" +
+                                        "1. Заполните, пожалуйста всю информацию о себе \n" +
+                                        "2. Обновляйте ваш статус, когда открыты к проектам и когда заняты\n" +
+                                        "3. Поделитесь ссылкой на сервис https://soloteam.io с вашими заказчиками, чтобы сотрудничать в будущем\n" +
+                                        "\n" +
+                                        "Мы всегда рады помочь, любые вопросы по работе сервиса и предложения — пишите на service@soloteam.io или лично в телеграм @vviiktoor\n" +
+                                        "\n" +
+                                        "Спасибо, что вы с нами"
+                            )
+                        )
                     }
                     call.respond(HttpStatusCode.Created, token)
                 }

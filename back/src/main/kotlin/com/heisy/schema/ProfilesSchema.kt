@@ -174,6 +174,11 @@ class ProfilesService(database: Database) {
     }
 
     fun updateByCompany(exposedProfile: ExposedProfile, profile: Profile): ExposedProfile {
+        var exposedGrade: ExposedGrade? = null
+        if (profile.grade != null) {
+            exposedGrade =
+                ExposedGrade.find { GradeService.GradeLevels.levelKey eq profile.grade.levelKey }.singleOrNull()
+        }
         with(exposedProfile) {
             firstName = profile.firstName
             lastName = profile.lastName
@@ -184,6 +189,7 @@ class ProfilesService(database: Database) {
             summary = profile.summary
             skills = profile.skills
             telegram = profile.telegram
+            grade = exposedGrade
         }
         return exposedProfile
     }

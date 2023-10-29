@@ -20,6 +20,13 @@ paths:
     post:
       tags:
         - Авторизация
+      parameters:
+        - name: link
+          in: query
+          description: Идентификатор ссылки по которой пригласили фрилансера
+          required: false
+          schema:
+            type: string
       summary: Авторизация
       requestBody:
         content:
@@ -361,7 +368,7 @@ paths:
   /loading:
     get:
       tags:
-        - Кейсы фрилансера
+        - Общие кейсы
       summary: Получение списка рабочей нагрузки
       responses:
         "200":
@@ -391,7 +398,7 @@ paths:
   /grade:
     get:
       tags:
-        - Кейсы фрилансера
+        - Общие кейсы
       summary: Получение уровней фрилансера
       responses:
         "200":
@@ -583,6 +590,10 @@ components:
         is_register:
           type: boolean
           description: Зарегистрировались ли по ссылке
+          nullable: true
+        email:
+          type: string
+          description: Email на который отправили приглашение
           nullable: true
         link:
           type: string

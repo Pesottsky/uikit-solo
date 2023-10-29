@@ -45,6 +45,16 @@ class AuthUseCase(
         }
     }
 
+    override suspend fun loginByLink(link: String, user: User): Token = dbQuery {
+        val exposedFreel =  freelsService.checkAuth(user) ?: throw BadRequestException(UserService.Errors.wrongPair)
+        val exposedLink = linkService.findByUUID(link) ?: throw NotFoundException()
+        if (exposedLink.isRegister == true) throw BadRequestException("Ссылку уже активировали")
+        val exposedRow =  exposedLink.rows.firstOrNull() ?: throw NotFoundException()
+        exposedRow.profile = exposedFreel.profile
+        exposedLink.isRegister = true
+        tokensService.generateTokenPair(exposedFreel.id.value, UserTypes.Freel.name)
+    }
+
     override suspend fun registerFreel(freel: Freel): Token = dbQuery {
         val exposedProfile = profilesService.create(Profile(firstName = freel.firstName, lastName = freel.lastName))
         val freelResult = freelsService.create(freel, exposedProfile)

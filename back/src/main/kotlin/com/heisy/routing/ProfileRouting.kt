@@ -38,13 +38,6 @@ fun Application.configureProfileRouting(profileService: ProfilesService) {
             }
 
             route("/loading") {
-                get {
-                    val pair = getIdTypePair(call)
-                    call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
-                    val loadingList =
-                        dbQuery { ExposedLoading.all().map { it.toDataClass() } }
-                    call.respond(HttpStatusCode.OK, loadingList)
-                }
                 post {
                     val pair = getIdTypePair(call)
                     call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
@@ -53,7 +46,9 @@ fun Application.configureProfileRouting(profileService: ProfilesService) {
                     call.respond(HttpStatusCode.Accepted, profile)
                 }
             }
+        }
 
+        authenticate(UserTypes.Company.name, UserTypes.Freel.name) {
             route("/grade") {
                 get {
                     val pair = getIdTypePair(call)
@@ -64,7 +59,15 @@ fun Application.configureProfileRouting(profileService: ProfilesService) {
                 }
             }
 
-
+            route("/loading") {
+                get {
+                    val pair = getIdTypePair(call)
+                    call.application.environment.log.info(LogUtils.createLog(pair, call.request.uri))
+                    val loadingList =
+                        dbQuery { ExposedLoading.all().map { it.toDataClass() } }
+                    call.respond(HttpStatusCode.OK, loadingList)
+                }
+            }
         }
 
         get("/profile/{id}") {

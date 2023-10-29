@@ -25,6 +25,9 @@ data class Link(
     @SerialName("id")
     val id: Int,
 
+    @SerialName("email")
+    val email: String? = null,
+
     @SerialName("is_email_sending")
     val isEmailSending: Boolean? = null
 )
@@ -57,7 +60,8 @@ class ExposedLink(id: EntityID<Int>) : IntEntity(id) {
             id = this.id.value,
             link = StringUtils.linkToFront(this.link.toString()),
             isRegister = this.isRegister ?: false,
-            isEmailSending = this.isEmailSending ?: false
+            isEmailSending = this.isEmailSending ?: false,
+            email = this.email
         )
     }
 }

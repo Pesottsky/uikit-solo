@@ -53,5 +53,5 @@ enum class MailFrom(val configParam: String) {
 enum class MailSubjects(val text: String) {
     PasswordRecovery("Восстановление пароля"),
     InviteByLink("Вас пригласили на фриланс-платформу Soloteam"),
-    CompanyRegistration("Рады видеть вас в Soloteam!")
+    Registration("Рады видеть вас в Soloteam!")
 }

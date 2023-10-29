@@ -14,6 +14,11 @@ plugins {
 group = "com.heisy"
 version = "0.0.1"
 
+ktor {
+    fatJar {
+        archiveFileName.set("soloteam.jar")
+    }
+}
 application {
     mainClass.set("com.heisy.ApplicationKt")
 
