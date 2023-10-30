@@ -246,7 +246,12 @@ export const useCompanyStore = defineStore('companyStore', () => {
             }
 
             const data = await CompanyService.sendInviteByEmail(payload);
-            setLinkData(data);
+            if (data.status === 200) {
+                await getBases();
+            } else {
+                setLinkData(data);
+            }
+            
             
         } catch(e) {
             companyError.value = e || 'Ошибка сервера';

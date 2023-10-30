@@ -25,7 +25,10 @@ httpClient.interceptors.request.use(
 httpClient.interceptors.response.use(
     (response) => {
         if (response.status >= 200 && response.status < 300) {
-            return response.data;
+            if (response.data) {
+                return response.data;
+            }
+            return response;
         }  else {
             return Promise.reject("error");
         }

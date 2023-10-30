@@ -26,8 +26,8 @@
                     </template>
                 </div>
                 <Quote v-if="currentFreelancer?.link && isChangeData">
-                    <template v-if="currentFreelancer.link.is_email_sending">
-                        <span class="text_gray">Отправили ссылку на приглашение</span> [ email ]
+                    <template v-if="currentFreelancer.link?.email">
+                        <span class="text_gray">Отправили ссылку на приглашение</span> {{ currentFreelancer.link?.email }}
                     </template>
                     <template v-else>
                         <span class="text_gray">Создали ссылку на приглашение</span> {{ currentFreelancer.link.link }}
