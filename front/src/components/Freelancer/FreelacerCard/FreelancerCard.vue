@@ -21,31 +21,32 @@
         <div class="card__name">Грейд</div>
         <div class="card__value">
             <Radiobutton v-if="isEdit" :data="gradeList" :is-background="true" v-model="state.grade" />
-            <p v-else>{{ state.grade }}</p>
+            <p v-else>{{ state.grade || DEFAULT_VALUE }}</p>
         </div>
 
         <div class="card__name">Ставка за час</div>
         <div class="card__value">
             <Input v-if="isEdit" type="number" placeholder="Пусто" v-model="state.price" />
-            <p v-else>{{ state.price }}</p>
+            <p v-else>{{ state.price || DEFAULT_VALUE }}</p>
         </div>
 
         <div class="card__name">Портфолио</div>
         <div class="card__value">
             <Input v-if="isEdit" placeholder="https://" v-model="state.portfolio" />
-            <a :href="state.portfolio" target="_blank" v-else>{{ state.portfolio }}</a>
+            <a :href="state.portfolio" target="_blank" v-else-if="state.portfolio">{{ state.portfolio }}</a>
+            <p v-else>{{ DEFAULT_VALUE }}</p>
         </div>
 
         <div class="card__name">Опыт</div>
         <div class="card__value">
             <Input v-if="isEdit" placeholder="Пусто" v-model="state.experience" />
-            <p v-else>{{ state.experience }}</p>
+            <p v-else>{{ state.experience || DEFAULT_VALUE }}</p>
         </div>
 
         <div class="card__name">Скилы</div>
         <div class="card__value">
             <Input v-if="isEdit" placeholder="Пусто" hint="Напишите через запятую области, например: Концепты, айдентика" v-model="state.skills" />
-            <p v-else>{{ state.skills }}</p>
+            <p v-else>{{ state.skills || DEFAULT_VALUE }}</p>
         </div>
 
         <div class="card__name">Резюме</div>
@@ -53,19 +54,19 @@
             <template v-if="isEdit">
                 <Textarea v-if="visibleTextarea" placeholder="Пусто" hint="Напишите через запятую области, например: Концепты, айдентика" v-model="state.summary" />
             </template>
-            <p v-else>{{ state.summary }}</p>
+            <p v-else>{{ state.summary || DEFAULT_VALUE }}</p>
         </div>
 
         <div class="card__name">Email</div>
         <div class="card__value">
             <Input v-if="isEdit" placeholder="example@soloteam.ru" v-model="state.email" />
-            <p v-else>{{ state.email }}</p>
+            <p v-else>{{ state.email || DEFAULT_VALUE }}</p>
         </div>
 
         <div class="card__name">Телеграм</div>
         <div class="card__value">
             <Input v-if="isEdit" placeholder="@fedos16" v-model="state.telegram" />
-            <p v-else>{{ state.telegram }}</p>
+            <p v-else>{{ state.telegram || DEFAULT_VALUE }}</p>
         </div>
     </div>
 </template>
@@ -84,6 +85,8 @@
         freelancer: { type: Object, default: () => {} },
         isEdit: { type: Boolean, default: true }
     })
+
+    const DEFAULT_VALUE = '-';
 
     const storeFreelancer = useFreelancerStore();
     const { directory } = storeToRefs(storeFreelancer);

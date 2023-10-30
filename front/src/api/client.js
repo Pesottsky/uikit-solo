@@ -35,24 +35,24 @@ httpClient.interceptors.response.use(
     },
     async (error) => {
 
-        const config = error.config;
+        const originalRequest = error.config;
         const res = error.response;
         
-        if (res?.status === 401 && !config._retry) {
-            config._retry = true;
+        if (res?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+
             const store = useAuthStore();
+
             await store.refresh();
 
-            config.headers.Authorization = `Bearer ${store.userData.access}`;
-
-            return httpClient(config);
+            return httpClient(originalRequest);
         }
 
         if (res?.data) {
             throw res.data;
         }
 
-        throw Promise.reject(error);
+        throw await Promise.reject(error);
     }
     // todo: future refresh jwt functionality
     // async (error) => {

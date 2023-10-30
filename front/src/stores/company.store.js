@@ -133,7 +133,9 @@ export const useCompanyStore = defineStore('companyStore', () => {
         try {
 
             payload.price = Number(payload.price) || 0;
-            if (!payload.grade) payload.grade = null;
+            
+            delete payload.grade;
+            delete payload.loading;
 
             const data = await CompanyService.createRowInBase(payload);
 
@@ -162,6 +164,9 @@ export const useCompanyStore = defineStore('companyStore', () => {
             const rowId = currentFreelancer.value.id;
 
             payload.price = Number(payload.price);
+
+            delete payload.grade;
+            delete payload.loading;
 
             const data = await CompanyService.updateRowInBaseById(rowId, payload);
 

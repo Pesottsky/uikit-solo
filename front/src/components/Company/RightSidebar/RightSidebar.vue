@@ -166,16 +166,11 @@ import CHIP_TYPE_BY_NAME from '../../../constants/chipTypeByName';
         
     }
     async function onSave() {
-
-        state.grade = directory.value.grade.find(item => item.description === state.grade);
-
         if (currentFreelancer.value && !currentFreelancer.value?.fake) {
             await storeCompany.updateRowInBase({ ...state })
         } else {
             await storeCompany.createRowInBase({ ...state });
         }
-
-        state.grade = state.grade.description;
     }
     async function onSaveComment() {
         await storeCompany.createComment({ comment: commentFreelancer.value });

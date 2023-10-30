@@ -5,7 +5,7 @@
                 <AccountMenuCompany />
             </Sidebar>
             <Content>
-                <PublicFreelancerCard :is-company="true" :main-page-name="mainPageName" />
+                <NotFoundBlock :main-page-name="mainPageName" />
             </Content>
         </div>
     </template>
@@ -15,14 +15,15 @@
                 <AccountMenuFreelancer />
             </Sidebar>
             <Content>
-                <PublicFreelancerCard :main-page-name="mainPageName" />
+                <NotFoundBlock :main-page-name="mainPageName" />
             </Content>
         </div>
     </template>
     <template v-else>
         <PublicHeader />
-        <PublicFreelancerCard :is-company="true" :main-page-name="mainPageName" />
+        <NotFoundBlock :main-page-name="mainPageName" />
     </template>
+
 </template>
 
 <script setup>
@@ -30,16 +31,16 @@
     import { computed } from 'vue';
 
     import PublicHeader from '../Header/PublicHeader.vue';
-    import PublicFreelancerCard from './PublicFreelancerCard.vue';
+    import NotFoundBlock from './NotFoundBlock.vue';
 
     import Sidebar from '@/components/Sidebar/Sidebar.vue';
     import AccountMenuCompany from '@/components/Company/AccountMenu/AccountMenu.vue';
     import AccountMenuFreelancer from '@/components/Freelancer/AccountMenu/AccountMenu.vue';
     import Content from '@/components/Content/Content.vue';
 
-    import { useAuthStore } from '../../../stores/auth.store';
+    import { useAuthStore } from '@/stores/auth.store';
 
-    import ROLES from '../../../constants/roles';
+    import ROLES from '@/constants/roles';
     import ROUTES_NAMES from '../../../constants/routesNames';
     
 
@@ -54,5 +55,22 @@
         if (isFreelancer.value) return ROUTES_NAMES.FREELANCER_EMPLOYMENT;
         return ROUTES_NAMES.LOGIN;
     })
-    
 </script>
+
+<style lang="scss" scoped>
+    .not-found {
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+        align-items: center;
+        width: 560px;
+        margin-top: 72px;
+
+        &__title {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+    }
+</style>

@@ -3,6 +3,7 @@ import ROUTES_NAMES from "../constants/routesNames";
 import SIGN_UP_TYPE from "../constants/signUpType";
 
 import { useAuthStore } from "../stores/auth.store";
+import { useFreelancerStore } from "../stores/freelancer.store";
 
 function setSignUpParams(to, from, next) {
     const types = [SIGN_UP_TYPE.COMPANY, SIGN_UP_TYPE.FREELANCER];
@@ -35,14 +36,6 @@ const publicRouter = [
         component: () => import('../layouts/Public/PublicLayout.vue'),
         redirect: '/login',
         children: [
-            {
-                path: ':pathMatch(.*)*',
-                name: ROUTES_NAMES.NOT_FOUND,
-                component: () => import('../views/NotFoundView.vue'),
-                meta: {
-                    roles: [ROLES.ANY]
-                }
-            },
             {
                 path: 'login',
                 name: ROUTES_NAMES.LOGIN,
@@ -86,7 +79,15 @@ const publicRouter = [
         meta: {
             roles: [ROLES.ANY]
         }
-    }
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        name: ROUTES_NAMES.NOT_FOUND,
+        component: () => import('../views/NotFoundView.vue'),
+        meta: {
+            roles: [ROLES.ANY]
+        }
+    },
 ]
 
 export default publicRouter;

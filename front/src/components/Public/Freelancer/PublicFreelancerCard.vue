@@ -1,5 +1,6 @@
 <template>
-    <div class="freelancer-card">
+    <NotFoundBlock :main-page-name="mainPageName" v-if="freelancerError" />
+    <div v-else class="freelancer-card">
         <div class="freelancer-card__title">
             <h1>{{ userName }}</h1>
             <Button v-if="isCompany" label="Добавить в базу" :icon="true" @on-click="pushToBase">
@@ -17,6 +18,7 @@ import { storeToRefs } from 'pinia';
     import { useRoute } from 'vue-router';
 
     import FreelancerCard from '../../Freelancer/FreelacerCard/FreelancerCard.vue';
+    import NotFoundBlock from '../NotFound/NotFoundBlock.vue';
     import { Button } from '../../UI';
     import { PlusWhiteIcon } from '../../Icons';
 
@@ -24,12 +26,13 @@ import { storeToRefs } from 'pinia';
     import { useCompanyStore } from '../../../stores/company.store';
 
     const storeFreelancer = useFreelancerStore();
-    const { freelancerProfile } = storeToRefs(storeFreelancer);
+    const { freelancerProfile, freelancerError } = storeToRefs(storeFreelancer);
 
     const storeCompany = useCompanyStore();
 
     const props = defineProps({
-        isCompany: { type: Boolean, default: false }
+        isCompany: { type: Boolean, default: false },
+        mainPageName: { type: String }
     })
 
     const route = useRoute();
