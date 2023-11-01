@@ -10,8 +10,8 @@ object InjectionUtils {
     private var application: Application? = null
     private var mDatabase: Database? = null
 
-    private var refreshLifeTime = 0
-    private var mRecoveryTime = 0
+    private var refreshLifeTime = 0L
+    private var mRecoveryTime = 0L
 
     // services
     private var userService: UserService? = null
@@ -78,8 +78,8 @@ object InjectionUtils {
 
     fun provideTokensSerivce(
         database: Database = provideDataBase(),
-        rLifeTime: Int = refreshLifeTime,
-        recoveryTime: Int = mRecoveryTime
+        rLifeTime: Long = refreshLifeTime,
+        recoveryTime: Long = mRecoveryTime
     ): TokensService {
         refreshLifeTime = rLifeTime
         mRecoveryTime = recoveryTime

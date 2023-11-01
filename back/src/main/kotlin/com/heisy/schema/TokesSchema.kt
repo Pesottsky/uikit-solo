@@ -48,7 +48,7 @@ class ExposedForgetPassword(id: EntityID<Int>) : IntEntity(id) {
 }
 
 
-class TokensService(database: Database, private val refreshLifeTime: Int, private val recoveryTime: Int) {
+class TokensService(database: Database, private val refreshLifeTime: Long, private val recoveryTime: Long) {
     object Tokens : IntIdTable() {
         val userId = integer("userId")
         val refreshToken = uuid("refreshToken")
@@ -71,12 +71,12 @@ class TokensService(database: Database, private val refreshLifeTime: Int, privat
     }
 
     fun generateTokenPair(userId: Int, userType: String): Token {
-        val currentTime = System.currentTimeMillis()
 
         val access: String = if (userType == UserTypes.Company.name) createCompanyToken(userId)
         else createFreelToken(userId)
 
         val refreshToken = UUID.randomUUID()
+        val currentTime = System.currentTimeMillis()
 
         ExposedToken.new {
             this.userId = userId

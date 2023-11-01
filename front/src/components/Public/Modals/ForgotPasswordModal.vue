@@ -4,8 +4,7 @@
             <div class="modal-window__wrapper">
                 <SuccessIcon />
                 <div class="modal-window__item">
-                    <h3 class="modal-window__title">Готово! Вы добавлены в базу фрилансеров</h3>
-                    <p>Теперь заказчик и вы не потеряетесь</p>
+                    <h3 class="modal-window__title">Готово! Отправили вам письмо для сброса пароля на почту</h3>
                 </div>
                 <Button label="Хорошо" :type="BUTTON_TYPE.SECONDARY" @on-click="closeWindow" />
             </div>
@@ -15,14 +14,21 @@
 
 <script setup>
     import { ref } from 'vue';
-    import { Backdrop, Button, Input } from '../../UI';
+    import { Backdrop, Button } from '../../UI';
     import SuccessIcon from '../../Icons/Success/SuccessIcon.vue';
     import BUTTON_TYPE from '../../../constants/buttonTypes';
+    import ROUTES_NAMES from '../../../constants/routesNames';
+
+    import { useRouter } from 'vue-router';
 
     const isShowModal = ref(false);
+    const router = useRouter();
+
 
     function closeWindow() {
         isShowModal.value = false;
+        router.replace({ name: ROUTES_NAMES.RESET_PASSWORD });
+
     }
     function openWindow() {
         isShowModal.value = true;

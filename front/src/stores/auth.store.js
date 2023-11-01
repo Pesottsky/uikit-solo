@@ -1,9 +1,10 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
-
+import { useNoticeStore } from "./notice.store"
 import ROUTES_NAMES from '../constants/routesNames';
 import ROLES from '../constants/roles';
 import { useRouter, useRoute } from "vue-router";
+import NOTIFICATION_MESSAGES from '../constants/notificationMessages';
 
 import AuthService from "../api/AuthService";
 
@@ -11,6 +12,7 @@ export const useAuthStore = defineStore('authStore', () => {
 
     const router = useRouter();
     const route = useRoute();
+    const storeNotice = useNoticeStore();
 
     const authError = ref(null);
     const authLoading = ref(false);
@@ -94,12 +96,13 @@ export const useAuthStore = defineStore('authStore', () => {
         }
     }
     async function login({ login, password }) {
-
+        
         authLoading.value = true;
         authError.value = null;
 
         try {
-            const data = await AuthService.login({ login, password });
+            const link = route.query?.link;
+            const data = await AuthService.login({ login, password }, link);
             setAuth(data);
         } catch(e) {
             console.warn(e);
@@ -119,6 +122,27 @@ export const useAuthStore = defineStore('authStore', () => {
             
         } catch(e) {
             clearAuth();
+        }
+    }
+    async function forgetPassword({login}) { 
+        try {
+            await AuthService.forgetPassword(login);
+        } catch(e) {
+            authError.value = e || 'Ошибка сервера';
+        } finally {
+            authLoading.value = false;
+        }
+    }
+    async function updatePassword({login, new_password}) { 
+        try {
+            const code = route.query?.code;
+            const data = await AuthService.updatePassword({login, new_password, code});
+            setAuth(data);
+            storeNotice.setMessage(NOTIFICATION_MESSAGES.PASSWORD_RECOVERED);
+        } catch(e) {
+            authError.value = e || 'Ошибка сервера';
+        } finally {
+            authLoading.value = false;
         }
     }
     async function logout() {
@@ -145,8 +169,10 @@ export const useAuthStore = defineStore('authStore', () => {
         registrationFreelancer,
         login,
         refresh,
+        forgetPassword,
         logout,
-        clearError
+        clearError,
+        updatePassword
     }
 
 });

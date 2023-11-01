@@ -6,7 +6,8 @@ const NOTIFICATION_MESSAGES = {
     SAVE_COMMENT: 'Комментарий сохранен',
     FREELANCER_REMOVED: 'Фрилансер удален из базы',
     FREELANCER_APPENDED: 'Фрилансер добавлен в базу',
-    EMPLOYMENT_CHANGE: 'Статус занятости обновлен'
+    EMPLOYMENT_CHANGE: 'Статус занятости обновлен',
+    PASSWORD_RECOVERED: 'Пароль изменён'
 }
 
 export default NOTIFICATION_MESSAGES;

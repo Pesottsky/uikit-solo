@@ -2,7 +2,7 @@
     <h1 class="start__title">Привет! Это сервис для ведения<br /> базы аутсорса Soloteam</h1>
     <div class="start__description">
         <p class="start__text">Здесь ты можешь отслеживать занятость чтобы заказчики понимали когда можно обращаться и быть с нмим на связи</p>
-        <p class="start__text">А еще делить профилем портфолио, чтоб не теряться</p>
+        <p class="start__text">А еще, чтобы не теряться, делиться профилем и портфолио</p>
     </div>
 
     <SuccessAppendModal ref="successAppendModalRef" />

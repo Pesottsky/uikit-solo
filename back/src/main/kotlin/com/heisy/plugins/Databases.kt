@@ -24,8 +24,8 @@ fun Application.configureDatabases() {
 
 fun Application.configureSchema() {
     InjectionUtils.provideTokensSerivce(
-        rLifeTime = environment.config.property("jwt.refresh_lifetime").getString().toInt(),
-        recoveryTime = environment.config.property("recovery.password").getString().toInt()
+        rLifeTime = environment.config.property("jwt.refresh_lifetime").getString().toLong(),
+        recoveryTime = environment.config.property("recovery.password").getString().toLong()
     )
 
     InjectionUtils.provideGradeService()
