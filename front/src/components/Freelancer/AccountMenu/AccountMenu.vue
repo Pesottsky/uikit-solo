@@ -3,7 +3,7 @@
         Занятость
     </RouterLink>
     <RouterLink :to="{ name: ROUTES_NAMES.FREELANCER_PROFILE }" class="link_reset sidebar-menu__item" exact-active-class="sidebar-menu__item_active">
-        Настройка профиля
+        Настройки профиля
     </RouterLink>
 </template>
 

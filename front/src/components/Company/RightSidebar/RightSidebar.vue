@@ -34,10 +34,11 @@
                     </template>
                 </Quote>
                 <div class="sidebar-content__invite" v-if="isChangeData">
+                    <span class="text_gray">Отправим фрилансеру ссылку на почту, и он сам заполнит профиль</span>
                     <Button :type="BUTTON_TYPE.SECONDARY" label="Пригласить" :icon="true" @on-click="sendInvite">
                         <ImportIcon />
                     </Button>
-                    <span class="text_gray">Отправим фрилансеру ссылку на почту, и он сам заполнит профиль</span>
+                    
                 </div>
                 <div class="sidebar-content__anketa">
                     <div class="grid-column grid-column__name text_gray">Загрузка</div>
@@ -50,19 +51,19 @@
                     </div>
                     <div class="grid-column grid-column__name text_gray">Грейд</div>
                     <div class="grid-column" :class="{ 'grid-column_margin_left': !isChangeData }">
-                        <Dropdown v-if="isChangeData" v-model="state.grade" :list="gradeList" placeholder="Пусто" />
-                        <p v-else>{{ state.grade || 'Пусто' }}</p>
+                        <Dropdown v-if="isChangeData" v-model="state.grade" :list="gradeList" placeholder="Выбрать" />
+                        <p v-else>{{ state.grade || 'Выбрать' }}</p>
                     </div>
-                    <div class="grid-column grid-column__name text_gray">Ставка</div>
+                    <div class="grid-column grid-column__name text_gray">Стоимость 1 часа работы (₽)</div>
                     <div class="grid-column">
-                        <InputHeadless placeholder="Пусто" type="number" :readonly="!isChangeData" v-model="state.price" />
+                        <InputHeadless placeholder="1000" type="number" :readonly="!isChangeData" v-model="state.price" />
                     </div>
                     <div class="grid-column grid-column__name text_gray">Портфолио</div>
                     <div class="grid-column">
                         <InputHeadless v-if="isChangeData || !state.portfolio" :readonly="!isChangeData" placeholder="https://" v-model="state.portfolio" />
                         <a v-else :href="state.portfolio" target="_blank">{{ state.portfolio }}</a>
                     </div>
-                    <div class="grid-column grid-column__name text_gray">Опыт</div>
+                    <div class="grid-column grid-column__name text_gray">Сколько лет опыта</div>
                     <div class="grid-column">
                         <InputHeadless placeholder="Пусто" :readonly="!isChangeData" v-model="state.experience" />
                     </div>
@@ -76,7 +77,7 @@
                     </div>
                     <div class="grid-column grid-column__name text_gray">Email</div>
                     <div class="grid-column">
-                        <InputHeadless placeholder="email@mail.ru" :readonly="!isChangeData" v-model="state.email" />
+                        <InputHeadless placeholder="name@email.com" :readonly="!isChangeData" v-model="state.email" />
                     </div>
                     <div class="grid-column grid-column__name text_gray">Телеграм</div>
                     <div class="grid-column">
@@ -292,7 +293,8 @@ import CHIP_TYPE_BY_NAME from '../../../constants/chipTypeByName';
                 height: 48px;
                 display: flex;
                 align-items: center;
-                padding: 8px 6px;
+                padding: 8px 0px;
+
             }
 
             &__invite {
@@ -328,6 +330,7 @@ import CHIP_TYPE_BY_NAME from '../../../constants/chipTypeByName';
             &__actions {
                 display: flex;
                 justify-content: flex-start;
+                margin-top: auto;
             }
         }
 

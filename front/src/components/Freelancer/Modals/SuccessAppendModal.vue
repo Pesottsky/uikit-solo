@@ -4,8 +4,8 @@
             <div class="modal-window__wrapper">
                 <SuccessIcon />
                 <div class="modal-window__item">
-                    <h3 class="modal-window__title">Готово! Вы добавлены в базу фрилансеров</h3>
-                    <p>Теперь заказчик и вы не потеряетесь</p>
+                    <h3 class="modal-window__title">Успех! Вы добавлены в базу фрилансеров</h3>
+                    <p>Теперь вы и компания будете на связи</p>
                 </div>
                 <Button label="Хорошо" :type="BUTTON_TYPE.SECONDARY" @on-click="closeWindow" />
             </div>

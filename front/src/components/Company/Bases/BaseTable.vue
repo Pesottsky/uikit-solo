@@ -5,8 +5,8 @@
                 <TableColumn :span="2">Имя</TableColumn>
                 <TableColumn>Загрузка</TableColumn>
                 <TableColumn>Грейд</TableColumn>
-                <TableColumn>Ставка</TableColumn>
-                <TableColumn :span="3">Описание</TableColumn>
+                <TableColumn>Ставка ₽/час</TableColumn>
+                <TableColumn :span="3">О себе</TableColumn>
                 <TableColumn :span="2">Портфолио</TableColumn>
             </TableRow>
             <TableRow :count="10" v-for="item in [1, 2, 3]" :is-hover="false" v-if="companyLoading">
