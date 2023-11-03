@@ -10,6 +10,8 @@ interface IAuthUseCase {
 
     suspend fun login(user: User): Token
 
+    suspend fun loginByLink(link: String,user: User): Token
+
     suspend fun registerFreel(freel: Freel): Token
 
     suspend fun registerFreelByLink(link: String, freel: Freel): Token

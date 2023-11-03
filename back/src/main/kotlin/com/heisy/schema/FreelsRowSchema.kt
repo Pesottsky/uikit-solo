@@ -1,5 +1,6 @@
 package com.heisy.schema
 
+import com.heisy.schema.FreelsRowsService.Errors.alreadyAdded
 import com.heisy.schema.FreelsRowsService.Errors.notEnoughtRights
 import com.heisy.schema.FreelsRowsService.Errors.notFoundError
 import io.ktor.server.plugins.*
@@ -75,14 +76,28 @@ class FreelsRowsService(database: Database) {
     object Errors {
         const val notFoundError = "Таблица не найдена"
         const val notEnoughtRights = "Вы не можете редактировать профиль"
+        const val alreadyAdded = "Фрилансер уже в вашей базе"
     }
 
     fun create(userId: Int, profile: ExposedProfile): ExposedFreelsRow {
         val table = ExposedUser.findById(userId)?.tables?.firstOrNull() ?: throw NotFoundException(notFoundError)
+        checkTableForDublicates(table, profile)
         return ExposedFreelsRow.new {
             this.table = table
             this.profile = profile
         }
+    }
+
+    fun create(table: ExposedFreelsTable, profile: ExposedProfile): ExposedFreelsRow {
+        checkTableForDublicates(table, profile)
+        return ExposedFreelsRow.new {
+            this.table = table
+            this.profile = profile
+        }
+    }
+
+    fun checkTableForDublicates(table: ExposedFreelsTable, profile: ExposedProfile) {
+        if (table.rows.find { it.profile.id.value == profile.id.value } != null ) throw NotFoundException(alreadyAdded)
     }
 
     /**

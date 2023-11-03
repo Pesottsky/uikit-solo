@@ -14,9 +14,9 @@
     <div class="sidebar-menu__title">
         <span class="menu-title__name">База фрилансеров</span>
         <template v-if="bases.length">
-            <Button :type="BUTTON_TYPE.TINY" :icon="true" @on-click="createBase">
+            <!-- <Button :type="BUTTON_TYPE.TINY" :icon="true" @on-click="createBase">
                 <PlusBlackIcon />
-            </Button>
+            </Button> -->
             <Button :type="BUTTON_TYPE.TINY" :icon="true" @on-click="onOpenContextMenu">
                 <MoreIcon />
             </Button>
@@ -38,12 +38,14 @@
         </RouterLink>
     </template>
     <template v-if="!bases?.length && !companyLoading">
-        <Button label="Создать новую базу" :icon="true" @on-click="createBase">
-            <PlusWhiteIcon />
-        </Button>
-        <Button label="Импортировать" :type="BUTTON_TYPE.SECONDARY" :icon="true" @on-click="openImportModal">
-            <ImportIcon />
-        </Button>
+        <div class="sidebar__start">
+            <Button label="Создать новую базу" :icon="true" @on-click="createBase">
+                <PlusWhiteIcon />
+            </Button>
+            <Button label="Импортировать" :type="BUTTON_TYPE.SECONDARY" :icon="true" @on-click="openImportModal">
+                <ImportIcon />
+            </Button>
+        </div>
     </template>
 
     <ContextMenu ref="contextMenuRef" />
@@ -118,11 +120,11 @@
                 transition: background, 0.2s ease-in-out;
 
                 &:hover{
-                    background: var(--tetrary-hover);
+                    background: var(--gray-light-hover);
                     cursor: pointer;
                 }
                 &:active{
-                    color: var(--tetrary-color-active)
+                    color: var(--gray-light-hover)
                 } 
                 &:hover .icon {
                     opacity: 1;
@@ -132,15 +134,21 @@
                 }
                 &:focus {
                     outline: none;
-                    box-shadow: 0 0 0 4px var(--focus);
+                    box-shadow: 0 0 0 4px var(--gray-light-hover);
                 }
 
                 &_active {
-                    background: var(--tetrary-hover);
+                    background: var(--gray-light-hover);
                 }
             }
         }
-
+        &__start {
+            margin-top: 8px;
+            margin-left: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
     }
     .menu {
         &-title {
@@ -148,6 +156,7 @@
                 flex: 1 1 auto;
                 color: var(--black-opacity-50);
                 font-size: 13px;
+                margin-left: 10px;
             }
         }
     }

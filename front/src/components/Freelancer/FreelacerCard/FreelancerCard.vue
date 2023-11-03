@@ -3,12 +3,12 @@
         <template v-if="isEdit">
             <div class="card__name">Имя</div>
             <div class="card__value">
-                <Input placeholder="Пусто" v-model="state.first_name" />
+                <Input placeholder="Ваше имя" v-model="state.first_name" />
             </div>
 
             <div class="card__name">Фамилия</div>
             <div class="card__value">
-                <Input placeholder="Пусто" v-model="state.last_name" />
+                <Input placeholder="Ваша фамилия" v-model="state.last_name" />
             </div>
         </template>
         <template v-else>
@@ -21,51 +21,52 @@
         <div class="card__name">Грейд</div>
         <div class="card__value">
             <Radiobutton v-if="isEdit" :data="gradeList" :is-background="true" v-model="state.grade" />
-            <p v-else>{{ state.grade }}</p>
+            <p v-else>{{ state.grade || DEFAULT_VALUE }}</p>
         </div>
 
-        <div class="card__name">Ставка за час</div>
+        <div class="card__name">Стоимость 1 часа работы (₽)</div>
         <div class="card__value">
-            <Input v-if="isEdit" type="number" placeholder="Пусто" v-model="state.price" />
-            <p v-else>{{ state.price }}</p>
+            <Input v-if="isEdit" type="number" placeholder="1000"  v-model="state.price" />
+            <p v-else>{{ state.price || DEFAULT_VALUE }}</p>
         </div>
 
         <div class="card__name">Портфолио</div>
         <div class="card__value">
-            <Input v-if="isEdit" placeholder="https://" v-model="state.portfolio" />
-            <a :href="state.portfolio" target="_blank" v-else>{{ state.portfolio }}</a>
+            <Input v-if="isEdit" placeholder="https://Behance.com"  v-model="state.portfolio" />
+            <a :href="state.portfolio" target="_blank" v-else-if="state.portfolio">{{ state.portfolio }}</a>
+            <p v-else>{{ DEFAULT_VALUE }}</p>
         </div>
 
-        <div class="card__name">Опыт</div>
+        <div class="card__name">Сколько лет опыта</div>
         <div class="card__value">
-            <Input v-if="isEdit" placeholder="Пусто" v-model="state.experience" />
-            <p v-else>{{ state.experience }}</p>
+            <Input v-if="isEdit" placeholder="3 года" v-model="state.experience" />
+            <p v-else>{{ state.experience || DEFAULT_VALUE }}</p>
         </div>
 
         <div class="card__name">Скилы</div>
         <div class="card__value">
-            <Input v-if="isEdit" placeholder="Пусто" hint="Напишите через запятую области, например: Концепты, айдентика" v-model="state.skills" />
-            <p v-else>{{ state.skills }}</p>
+            <Input v-if="isEdit" placeholder="Веб-дизайн, логотипы, верстка" hint="На чем специализируетесь, перечислите 1-5 направлений, например: Веб-дизайн, логотипы, верстка" v-model="state.skills" />
+            <p v-else>{{ state.skills || DEFAULT_VALUE }}</p>
         </div>
 
-        <div class="card__name">Резюме</div>
+        <div class="card__name">О себе</div>
         <div class="card__value">
             <template v-if="isEdit">
-                <Textarea v-if="visibleTextarea" placeholder="Пусто" v-model="state.summary" />
+                <Textarea v-if="visibleTextarea" placeholder="Привет! Последние 3 года фокусируюсь на UI/UX проектах, работала в такой компании...                 " hint="Расскажите подробнее о себе, про ваш опыт или чем можете помочь" v-model="state.summary" />
             </template>
-            <p v-else>{{ state.summary }}</p>
+            <p v-else>{{ state.summary || DEFAULT_VALUE }}</p>
         </div>
 
         <div class="card__name">Email</div>
         <div class="card__value">
-            <Input v-if="isEdit" placeholder="example@soloteam.ru" v-model="state.email" />
-            <p v-else>{{ state.email }}</p>
+            <Input v-if="isEdit" placeholder="name@email.com" v-model="state.email" />
+            <p v-else>{{ state.email || DEFAULT_VALUE }}</p>
         </div>
 
         <div class="card__name">Телеграм</div>
         <div class="card__value">
-            <Input v-if="isEdit" placeholder="@fedos16" v-model="state.telegram" />
-            <p v-else>{{ state.telegram }}</p>
+            <Input v-if="isEdit" placeholder="@your_name" v-model="state.telegram" />
+            <p v-else>{{ state.telegram || DEFAULT_VALUE }}</p>
         </div>
     </div>
 </template>
@@ -84,6 +85,8 @@
         freelancer: { type: Object, default: () => {} },
         isEdit: { type: Boolean, default: true }
     })
+
+    const DEFAULT_VALUE = '-';
 
     const storeFreelancer = useFreelancerStore();
     const { directory } = storeToRefs(storeFreelancer);
@@ -125,7 +128,7 @@
     .card {
         display: grid;
         grid-template-columns: 2fr 5fr;
-        gap: 12px;
+        gap: 18px;
         width: 100%;
 
         &__value, &__name {
@@ -137,6 +140,7 @@
             align-items: center;
         }
         &__name {
+            align-items: flex-start;
             color: var(--black-opacity-50);
             font-family: Golos Text;
             font-size: 14px;

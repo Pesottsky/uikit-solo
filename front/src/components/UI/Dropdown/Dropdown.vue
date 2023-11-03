@@ -62,7 +62,7 @@
     function onClose() {
         setTimeout(() => {
             isOpenList.value = false;
-        }, 100)
+        }, 150)
     }
 
     onMounted(() => {
@@ -91,6 +91,7 @@
             color: var(--black);
             opacity: 0.5;
             padding: 8px 30px 8px 6px;
+            cursor: pointer;
 
             &_active {
                 opacity: 1;
@@ -130,7 +131,7 @@
             top: 44px;
             width: 100%;
             border-radius: 8px;
-            background: var(--biege-light);
+            background: var(--white);
             box-shadow: 0px 20px 72px 0px rgba(46, 28, 0, 0.10);
             list-style: none;
             padding: 8px;

@@ -16,9 +16,10 @@
 
 <style lang="scss" scoped>
     .quote {
-        padding: 4px 12px;
+        padding: 4px 8px;
         line-height: 140%;
-        border-left: 1px solid var(--black);
+        border-left: 3px solid var(--black-opacity-30);
+        background: var(--biege-light);
 
         font-family: Golos Text;
         font-size: 14px;

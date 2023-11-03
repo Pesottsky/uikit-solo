@@ -46,7 +46,7 @@ class LoadingService(database: Database) {
             if (ExposedLoading.all().empty()) {
                 ExposedLoading.new {
                     loadingKey = 0
-                    description = "Свободен"
+                    description = "Свободен(на)"
                 }
                 ExposedLoading.new {
                     loadingKey = 1
@@ -54,7 +54,7 @@ class LoadingService(database: Database) {
                 }
                 ExposedLoading.new {
                     loadingKey = 2
-                    description = "Занят"
+                    description = "Занят(a)"
                 }
             }
         }

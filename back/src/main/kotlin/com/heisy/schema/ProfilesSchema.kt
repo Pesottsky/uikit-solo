@@ -21,7 +21,7 @@ data class Profile(
     val firstName: String,
 
     @SerialName("last_name")
-    val lastName: String? = null,
+    val lastName: String? = "",
 
     @SerialName("price")
     val price: Int? = null,
@@ -123,6 +123,11 @@ class ProfilesService(database: Database) {
     fun get(id: Int): ExposedProfile? = ExposedProfile.findById(id)
 
     fun create(profile: Profile): ExposedProfile {
+        var exposedGrade: ExposedGrade? = null
+        if (profile.grade != null) {
+            exposedGrade =
+                ExposedGrade.find { GradeService.GradeLevels.levelKey eq profile.grade.levelKey }.singleOrNull()
+        }
         val exposedProfile = ExposedProfile.new {
             firstName = profile.firstName
             lastName = profile.lastName
@@ -134,6 +139,7 @@ class ProfilesService(database: Database) {
             skills = profile.skills
             telegram = profile.telegram
             link = profile.link ?: "-1"
+            grade = exposedGrade
         }
         exposedProfile.link = exposedProfile.id.value.toString()
 //        exposedProfile.link =
@@ -174,6 +180,11 @@ class ProfilesService(database: Database) {
     }
 
     fun updateByCompany(exposedProfile: ExposedProfile, profile: Profile): ExposedProfile {
+        var exposedGrade: ExposedGrade? = null
+        if (profile.grade != null) {
+            exposedGrade =
+                ExposedGrade.find { GradeService.GradeLevels.levelKey eq profile.grade.levelKey }.singleOrNull()
+        }
         with(exposedProfile) {
             firstName = profile.firstName
             lastName = profile.lastName
@@ -184,6 +195,7 @@ class ProfilesService(database: Database) {
             summary = profile.summary
             skills = profile.skills
             telegram = profile.telegram
+            grade = exposedGrade
         }
         return exposedProfile
     }

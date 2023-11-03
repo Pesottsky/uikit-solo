@@ -48,7 +48,7 @@ class ExposedForgetPassword(id: EntityID<Int>) : IntEntity(id) {
 }
 
 
-class TokensService(database: Database, private val refreshLifeTime: Int, private val recoveryTime: Int) {
+class TokensService(database: Database, private val refreshLifeTime: Long, private val recoveryTime: Long) {
     object Tokens : IntIdTable() {
         val userId = integer("userId")
         val refreshToken = uuid("refreshToken")
@@ -60,7 +60,7 @@ class TokensService(database: Database, private val refreshLifeTime: Int, privat
         val email = varchar("email", length = 50)
         val code = uuid("code")
         val expiresAt = long("expiresAt")
-        val isRecovered = bool("isRecovered")
+        val isRecovered = bool("isRecovered").nullable()
     }
 
     init {
@@ -71,12 +71,12 @@ class TokensService(database: Database, private val refreshLifeTime: Int, privat
     }
 
     fun generateTokenPair(userId: Int, userType: String): Token {
-        val currentTime = System.currentTimeMillis()
 
         val access: String = if (userType == UserTypes.Company.name) createCompanyToken(userId)
         else createFreelToken(userId)
 
         val refreshToken = UUID.randomUUID()
+        val currentTime = System.currentTimeMillis()
 
         ExposedToken.new {
             this.userId = userId
@@ -100,17 +100,17 @@ class TokensService(database: Database, private val refreshLifeTime: Int, privat
             ExposedToken.find { Tokens.refreshToken eq UUID.fromString(token) }.singleOrNull() ?: return null
 
         return if (exposedRefresh.expiresAt > currentTime) {
-            val refreshToken = UUID.randomUUID()
-            exposedRefresh.refreshToken = refreshToken
-
-            exposedRefresh.expiresAt = System.currentTimeMillis() + refreshLifeTime
+//            val refreshToken = UUID.randomUUID()
+//            exposedRefresh.refreshToken = refreshToken
+//
+//            exposedRefresh.expiresAt = System.currentTimeMillis() + refreshLifeTime
             val access: String =
                 if (exposedRefresh.userType == UserTypes.Company.name) createCompanyToken(exposedRefresh.userId)
                 else createFreelToken(exposedRefresh.userId)
 
             Token(
                 access = access,
-                refresh = refreshToken.toString(),
+                refresh = exposedRefresh.refreshToken.toString(),
                 userType = exposedRefresh.userType
             )
         } else null

@@ -53,6 +53,10 @@ export const useCompanyStore = defineStore('companyStore', () => {
         currentFreelancer.value = freelancer;
     }
 
+    function setComment(comment) {
+        commentFreelancer.value = comment
+    }
+
     function createFakeFreelancer() {
         const freelancer = new FakeFreelancer({ id: 'f4', created: true });
 
@@ -133,6 +137,9 @@ export const useCompanyStore = defineStore('companyStore', () => {
         try {
 
             payload.price = Number(payload.price) || 0;
+            
+            delete payload.grade;
+            delete payload.loading;
 
             const data = await CompanyService.createRowInBase(payload);
 
@@ -161,6 +168,9 @@ export const useCompanyStore = defineStore('companyStore', () => {
             const rowId = currentFreelancer.value.id;
 
             payload.price = Number(payload.price);
+
+            delete payload.grade;
+            delete payload.loading;
 
             const data = await CompanyService.updateRowInBaseById(rowId, payload);
 
@@ -245,7 +255,12 @@ export const useCompanyStore = defineStore('companyStore', () => {
             }
 
             const data = await CompanyService.sendInviteByEmail(payload);
-            setLinkData(data);
+            if (data.status === 200) {
+                await getBases();
+            } else {
+                setLinkData(data);
+            }
+            
             
         } catch(e) {
             companyError.value = e || 'Ошибка сервера';
@@ -333,6 +348,7 @@ export const useCompanyStore = defineStore('companyStore', () => {
         fakeFreelancers,
         companyInfo,
         commentFreelancer,
+        setComment,
         getBases,
         createBase,
         createRowInBase,

@@ -4,6 +4,8 @@
             <h1>Сбросить пароль</h1>
         </template>
         <template #form-data>
+            <Input placeholder="Почта" v-model="state.email" :error="validate.email.$errors[0]?.$message" />
+
             <Input 
                 label="Новый пароль"
                 placeholder="Пароль"
@@ -19,6 +21,7 @@
             />
         </template>
         <template #form-action>
+            <p class="error" v-if="authError">{{ authError }}</p>
             <Button label="Сбросить пароль" class="width_max" :disabled="authLoading" :loading="authLoading" @on-click="onClick" />
         </template>
         <template #links>
@@ -36,18 +39,23 @@
     import ERROR_MESSAGES from '../../../constants/errorMessages';
 
     import { useVuelidate } from '@vuelidate/core';
-    import { required, minLength, helpers } from '@vuelidate/validators';
+    import { required, minLength, helpers, email } from '@vuelidate/validators';
 
     import { useAuthStore } from '../../../stores/auth.store';
 
     const storeAuth = useAuthStore();
-    const { authLoading } = storeToRefs(storeAuth);
+    const { authLoading, authError } = storeToRefs(storeAuth);
 
     const state = reactive({
+        email: '',
         password: '',
         repeatPassword: ''
     })
     const rules = {
+        email: {
+            required: helpers.withMessage(ERROR_MESSAGES.REQUIRED, required),
+            email: helpers.withMessage(ERROR_MESSAGES.EMAIL, email)
+        },
         password: { 
             required: helpers.withMessage(ERROR_MESSAGES.REQUIRED, required),
             minLength: helpers.withMessage(
@@ -69,7 +77,7 @@
         const result = await validate.value.$validate();
         if (!result) return;
         
-        alert('Какой то запрос на сервер');
+        await storeAuth.updatePassword({login: state.email, new_password: state.password});
     }
 </script>
 

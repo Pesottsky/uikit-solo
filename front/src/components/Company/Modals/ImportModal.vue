@@ -1,41 +1,49 @@
 <template>
     <Backdrop @on-close="closeWindow" v-if="isShowModal">
         <div class="modal-window">
-            <h1>Если у вас уже есть база фрилансеров —<br />ее можно импортировать в Soloteam</h1>
+            <h1>Если у вас уже есть база фрилансеров —<br />импортируем её в Soloteam</h1>
             <div class="modal-window__list">
                 <div class="modal-window__item">
                     <div class="modal-window__step">1</div>
                     <span class="modal-window__line">
                         <CrookedLine />
                     </span>
-                    <span>Скачайте, существующую таблицу в формате CSV, вот инстуркци для <a href="#">Exel</a> и <a href="#">Notion</a></span>
+                    <span>
+                        Напишите нам в <a :href="supportUrl">{{ supportName }}</a>, расскажем о дальнейших действиях
+                    </span>
                 </div>
                 <div class="modal-window__item">
                     <div class="modal-window__step">2</div>
                     <span class="modal-window__line">
                         <CrookedLine />
                     </span>
-                    <span>Напишите нам в телеграм <a href="#">@soloteamcont</a>, скажите email и скиньте файл — адрес аккаунта ваш</span>
+                    <span>Скачайте, существующую таблицу в формате CSV, вот инстуркци для <a :href="excelUrl">Excel</a> и <a :href="notionUrl">Notion</a></span>
                 </div>
                 <div class="modal-window__item">
                     <div class="modal-window__step">
                         <CheckMarkIcon />
                     </div>
-                    В течении нескольких дней мы перенесем в таблицу в ваш аккаунт
+                    В течении нескольких дней мы перенесем таблицу в ваш аккаунт
                 </div>
             </div>
-            <p>По всем вопросам импортаи переноса пишите нам <a href="#">@soloteamcont</a></p>
+            <p>
+                -> Чтобы начать импорт, напишите в <a :href="supportUrl">{{ supportName }}</a> «Привет, хотели бы импортировать базу в Soloteam» 
+            </p>
         </div>
     </Backdrop>
 </template>
 
 <script setup>
-    import { ref } from 'vue';
+    import { computed, ref } from 'vue';
     import Backdrop from '../../UI/Backdrop/Backdrop.vue';
     import { CheckMarkIcon } from '../../Icons';
     import CrookedLine from '../../Icons/CrookedLine.vue';
 
     const isShowModal = ref(false);
+    const supportName = computed(() => import.meta.env.VITE_SUPPORT_TELEGRAM_NAME);
+    const supportUrl = computed(() => import.meta.env.VITE_SUPPORT_TELEGRAM_URL)
+    const notionUrl = computed(() => import.meta.env.VITE_SUPPORT_NOTION_URL);
+    const excelUrl = computed(() => import.meta.env.VITE_SUPPORT_EXCEL_URL)
 
     function closeWindow() {
         isShowModal.value = false;
@@ -53,8 +61,9 @@
 <style lang="scss" scoped>
     .modal-window {
         position: absolute;
-        top: 227px;
-        left: 233px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
         width: 814px;
         height: 378px;
         padding: 32px 48px;

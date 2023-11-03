@@ -20,7 +20,6 @@
     .tabs {
         list-style: none;
         padding: 0;
-        margin: 0 0 16px 0;
         display: flex;
         gap: 8px;
         justify-content: center;

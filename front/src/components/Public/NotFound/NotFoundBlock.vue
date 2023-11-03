@@ -5,16 +5,19 @@
             <h1>404 Error</h1>
             <h2 class="color_black-opacity-50">не получилось найти страницу(</h2>
         </div>
-        <RouterLink :to="{ name: ROUTES_NAMES.LOGIN }">
+        <RouterLink :to="{ name: mainPageName }">
             <Button label="Вернутся на главную" />
         </RouterLink>
     </div>
 </template>
 
 <script setup>
-    import { Button } from '../UI';
-    import { NotFoundIcon } from '../Icons';
-    import ROUTES_NAMES from '../../constants/routesNames';
+    import { Button } from '../../UI';
+    import { NotFoundIcon } from '../../Icons';
+
+    defineProps({
+        mainPageName: { type: String, required: true }
+    })
 </script>
 
 <style lang="scss" scoped>
@@ -24,7 +27,7 @@
         gap: 32px;
         align-items: center;
         width: 560px;
-        margin-top: 72px;
+        margin: 72px auto;
 
         &__title {
             display: flex;

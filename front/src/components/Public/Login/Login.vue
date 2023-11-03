@@ -36,8 +36,8 @@
     const { authLoading, authError } = storeToRefs(storeAuth);
 
     const state = reactive({
-        email: 'test@test.ru',
-        password: '12345'
+        email: '',
+        password: ''
     })
     const rules = {
         email: {

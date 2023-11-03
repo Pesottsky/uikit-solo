@@ -1,6 +1,6 @@
 export const EMPLOYMENT_NAME = {
-    BUSY: 'Занят',
+    BUSY: 'Занят(а)',
     AVAILABLE: 'Есть время',
-    FREE: 'Свободен',
+    FREE: 'Свободен(на)',
     UNKNOWN: 'Неизвестно'
 }

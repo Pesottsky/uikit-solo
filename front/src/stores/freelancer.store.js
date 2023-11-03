@@ -1,11 +1,17 @@
 import { defineStore } from "pinia";
-import { onMounted, reactive, ref } from "vue";
+import { reactive, ref } from "vue";
+
+import { useRouter } from 'vue-router';
 
 import { useNoticeStore } from "./notice.store";
 import FreelancerService from "../api/FreelancerService";
 import NOTIFICATION_MESSAGES from "../constants/notificationMessages";
+import ROUTES_NAMES from '../constants/routesNames';
 
 export const useFreelancerStore = defineStore('freelancerStore', () => {
+
+    const router = useRouter();
+
     const storeNotice = useNoticeStore();
 
     const freelancerError = ref(null);
@@ -60,7 +66,6 @@ export const useFreelancerStore = defineStore('freelancerStore', () => {
             freelancerProfile.value = data;
         } catch(e) {
             freelancerError.value = e || 'Ошибка сервера';
-            storeNotice.setError(freelancerError.value);
         } finally {
             freelancerLoading.value = false;
         }

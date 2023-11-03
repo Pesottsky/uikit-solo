@@ -6,8 +6,8 @@
 	--black-opacity-50: #0000007e;
 	--black-opacity-30: #00000038;
 	--black-opacity-10: #00000029;
-	--gray-light-hover: #00000019;
-	--gray-light: #00000010;
+	--gray-light-hover: rgba(0, 0, 0, 0.03);
+	--gray-light: #00000019;
 	/* цвета для кнопок */
 	--primary-hover: #333333;
 	--primary-active: #333333;
@@ -41,8 +41,14 @@ body {
 /* Fonts styles */
 @font-face {
 	font-family: "Golos Text";
-	src: url('./fonts/GolosText-Medium.ttf');
+	src: url('./fonts/GolosText-Regular.ttf');
+	font-weight: 400;
 } 
+@font-face {
+	font-family: "Golos Text";
+	src: url('./fonts/GolosText-Medium.ttf');
+	font-weight: 500;
+}
 @font-face {
 	font-family: "Antonym";
 	src: url("./fonts/Antonym-Medium.woff2");
@@ -139,6 +145,11 @@ input[type="text"] {
 	font-size: inherit; /* 1 */
 	line-height: inherit; /* 1 */
 	margin: 0; /* 2 */
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .width_max {
