@@ -84,7 +84,7 @@ class UserService(database: Database) {
         checkLoginBusy(user)
 
         val exposedCompany = ExposedCompany.new {
-            name = user.name!!
+            name = "Ваша компания"
         }
         return ExposedUser.new {
             login = user.login

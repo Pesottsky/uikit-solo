@@ -15,7 +15,7 @@ fun Application.errorsHandling() {
                 is NotFoundException -> call.respondText(text = message, status = HttpStatusCode.NotFound)
                 is ExpiredException -> call.respondText(text = message, status = HttpStatusCode.Gone)
                 is UnauthorizedException -> call.respondText(text = message, status = HttpStatusCode.Unauthorized)
-                else -> call.respondText(text = "500", status = HttpStatusCode.InternalServerError)
+                else -> call.respondText(text = "Произошла ошибка.\nПовторите попытку позже", status = HttpStatusCode.InternalServerError)
             }
         }
     }

@@ -6,6 +6,7 @@ import com.heisy.errors.UnauthorizedException
 import com.heisy.plugins.UserTypes
 import com.heisy.plugins.dbQuery
 import com.heisy.schema.*
+import com.heisy.utils.InjectionUtils
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
 import org.mindrot.jbcrypt.BCrypt
@@ -18,7 +19,8 @@ class AuthUseCase(
     private val freelsService: FreelsService,
     private val linkService: LinksService,
     private val tokensService: TokensService,
-    private val profilesService: ProfilesService
+    private val profilesService: ProfilesService,
+    private val rowsService: FreelsRowsService,
 ) : IAuthUseCase {
     override suspend fun registerCompany(user: User): Token = dbQuery {
         val id = userService.create(user).id.value
@@ -36,7 +38,7 @@ class AuthUseCase(
             val diffInMillisec: Long = currentTime - exposedUser.registrationDate
 
             val diffInDays = TimeUnit.MILLISECONDS.toDays(diffInMillisec)
-            if (diffInDays > 60) {
+            if (diffInDays > InjectionUtils.provideApplication().environment.config.property("payment.expired_days").getString().toInt()) {
                 if (exposedUser.paymentUntil == null) throw ExpiredException("Оплатите подписку")
                 if (exposedUser.paymentUntil!! < currentTime) throw ExpiredException("Оплатите подписку")
             }
@@ -46,17 +48,23 @@ class AuthUseCase(
     }
 
     override suspend fun loginByLink(link: String, user: User): Token = dbQuery {
-        val exposedFreel =  freelsService.checkAuth(user) ?: throw BadRequestException(UserService.Errors.wrongPair)
+        val exposedFreel = freelsService.checkAuth(user) ?: throw BadRequestException(UserService.Errors.wrongPair)
         val exposedLink = linkService.findByUUID(link) ?: throw NotFoundException()
         if (exposedLink.isRegister == true) throw BadRequestException("Ссылку уже активировали")
-        val exposedRow =  exposedLink.rows.firstOrNull() ?: throw NotFoundException()
-        exposedRow.profile = exposedFreel.profile
-        exposedLink.isRegister = true
+        val exposedRow = exposedLink.rows.firstOrNull() ?: throw NotFoundException()
+
+        try {
+            rowsService.checkTableForDublicates(exposedRow.table, exposedFreel.profile)
+            exposedRow.profile = exposedFreel.profile
+            exposedLink.isRegister = true
+        } catch (e: Exception) {
+        }
         tokensService.generateTokenPair(exposedFreel.id.value, UserTypes.Freel.name)
     }
 
     override suspend fun registerFreel(freel: Freel): Token = dbQuery {
-        val exposedProfile = profilesService.create(Profile(firstName = freel.firstName, lastName = freel.lastName))
+        val exposedProfile =
+            profilesService.create(Profile(firstName = freel.firstName, lastName = freel.lastName, email = freel.login))
         val freelResult = freelsService.create(freel, exposedProfile)
         tokensService.generateTokenPair(freelResult.id.value, UserTypes.Freel.name)
     }
@@ -72,12 +80,12 @@ class AuthUseCase(
         // У приглашения есть какая-то запись, а в ней есть профиль
         val exposedProfile = exposedLink.rows.firstOrNull()?.profile ?: profilesService.create(
             Profile(
-                firstName = freel.firstName,
-                lastName = freel.lastName
+                firstName = freel.firstName
             )
         )
         exposedProfile.firstName = freel.firstName
         exposedProfile.lastName = freel.lastName
+        exposedProfile.email = freel.login
 
         val exposedFreel: ExposedFreel = freelsService.create(freel, exposedProfile)
         exposedLink.isRegister = true
@@ -103,8 +111,8 @@ class AuthUseCase(
         // Если логин для кода не верный
         if (exposedPassword.email != pwd.login) throw BadRequestException(UserService.Errors.wrongPair)
 
-        if (exposedPassword.expiresAt < System.currentTimeMillis() || exposedPassword.isRecovered) throw ExpiredException(
-            "code is expired"
+        if (exposedPassword.expiresAt < System.currentTimeMillis() || exposedPassword.isRecovered == true) throw ExpiredException(
+            "Код восстановления истёк. Попробуйте снова"
         )
 
         val checkLoginInFreels = ExposedFreel.find { FreelsService.Freels.login eq pwd.login }.singleOrNull()

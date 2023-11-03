@@ -65,8 +65,8 @@ class CommentService(database: Database) {
             ExposedComment.find { (Comments.user eq userId) and (Comments.profile eq comment.profileId) }.singleOrNull()
         if (exposedComment == null) {
             val exposedProfile =
-                ExposedProfile.findById(comment.profileId) ?: throw NotFoundException("Профиль не найден")
-            val exposeUser = ExposedUser.findById(userId) ?: throw NotFoundException("Профиль не найден")
+                ExposedProfile.findById(comment.profileId) ?: throw NotFoundException("333")
+            val exposeUser = ExposedUser.findById(userId) ?: throw NotFoundException("222")
             ExposedComment.new {
                 this.comment = comment.comment
                 this.profile = exposedProfile

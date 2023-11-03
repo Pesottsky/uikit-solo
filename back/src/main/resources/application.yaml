@@ -3,14 +3,15 @@ ktor:
     modules:
       - com.heisy.ApplicationKt.module
   deployment:
-#    domain: "$DOMAIN"
     port: "$PORT:81"
     host: "$HOST:0.0.0.0"
+    rootPath: "$ROOT_PATH:/api"
     db: "$DB_HOST:127.0.0.1"
     db_user: "$DB_USER:db_user"
     db_password: "$DB_PASSWORD:1234"
     db_port: "$DB_PORT:3306"
     db_table: "$DB_TABLE:main"
+    key: "$KEY:1"
 jwt:
   company_secret: "$COMPANY_SECRET:company_secret"
   freel_secret: "$FREEL_SECRET:freel_secret"
@@ -19,10 +20,10 @@ jwt:
   realm: "$REALM:soloteam"
   allow_host: "$ALLOW_HOST:*"
   refresh_lifetime: "$REFRESH:100000000"
-  access_lifetime: "$ACCESS:30000"
-#smtp:
-#  no_replay:
-#    login: "$SMTP_NOREPLAY_LOGIN"
+  access_lifetime: "$ACCESS:60000"
+smtp:
+  no_replay:
+    login: "$SMTP_NOREPLAY_LOGIN:noreplay@soloteam.io"
 #    password: "$SMTP_NOREPLAY_PASSWORD"
 #  info:
 #    login: "$SMTP_INFO_LOGIN"
@@ -38,3 +39,5 @@ path:
   #  recovery: "$RECOVERY_PATH"
 recovery:
   password: "$RECOVERY:604800000"
+payment:
+  expired_days: "$PAYMENT_EXPIRED_DAYS:61"

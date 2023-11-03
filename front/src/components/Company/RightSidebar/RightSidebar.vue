@@ -26,7 +26,7 @@
                     </template>
                 </div>
                 <Quote v-if="currentFreelancer?.link && isChangeData">
-                    <template v-if="currentFreelancer.link?.email">
+                    <template v-if="currentFreelancer.link?.email && currentFreelancer.link.is_email_sending">
                         <span class="text_gray">Отправили ссылку на приглашение</span> {{ currentFreelancer.link?.email }}
                     </template>
                     <template v-else>
@@ -100,7 +100,7 @@
                     <div class="sidebar-content__row">
                         <Textarea 
                             placeholder="Оставить комментарий" 
-                            :is-headless="true" 
+                            :is-headless="false" 
                             v-model="commentFreelancer"
                             :readonly="commentLoading || currentFreelancer?.fake"
                         />
@@ -204,6 +204,7 @@ import CHIP_TYPE_BY_NAME from '../../../constants/chipTypeByName';
     }
     function onClose() {
         storeCompany.setFreelancer(null);
+        storeCompany.setComment(null)
         storeCompany.deleteFakeFreelancer();
         isShowSidebar.value = false;
         setTimeout(() => {

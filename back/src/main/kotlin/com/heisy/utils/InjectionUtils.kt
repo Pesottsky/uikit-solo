@@ -110,7 +110,8 @@ object InjectionUtils {
             freelsService = provideFreelsService(),
             linkService = provideLinkService(),
             profilesService = provideProfileService(),
-            tokensService = provideTokensSerivce()
+            tokensService = provideTokensSerivce(),
+            rowsService = provideRowService()
         )
 
         return authUseCase!!

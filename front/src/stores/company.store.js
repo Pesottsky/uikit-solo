@@ -53,6 +53,10 @@ export const useCompanyStore = defineStore('companyStore', () => {
         currentFreelancer.value = freelancer;
     }
 
+    function setComment(comment) {
+        commentFreelancer.value = comment
+    }
+
     function createFakeFreelancer() {
         const freelancer = new FakeFreelancer({ id: 'f4', created: true });
 
@@ -344,6 +348,7 @@ export const useCompanyStore = defineStore('companyStore', () => {
         fakeFreelancers,
         companyInfo,
         commentFreelancer,
+        setComment,
         getBases,
         createBase,
         createRowInBase,

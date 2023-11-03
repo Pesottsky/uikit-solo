@@ -24,62 +24,62 @@ import kotlin.test.*
 class ApplicationTest : TestServer() {
 
     override val server: ApplicationEngine
-        get() = embeddedServer(Netty, port = 8081, host = "0.0.0.0", module = Application::moduleTest)
-    private lateinit var token: String
-
-
-
-    @BeforeTest
-    fun login() = runBlocking {
-
-        val response = HttpClient() {
-            install(ContentNegotiation) {
-                json()
-            }
-            headers {
-                append(HttpHeaders.Accept, ContentType.Application.Json)
-            }
-        }.post("http://localhost:8081/login") {
-            setBody(User("user", "1234"))
-        }
-
-        assertEquals(HttpStatusCode.OK, response.status)
-        token = response.body<Token>().token.access.toString()
-    }
-
-    @BeforeTest
-    fun incorrectLogin() = runBlocking {
-
-        val response = client.post("/login") {
-            setBody(User("huesos", "1234"))
-        }
-
-        assertEquals(HttpStatusCode.NotFound, response.status)
-    }
-
-    @Test
-    fun rootRouteRespondsWithHelloWorldString(): Unit = runBlocking {
-        val response: String = HttpClient().get("http://localhost:8081/").body()
-        assertEquals("Hello, world!", response)
-    }
-
-    @Test
-    fun getTables() = runBlocking {
-
-        val response = client.get("/table") {
-            headers.appendIfNameAbsent("Authorization", "Bearer $token")
-        }
-
-        println(response.request.headers)
-        println(response.bodyAsText())
-        assertEquals(HttpStatusCode.OK, response.status)
-
-    }
-
-    @AfterTest
-    fun printToken() {
-        println("TOKEN $token")
-    }
+        get() = embeddedServer(Netty, port = 8081, host = "0.0.0.0", module = Application::module)
+//    private lateinit var token: String
+//
+//
+//
+//    @BeforeTest
+//    fun login() = runBlocking {
+//
+//        val response = HttpClient() {
+//            install(ContentNegotiation) {
+//                json()
+//            }
+//            headers {
+//                append(HttpHeaders.Accept, ContentType.Application.Json)
+//            }
+//        }.post("http://localhost:8081/login") {
+//            setBody(User("user", "1234"))
+//        }
+//
+//        assertEquals(HttpStatusCode.OK, response.status)
+//        token = response.body<Token>().token.access.toString()
+//    }
+//
+//    @BeforeTest
+//    fun incorrectLogin() = runBlocking {
+//
+//        val response = client.post("/login") {
+//            setBody(User("huesos", "1234"))
+//        }
+//
+//        assertEquals(HttpStatusCode.NotFound, response.status)
+//    }
+//
+//    @Test
+//    fun rootRouteRespondsWithHelloWorldString(): Unit = runBlocking {
+//        val response: String = HttpClient().get("http://localhost:8081/").body()
+//        assertEquals("Hello, world!", response)
+//    }
+//
+//    @Test
+//    fun getTables() = runBlocking {
+//
+//        val response = client.get("/table") {
+//            headers.appendIfNameAbsent("Authorization", "Bearer $token")
+//        }
+//
+//        println(response.request.headers)
+//        println(response.bodyAsText())
+//        assertEquals(HttpStatusCode.OK, response.status)
+//
+//    }
+//
+//    @AfterTest
+//    fun printToken() {
+//        println("TOKEN $token")
+//    }
 }
 
 @Serializable

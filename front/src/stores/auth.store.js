@@ -61,13 +61,13 @@ export const useAuthStore = defineStore('authStore', () => {
         authError.value = null;
     }
 
-    async function registrationCompany({ login, name, password }) {
+    async function registrationCompany({ login, password }) {
 
         authLoading.value = true;
         authError.value = null;
 
         try {
-            const data = await AuthService.registrationCompany({ login, name, password });
+            const data = await AuthService.registrationCompany({ login, password });
             setAuth(data);
 
         } catch(e) {
@@ -124,7 +124,10 @@ export const useAuthStore = defineStore('authStore', () => {
             clearAuth();
         }
     }
-    async function forgetPassword({login}) { 
+    async function forgetPassword({login}) {
+        authLoading.value = true;
+        authError.value = null;
+
         try {
             await AuthService.forgetPassword(login);
         } catch(e) {
@@ -134,6 +137,9 @@ export const useAuthStore = defineStore('authStore', () => {
         }
     }
     async function updatePassword({login, new_password}) { 
+        authLoading.value = true;
+        authError.value = null;
+
         try {
             const code = route.query?.code;
             const data = await AuthService.updatePassword({login, new_password, code});

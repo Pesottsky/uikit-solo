@@ -98,8 +98,8 @@ class LinksService(database: Database) {
         return exposedLink
     }
 
-    fun onEmailSending(invite: Invite): ExposedLink {
-        val exposedLink = ExposedLink.findById(invite.linkId) ?: throw NotFoundException()
+    fun onEmailSending(linkId: Int): ExposedLink {
+        val exposedLink = ExposedLink.findById(linkId) ?: throw NotFoundException()
         exposedLink.apply {
             this.isEmailSending = true
         }

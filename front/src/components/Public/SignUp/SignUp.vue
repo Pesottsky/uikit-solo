@@ -8,19 +8,11 @@
         </template>
         <template #form-data>
             <div class="auth-form__item">
-                <Input
-                    v-if="isCompany"
-                    placeholder="Название"
-                    v-model="state.name"
-                    label="Компания" 
-                    :error="validate.name.$errors[0]?.$message"
-                    @on-focus="validate.name.$reset" 
-                />
-                <template v-else>
+                <template v-if="!isCompany">
                     <Input 
                         placeholder="Имя" 
                         v-model="state.name" 
-                        label="Как вас зовут" 
+                        label="Контактные данные" 
                         :error="validate.name.$errors[0]?.$message" 
                         @on-focus="validate.name.$reset"
                     />
@@ -32,7 +24,8 @@
                     />
                 </template>
                 <Input 
-                    placeholder="Почта"
+                    :label="isCompany ? 'Ваша почта' : undefined"
+                    :placeholder="isCompany ? 'name@email.ru' : 'Почта'"
                     v-model="state.email"
                     type="email"
                     :error="validate.email.$errors[0]?.$message"
@@ -60,6 +53,7 @@
         <template #form-action>
             <p class="error" v-if="authError">{{ authError }}</p>
             <Button label="Зарегистрироваться" class="width_max" :disabled="authLoading" :loading="authLoading" @on-click="onRegistration" />
+            <p class="font-caption-small color_black-opacity-50">Регистрируюясь, вы соглашаетесь с <a class="cursor_pointer" href="https://docs.google.com/document/d/1Lu1lPIUjNh_Sqdgnmy_TicP7LeQ6A5mRNLYY98uh2ko/edit#heading=h.rvcxzbnm66cc">условиями</a></p>
         </template>
         <template #links>
             <RouterLink :to="{ name: ROUTES_NAMES.LOGIN }">Есть аккаунт</RouterLink>
@@ -121,7 +115,6 @@
     const rules = computed(() => {
         if (isCompany.value) {
             return {
-                name: { required: helpers.withMessage(ERROR_MESSAGES.REQUIRED, required) },
                 email: { 
                     required: helpers.withMessage(ERROR_MESSAGES.REQUIRED, required), 
                     email: helpers.withMessage(ERROR_MESSAGES.EMAIL, email)
@@ -165,7 +158,6 @@
         if (isCompany.value) {
             await storeAuth.registrationCompany({
                 login: state.value.email,
-                name: state.value.name,
                 password: state.value.password
             });
         } else {
@@ -176,10 +168,6 @@
                 password: state.value.password
             })
         }
-    }
-
-    function onFocus() {
-        console.log('FOCUS');
     }
 
     watch(route, () => {

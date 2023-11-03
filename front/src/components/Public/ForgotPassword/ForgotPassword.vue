@@ -59,8 +59,8 @@
         if (!result) return;
         
         await storeAuth.forgetPassword({login: state.email});
-
-        if (!authError) {
+    
+        if (!authError.value) {
             forgotPasswordModalRef.value?.open();
         }
     }
