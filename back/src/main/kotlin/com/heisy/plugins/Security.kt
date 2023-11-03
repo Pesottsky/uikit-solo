@@ -43,18 +43,18 @@ fun Application.configureSecurity() {
         this.freelSecret = jwtFreelSecret
     }
 
-    install(CORS) {
-        allowMethod(HttpMethod.Options)
-        allowMethod(HttpMethod.Delete)
-        allowMethod(HttpMethod.Put)
-        allowHost(allowHost)
-        allowHeader(HttpHeaders.Authorization)
-        allowHeader(HttpHeaders.ContentType)
-        allowHeader(HttpHeaders.Accept)
-        allowHeader(HttpHeaders.Origin)
-        allowHeader(HttpHeaders.Referrer)
-        allowHeader(HttpHeaders.UserAgent)
-    }
+//    install(CORS) {
+//        allowMethod(HttpMethod.Options)
+//        allowMethod(HttpMethod.Delete)
+//        allowMethod(HttpMethod.Put)
+//        allowHost(allowHost)
+//        allowHeader(HttpHeaders.Authorization)
+//        allowHeader(HttpHeaders.ContentType)
+//        allowHeader(HttpHeaders.Accept)
+//        allowHeader(HttpHeaders.Origin)
+//        allowHeader(HttpHeaders.Referrer)
+//        allowHeader(HttpHeaders.UserAgent)
+//    }
 
     authentication {
         jwt(UserTypes.Company.name) {
