@@ -103,6 +103,7 @@
 <style lang="scss" scoped>
     .table-wrapper {
         width: 100%;
+        min-width: 975px;
         margin-top: 48px;
         display: flex;
         flex-direction: column;

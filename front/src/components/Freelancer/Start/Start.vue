@@ -7,11 +7,11 @@
         <div class="start-window__description">
             <div class="start-window__column">
                 <span>🌏 🏁<br />Регулярно отмечайте занятость, чтобы компании смогли планировать проекты с вами</span>
-                <span class="start-window__url" @click="createBase">Отметить занятость</span>
+                <span class="start-window__url" @click="openEmployment">Отметить занятость</span>
             </div>
             <div class="start-window__column">
                 <span>📝<br />Заполняйте и обновляйте профиль, так вам будут приходить более подходящие заказы</span>
-                <span class="start-window__url" @click="openImportModal">Заполнить профиль</span>
+                <span class="start-window__url" @click="openProfile">Заполнить профиль</span>
             </div>
         </div>
     </div>
@@ -32,6 +32,15 @@
     const router = useRouter();
 
     const successAppendModalRef = ref(null);
+
+    function openEmployment() {
+        router.replace({name: ROUTES_NAMES.FREELANCER_EMPLOYMENT, query: {} })
+
+    }
+
+    function openProfile() {
+        router.replace({name: ROUTES_NAMES.FREELANCER_PROFILE, query: {} })
+    }
 
     onMounted(() => {
         if (route.query?.link) {
