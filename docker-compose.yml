@@ -5,11 +5,11 @@ services:
        context: ./front
      container_name: front
      environment:
-       back: back
+       back: api
        access: access
        refresh: refresh
        type_name: type_name
-       password_length: 8 
+       password_length: 6
      ports:
        - "8080:80"
      networks:
@@ -21,28 +21,30 @@ services:
     environment:
       HOST: 0.0.0.0
       PORT: 81
+      ROOT_PATH: /api
       DB_HOST: db
-      DB_USER: db_user
-      DB_PASSWORD: 1234
+      DB_USER:
+      DB_PASSWORD:
       DB_PORT: 3306
-      COMPANY_SECRET: company_secret
-      FREEL_SECRET: freel_secret
-      COMPANY_AUDIENCE: tikhonov
-      FREEL_AUDIENCE: pesotskiy
-      DB_TABLE: main
-      REFRESH: 10000000
-      ACCESS: 30000
+      COMPANY_SECRET:
+      FREEL_SECRET:
+      COMPANY_AUDIENCE:
+      FREEL_AUDIENCE:
+      DB_TABLE:
+      REFRESH: 604800000
+      ACCESS: 60000
       RECOVERY: 604800000
-      REGISTRATION_PATH: http://localhost:3100/signup?link=
-      RECOVERY_PATH: http://localhost:3100/signup?link=
-      #      SMTP_SERVICE_LOGIN: service@soloteam.io
+      PAYMENT_EXPIRED_DAYS: 61
+      REGISTRATION_PATH: https://soloteam.io/app/signup?link=
+      RECOVERY_PATH: https://soloteam.io/app/reset-password?code=
+      #      SMTP_SERVICE_LOGIN
       #      SMTP_SERVICE_PASSWORD:
       SMTP_HELLO_LOGIN: hello@soloteam.io
-      #      SMTP_HELLO_PASSWORD:
-      #      SMTP_INFO_LOGIN: info@soloteam.io
+      SMTP_HELLO_PASSWORD:
+      #      SMTP_INFO_LOGIN
       #      SMTP_INFO_PASSWORD:
       SMTP_NOREPLAY_LOGIN: noreplay@soloteam.io
-#      SMTP_NOREPLAY_PASSWORD:
+      SMTP_NOREPLAY_PASSWORD:
     ports:
       - "81:81"
     depends_on:
@@ -58,10 +60,10 @@ services:
     container_name: db
     environment:
       LANG: C.UTF-8
-      MYSQL_ROOT_PASSWORD: 12345
-      MYSQL_DATABASE: main
-      MYSQL_USER: db_user
-      MYSQL_PASSWORD: 1234
+      MYSQL_ROOT_PASSWORD:
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
       MYSQL_INITDB_CHARSET: utf8mb4
     command: [ 'mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci' ]
     ports:
