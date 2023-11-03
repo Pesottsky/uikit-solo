@@ -4,8 +4,8 @@
             <div class="invite__email">
                 <template v-if="!successEmail">
                     <div class="invite__item">
-                        <h3 class="modal-window__title">Отправить приглашение на почту</h3>
-                        <p>Пришлем ссылку для создания профиля, и он появиться в вашей базе</p>
+                        <h2 class="modal-window__title">Пригласить по ссылке</h2>
+                        <p>Отправим фрилансеру на почту пригласительную ссылку, он зарегистрируется и заполнит профиль</p>
                     </div>
                     <div class="invite__item">
                         <Input 
@@ -21,9 +21,9 @@
                 <template v-else>
                     <div class="invite__item invite__item_small">
                         <SuccessIcon />
-                        <h3 class="modal-window__title">Готово! Отправили приглашение фрилансеру на почту)</h3>
-                        <p>Там будет краткий расссказ про сервис и инструкция как завести аккаунт.</p>
-                        <p>Скоро фрилансер появится в вашей базе.</p>
+                        <h3 class="modal-window__title">Готово! Отправили приглашение</h3>
+                        <p>Расскажем фрилансеру, что нужно сделать. Его профиль скоро появиться в вашей таблице.</p>
+                        
                     </div>
                 </template>
             </div>
