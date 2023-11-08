@@ -1,22 +1,22 @@
 <template>
     <div class="table-wrapper">
         <Table>
-            <TableRow :is-header="true" :count="10">
+            <TableRow :is-header="true" :count="11">
                 <TableColumn :span="2">Имя</TableColumn>
-                <TableColumn>Загрузка</TableColumn>
+                <TableColumn :span="2">Загрузка</TableColumn>
                 <TableColumn>Грейд</TableColumn>
                 <TableColumn>Ставка ₽/час</TableColumn>
                 <TableColumn :span="3">О себе</TableColumn>
                 <TableColumn :span="2">Портфолио</TableColumn>
             </TableRow>
-            <TableRow :count="10" v-for="item in [1, 2, 3]" :is-hover="false" v-if="companyLoading">
+            <TableRow :count="11" v-for="item in [1, 2, 3]" :is-hover="false" v-if="companyLoading">
                 <TableColumn :span="2">
                     <div class="flex flex_row">
                         <Skeleton :size="30" />
                         <Skeleton :size="70" />
                     </div>
                 </TableColumn>
-                <TableColumn>
+                <TableColumn :span="2">
                     <Skeleton :size="60" />
                 </TableColumn>
                 <TableColumn>
@@ -38,14 +38,14 @@
             <TableRow 
                 v-else
                 v-for="item in freelancers"
-                :count="10" 
+                :count="11" 
                 :key="item.profile.id" 
                 :is-fake="item?.fake || isNullFreelancer(item.profile)"
                 :selected="item.profile.id === currentFreelancer?.profile?.id"
                 @click="(e) => openSidebar(e, item)"
             >
                 <TableColumn :span="2">{{ getUserName(item.profile) }}</TableColumn>
-                <TableColumn>
+                <TableColumn :span="2">
                     <Chip 
                     :type="CHIP_TYPE_BY_NAME[item.profile.loading?.description] || CHIP_TYPES.UNKNOWN" 
                     :text="item.profile.loading?.description || 'Не ясно'"

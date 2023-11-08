@@ -54,7 +54,7 @@ class LoadingService(database: Database) {
                 }
                 ExposedLoading.new {
                     loadingKey = 2
-                    description = "Занят(a)"
+                    description = "Занят(а)"
                 }
             }
         }

@@ -27,8 +27,6 @@
 
     function closeWindow() {
         isShowModal.value = false;
-        router.replace({ name: ROUTES_NAMES.RESET_PASSWORD });
-
     }
     function openWindow() {
         isShowModal.value = true;

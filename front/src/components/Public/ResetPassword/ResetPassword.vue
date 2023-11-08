@@ -9,12 +9,14 @@
             <Input 
                 label="Новый пароль"
                 placeholder="Пароль"
+                type="password"
                 v-model="state.password"
                 :error="validate.password.$errors[0]?.$message"
                 @on-focus="validate.password.$reset"
             />
             <Input
                 placeholder="Подтверждение пароля"
+                type="password"
                 v-model="state.repeatPassword"
                 :error="validate.repeatPassword.$errors[0]?.$message"
                 @on-focus="validate.repeatPassword.$reset"
@@ -31,13 +33,13 @@
 </template>
 
 <script setup>
-    import { reactive } from 'vue';
+    import { reactive, onMounted } from 'vue';
     import { storeToRefs } from 'pinia';
     import AuthForm from '../AuthForm/AuthForm.vue';
     import { Input, Button } from '../../UI';
     import ROUTES_NAMES from '../../../constants/routesNames';
     import ERROR_MESSAGES from '../../../constants/errorMessages';
-
+    import { useRoute, useRouter } from 'vue-router';
     import { useVuelidate } from '@vuelidate/core';
     import { required, minLength, helpers, email } from '@vuelidate/validators';
 
@@ -45,6 +47,12 @@
 
     const storeAuth = useAuthStore();
     const { authLoading, authError } = storeToRefs(storeAuth);
+    const route = useRoute();
+    const router = useRouter();
+
+    onMounted(() => {
+        if (!route.query?.code) router.replace({ name: ROUTES_NAMES.NOT_FOUND });
+    })
 
     const state = reactive({
         email: '',
