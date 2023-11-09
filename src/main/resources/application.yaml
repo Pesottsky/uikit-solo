@@ -1,0 +1,43 @@
+ktor:
+  application:
+    modules:
+      - com.heisy.ApplicationKt.module
+  deployment:
+    port: "$PORT"
+    host: "$HOST"
+    rootPath: "$ROOT_PATH"
+    db: "$DB_HOST"
+    db_user: "$DB_USER"
+    db_password: "$DB_PASSWORD"
+    db_port: "$DB_PORT"
+    db_table: "$DB_TABLE"
+    key: "$KEY"
+jwt:
+  company_secret: "$COMPANY_SECRET"
+  freel_secret: "$FREEL_SECRET"
+  company_audience: "$COMPANY_AUDIENCE"
+  freel_audience: "$FREEL_AUDIENCE"
+  realm: "$REALM:soloteam"
+#  allow_host: "$ALLOW_HOST:*"
+  refresh_lifetime: "$REFRESH"
+  access_lifetime: "$ACCESS"
+smtp:
+  no_replay:
+    login: "$SMTP_NOREPLAY_LOGIN"
+    password: "$SMTP_NOREPLAY_PASSWORD"
+#  info:
+#    login: "$SMTP_INFO_LOGIN"
+#    password: "$SMTP_INFO_PASSWORD"
+  hello:
+    login: "$SMTP_HELLO_LOGIN"
+    password: "$SMTP_HELLO_PASSWORD"
+#  service:
+#    login: "$SMTP_SERVICE_LOGIN"
+#    password: "$SMTP_SERVICE_PASSWORD"
+path:
+  registration: "$REGISTRATION_PATH"
+  recovery: "$RECOVERY_PATH"
+recovery:
+  password: "$RECOVERY"
+payment:
+  expired_days: "$PAYMENT_EXPIRED_DAYS"

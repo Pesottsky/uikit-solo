@@ -1,0 +1,714 @@
+openapi: "3.0.3"
+info:
+  title: "Application API"
+  description: "Мог ошибиться в доке, мог в самом методе. Так что если какие-то ошибки, то говорите"
+  version: "1.0.0"
+servers:
+  - url: ""
+tags:
+  - name: Авторизация
+  - name: Менеджемент базы
+    description: Требует токены компании
+  - name: Кейсы фрилансера
+    description: Требует токены фрилансера
+  - name: Общие кейсы
+    description: Требуется любая авторизация
+  - name: Публичные страницы
+    description: Авторизация не требуется
+paths:
+  /login:
+    post:
+      tags:
+        - Авторизация
+      parameters:
+        - name: link
+          in: query
+          description: Идентификатор ссылки по которой пригласили фрилансера
+          required: false
+          schema:
+            type: string
+      summary: Авторизация
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        "400":
+          content:
+            application/json:
+              examples:
+                Дефолтный ответ:
+                  value: "Неправильный логин или пароль"
+        "410":
+          content:
+            application/json:
+              examples:
+                Дефолтный ответ:
+                  value: "Подписка истекла"
+  /registration:
+    post:
+      tags:
+        - Авторизация
+      summary: Регистрация компании
+      description: На регистрации имя не может быть null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        "400":
+          content:
+            application/json:
+              examples:
+                Дефолтный ответ:
+                  value: "Измените почту"
+  /registration/freel:
+    post:
+      tags:
+        - Авторизация
+      summary: Регистрация фрилансера
+      description: На регистрации имя не может быть null
+      parameters:
+        - name: link
+          in: query
+          description: Идентификатор ссылки по которой пригласили фрилансера
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Freel'
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        "400":
+          content:
+            application/json:
+              examples:
+                Дефолтный ответ:
+                  value: "Измените почту"
+  /refresh:
+    post:
+      tags:
+        - Авторизация
+      description: Достаточно поля refresh
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Token'
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        "401":
+          content:
+            application/json:
+              examples:
+                Дефолтный ответ:
+                  value: "token is invalid"
+  /table:
+    get:
+      tags:
+        - Менеджемент базы
+      summary: Все таблицы
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Table'
+    post:
+      tags:
+        - Менеджемент базы
+      summary: Создание таблицы
+      parameters:
+        - name: name
+          in: query
+          description: Имя таблицы
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Table'
+    delete:
+      tags:
+        - Менеджемент базы
+      summary: Удаление таблицы
+  /table/name/{table_id}:
+    post:
+      tags:
+        - Менеджемент базы
+      summary: Изменение имени таблицы
+      parameters:
+        - name: name
+          in: query
+          description: Имя таблицы
+          required: true
+          schema:
+            type: string
+        - name: table_id
+          in: path
+          description: Id таблицы
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Table'
+  /table/row:
+    post:
+      tags:
+        - Менеджемент базы
+      summary: Создание записи в базе
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TableRow'
+  /send/email:
+    post:
+      tags:
+        - Менеджемент базы
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Invite'
+      responses:
+        responses:
+          "200":
+            description: 200 если пользователь с такой почтой зарегистрирован. Надо обновить таблицу
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Link'
+  /table/row/profile:
+    post:
+      tags:
+        - Менеджемент базы
+      summary: Создать строку с Id уже существующего профиля
+      parameters:
+        - name: profile_id
+          in: query
+          description: ID профиля, который хотим добавить в базу
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TableRow'
+  /table/row/{row_id}:
+    put:
+      tags:
+        - Менеджемент базы
+      summary: Отредактировать существующий профиль
+      parameters:
+        - name: row_id
+          in: path
+          description: Id записи, которую хотим отредактировать
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TableRow'
+    delete:
+      tags:
+        - Менеджемент базы
+      parameters:
+        - name: row_id
+          in: path
+          description: Id записи, которую хотим отредактировать
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Table'
+  /company:
+    get:
+      tags:
+        - Менеджемент базы
+      summary: Компания пользователя
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+    put:
+      tags:
+        - Менеджемент базы
+      summary: Обновить информацию по компании
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Company'
+  /company/all:
+    get:
+      tags:
+        - Общие кейсы
+      summary: Все компании
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Company'
+  /company/{id}:
+    get:
+      tags:
+        - Общие кейсы
+      summary: Одна компания
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+  /profile:
+    get:
+      tags:
+        - Кейсы фрилансера
+      summary: Получение профиля
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+      "204":
+        description: No Content (если профиля нет)
+    put:
+      tags:
+        - Кейсы фрилансера
+      summary: Обновить профиль
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+  /loading:
+    get:
+      tags:
+        - Общие кейсы
+      summary: Получение списка рабочей нагрузки
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Loading'
+    post:
+      tags:
+        - Кейсы фрилансера
+      summary: Обновление рабочей загрузки
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Loading'
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+  /grade:
+    get:
+      tags:
+        - Общие кейсы
+      summary: Получение уровней фрилансера
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grade'
+  /profile/{id}:
+    get:
+      tags:
+        - Публичные страницы
+      summary: Получение профиля
+      parameters:
+        - name: id
+          in: path
+          description: ID профиля
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+  /link:
+    get:
+      tags:
+        - Менеджемент базы
+      summary: Получение ссылки
+      parameters:
+        - name: row_id
+          in: query
+          description: id записи
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Link'
+  /comment:
+    post:
+      tags:
+        - Менеджемент базы
+      summary: Комментарии компании к фрилансеру
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+    get:
+      tags:
+        - Менеджемент базы
+      parameters:
+        - name: profile_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+
+  /update_password:
+    post:
+      tags:
+        - Авторизация
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePassword'
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        "410":
+          content:
+            application/json:
+              examples:
+                Дефолтный ответ:
+                  value: "Код восстановления истек"
+  /forget_password:
+    post:
+      tags:
+        - Авторизация
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgetPassword'
+      responses:
+        "202":
+          description: Accepted
+  /logout:
+    delete:
+      tags:
+        - Общие кейсы
+      responses:
+        "202":
+          description: Accepted
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        login:
+          type: string
+          description: Он же почта
+        name:
+          type: string
+          nullable: true
+          description: название компании
+        password:
+          type: string
+    Token:
+      type: object
+      properties:
+        access:
+          type: string
+          nullable: true
+        refresh:
+          type: string
+        user_type:
+          type: string
+          nullable: true
+          description: Тип пользователя
+          enum:
+            - user
+            - freel
+    Table:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+        rows:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/TableRow'
+    TableRow:
+      type: object
+      properties:
+        id:
+          type: integer
+        table_id:
+          type: integer
+          description: Id таблицы, которой принадлежит запись
+        profile:
+          $ref: '#/components/schemas/Profile'
+        link:
+          nullable: true
+          $ref: '#/components/schemas/Link'
+        can_change:
+          type: boolean
+          description: Редактируется ли запись
+    Link:
+      type: object
+      properties:
+        id:
+          type: integer
+        is_register:
+          type: boolean
+          description: Зарегистрировались ли по ссылке
+          nullable: true
+        email:
+          type: string
+          description: Email на который отправили приглашение
+          nullable: true
+        link:
+          type: string
+          description: Сама ссылка (UUID в строковом представлении)
+        is_email_sending:
+          type: boolean
+          nullable: true
+    Profile:
+      type: object
+      properties:
+        id:
+          nullable: true
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+          nullable: true
+        price:
+          type: integer
+          nullable: true
+        portfolio:
+          type: string
+          nullable: true
+        experience:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        summary:
+          type: string
+          nullable: true
+        skills:
+          type: string
+          nullable: true
+        telegram:
+          type: string
+          nullable: true
+        grade:
+          nullable: true
+          $ref: '#/components/schemas/Grade'
+        loading:
+          nullable: true
+          $ref: '#/components/schemas/Loading'
+    Company:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        link:
+          type: string
+          nullable: true
+        about:
+          type: string
+          nullable: true
+    UpdatePassword:
+      type: object
+      properties:
+        login:
+          type: string
+        new_password:
+          type: string
+        code:
+          type: string
+    ForgetPassword:
+      type: object
+      properties:
+        login:
+          type: string
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          nullable: true
+        comment:
+          type: string
+        profile_id:
+          type: integer
+    Freel:
+      type: object
+      properties:
+        login:
+          type: string
+          description: Он же почта
+        first_name:
+          type: string
+        last_name:
+          type: string
+          nullable: true
+        password:
+          type: string
+    Invite:
+      type: object
+      properties:
+        link_id:
+          type: integer
+        email:
+          type: string
+        row_id:
+          type: integer
+    Grade:
+      type: object
+      properties:
+        level_key:
+          type: integer
+        description:
+          type: string
+    Loading:
+      type: object
+      properties:
+        loading_key:
+          type: integer
+        description:
+          type: string
